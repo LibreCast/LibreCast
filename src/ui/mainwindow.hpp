@@ -7,4 +7,5 @@ public:
 private:
     wxMenuBar *menubar;
     wxMenu *file_menu;
+    wxMenu *edit_menu;
 };
