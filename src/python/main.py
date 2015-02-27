@@ -63,11 +63,14 @@ resultats = curseur.fetchall()
 
 # On affiche le fichier situé à chaque URL
 for resultat in resultats:
+    # Télécharher le fichier situé à l'adresse indiquée
     resultat_de_la_requete = urllib2.urlopen(resultat[1])
+    # Lire ce fichier
     flux = resultat_de_la_requete.read()
+    # Parser le fichier
     flux_parser = xml.dom.minidom.parseString(flux)
+    # Transformer le fichier parser en texte, et l'afficher
     print getText(flux_parser.getElementsByTagName("title")[0].childNodes)
-
 
 # On enregistre les modifications
 base.commit()
