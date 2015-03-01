@@ -1,9 +1,10 @@
 #-*- coding: utf-8 -*-
 
-# Importer la librairie sqlite3
+# Importer les librairies sqlite3, urllib2, minidom et regex
 import sqlite3
 import urllib2
 import xml.dom.minidom
+import re
 
 def getText(nodeList):
     rc = []
@@ -25,6 +26,10 @@ curseur.execute('CREATE TABLE IF NOT EXISTS feeds (id INTEGER PRIMARY KEY AUTOIN
 adresse = raw_input("Une adresse siouplé monsieur : ")
 
 if (adresse != ""):
+    # Si l'adresse ne commence pas par "http://", "https://" ou "ftp://", on ajoute "http://"
+    if (not re.match('(?:http|ftp|https)://', adresse)):
+        adresse = 'http://' + adresse
+    
     # On compte le nombre d'élément qui ont pour url la variable adresse
     curseur.execute('SELECT COUNT(*) FROM feeds WHERE url = :adresse',{"adresse":adresse})
     resultat = curseur.fetchone()[0]
