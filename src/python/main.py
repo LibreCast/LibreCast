@@ -18,8 +18,8 @@ base = sqlite3.connect('librecast.db')
 # On crée un curseur (qui va agir sur la base)
 curseur = base.cursor()
 
-# On crée la table "feeds"
-#curseur.execute('CREATE TABLE feeds (id INTEGER PRIMARY KEY AUTOINCREMENT, url text)')
+# On crée la table "feeds" uniquement si elle n'existe pas
+curseur.execute('CREATE TABLE IF NOT EXISTS feeds (id INTEGER PRIMARY KEY AUTOINCREMENT, url text)')
 
 # On demande une adresse de flux
 adresse = raw_input("Une adresse siouplé monsieur : ")
