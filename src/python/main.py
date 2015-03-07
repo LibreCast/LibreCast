@@ -1,7 +1,8 @@
 #-*- coding: utf-8 -*-
 
-# Importer les librairies sqlite3, urllib2, minidom et regex
+# Importer les librairies sqlite3, urllib2 (et httplib), minidom et regex
 import sqlite3
+import httplib
 import urllib2
 import xml.dom.minidom
 import re
@@ -68,14 +69,34 @@ resultats = curseur.fetchall()
 
 # On affiche le fichier situé à chaque URL
 for resultat in resultats:
-    # Télécharher le fichier situé à l'adresse indiquée
-    resultat_de_la_requete = urllib2.urlopen(resultat[1])
-    # Lire ce fichier
-    flux = resultat_de_la_requete.read()
-    # Parser le fichier
-    flux_parser = xml.dom.minidom.parseString(flux)
-    # Transformer le fichier parser en texte, et l'afficher
-    print getText(flux_parser.getElementsByTagName("title")[0].childNodes)
+    # Initialiser la variable
+    resultat_de_la_requete = ''
+
+    # Un bloc try/catch pour capturer les exceptions lors de la requête, s'il y en a
+    try:
+        # Télécharger le fichier situé à l'adresse indiquée
+        resultat_de_la_requete = urllib2.urlopen(resultat[1])
+
+    # Si le téléchargement donne une erreur http (ex : 404)
+    except urllib2.HTTPError, e:
+        print 'HTTPError: ' + str(e.code)
+
+    # Si le téléchargement donne une erreur d'URL (ex : URL non conforme ou serveur indisponible)
+    except urllib2.URLError, e:
+        print 'URLError: ' + str(e.reason)
+
+    # Si le téléchargement donne une autre erreur (ex : protocole inconnu)
+    except httplib.HTTPException, e:
+        print 'HTTPException: ' + str(e)
+
+    # Si le téléchargement n'a pas donné d'erreur
+    if resultat_de_la_requete != '':
+        # Lire ce fichier
+        flux = resultat_de_la_requete.read()
+        # Parser le fichier
+        flux_parser = xml.dom.minidom.parseString(flux)
+        # Transformer le fichier parser en texte, et l'afficher
+        print getText(flux_parser.getElementsByTagName("title")[0].childNodes)
 
 # On enregistre les modifications
 base.commit()
