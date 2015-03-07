@@ -7,12 +7,30 @@ import urllib2
 import xml.dom.minidom
 import re
 
+
 def getText(nodeList):
     rc = []
     for node in nodeList:
         if node.nodeType == node.TEXT_NODE:
             rc.append(node.data)
     return ''.join(rc)
+
+
+def setWorkingDirectory():
+    # On récupère l'adresse du dossier du fichier actuel (...LibreCast/python/)
+    try:
+        approot = os.path.dirname(os.path.abspath(__file__))
+    except NameError:
+        approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+    # Depuis cette adresse, on récupère le dossier dans lequel notre dossier est situé (.../LibreCast)
+    approot = os.path.dirname(approot)
+
+    # On cd à cette adresse pour créer le .db au bon endroit
+    os.chdir(approot)
+
+# Modifier le dossier dans lequel la base de donnée sera utilisée
+setWorkingDirectory()
 
 # Connexion à la base de donnée
 base = sqlite3.connect('librecast.db')
@@ -30,17 +48,17 @@ if (adresse != ""):
     # Si l'adresse ne commence pas par "http://", "https://" ou "ftp://", on ajoute "http://"
     if (not re.match('(?:http|ftp|https)://', adresse)):
         adresse = 'http://' + adresse
-    
+
     # On compte le nombre d'élément qui ont pour url la variable adresse
-    curseur.execute('SELECT COUNT(*) FROM feeds WHERE url = :adresse',{"adresse":adresse})
+    curseur.execute('SELECT COUNT(*) FROM feeds WHERE url = :adresse', {"adresse": adresse})
     resultat = curseur.fetchone()[0]
 
     if (resultat > 0):
         print 'Cette adresse existe déjà'
     else:
         print 'Cette adresse est nouvelle, je vais l\'ajouter !'
-        curseur.execute('INSERT INTO feeds (url) VALUES (:adresse)',{"adresse":adresse})
-    
+        curseur.execute('INSERT INTO feeds (url) VALUES (:adresse)', {"adresse": adresse})
+
 # On sépare !
 print '-----------------------------'
 
