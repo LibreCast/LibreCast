@@ -1,11 +1,13 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-# Importer les librairies sqlite3, urllib2 (et httplib), minidom et regex
+# Importer les librairies sqlite3, urllib2 (et httplib), minidom, regex, system et os
 import sqlite3
 import httplib
 import urllib2
 import xml.dom.minidom
 import re
+import os
+import sys
 
 
 def getText(nodeList):
@@ -74,7 +76,7 @@ for resultat in resultats:
 
 if (raw_input("Voulez-vous supprimer une URL (oui/NON) ? ") == "oui"):
     adresse = raw_input("Quelle adresse : ")
-    curseur.execute('DELETE FROM feeds WHERE url = :adresse',{'adresse':adresse})
+    curseur.execute('DELETE FROM feeds WHERE url = :adresse', {'adresse': adresse})
 
 # On sépare !
 print '-----------------------------'
