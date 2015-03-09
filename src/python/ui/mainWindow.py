@@ -2,19 +2,46 @@
 
 import wx
 
-items = ['item1',
-         ['item2', ['item2.1', 'item2.2'], ],
-         ['item3', [['item3.1', ['item3.1.1', 'item3.1.2']]]], ]
+"""
+TODO : Découper le contenu en plusieurs fichiers, avec notamment un pour la recherche et un pour l'arbre
+       Ajouter de réelles fonctionnalitées aux boutons
+       Afficher du contenu récupéré d'autre part dans l'arbre
+       Ajouter les bouttons + et - pour l'arbre
+       ...
+"""
 
 
-class Example(wx.Frame):
+class mainUI(wx.Frame):
 
     def __init__(self, *args, **kwargs):
-        super(Example, self).__init__(*args, **kwargs)
+        super(mainUI, self).__init__(*args, **kwargs)
 
         self.InitUI()
 
     def InitUI(self):
+        # On créé "l'arbre" avec les playlistes, les abonnements etc.
+        self.CreateTree()
+
+        # Créer la barre de menu
+        self.CreateToolbar()
+
+        # Récupérer la taille de l'écran
+        displaySize = wx.DisplaySize()
+        # Modifier la taille de la fenêtre pour qu'elle fasse 4/5 de l'écran
+        self.SetSize((4*displaySize[0]/5, 4*displaySize[1]/5))
+        # Modifier la taille minimale de la fenêtre, pour éviter que tout devienne trop moche par manque de place...
+        self.SetMinSize((500, 500))
+        # Modifier le titre de la fenêtre
+        self.SetTitle('LibreCast')
+        # Centrer la fenêtre
+        self.Centre()
+        # Afficher la fenêtre
+        self.Show(True)
+
+    """
+    Code taken from the wxpython samples
+    """
+    def CreateTree(self):
         import __main__
         split = wx.SplitterWindow(self, -1)
         tree = pyTree(split, -1, __main__)
@@ -23,7 +50,8 @@ class Example(wx.Frame):
         tree.SetOutput(text.SetValue)
         tree.SelectItem(tree.root)
 
-        # Créer la barre avec refresh et search
+    def CreateToolbar(self):
+        # Créer la barre de menus avec refresh et search
         toolbar = self.CreateToolBar()
 
         # Créer une variable qui contient l'image refresh.png dans le dossier resources
@@ -49,14 +77,11 @@ class Example(wx.Frame):
         # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
         self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, self.searchbarctrl)
 
+        # Afficher tous les éléments ajoutés ci-dessus
         toolbar.Realize()
-        toolbar.SetToolBitmapSize((16, 16))
 
-        displaySize = wx.DisplaySize()
-        self.SetSize((4*displaySize[0]/5, 4*displaySize[1]/5))
-        self.SetTitle('LibreCast')
-        self.Centre()
-        self.Show(True)
+        # Modifier la taille des icones de la barre de menus
+        toolbar.SetToolBitmapSize((16, 16))
 
     def OnRefresh(self, event):
         print('Refreshing feeds...')
@@ -171,11 +196,16 @@ class pyTree(wx.TreeCtrl):
 
 
 def main():
-
     ex = wx.App()
-    Example(None)
+    mainUI(None)
     ex.MainLoop()
 
 
+"""
+Condition pour vérifier que le fichier est directement executé
+(par exemple depuis une ligne de commande)
+et n'est pas importé depuis un autre fichier, ce qui ferait de lui un module :
+on ne voudrait alors pas créer de nouvelle fenêtre etc.
+"""
 if __name__ == '__main__':
     main()
