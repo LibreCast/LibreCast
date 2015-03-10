@@ -8,6 +8,7 @@ import xml.dom.minidom
 import re
 import os
 import sys
+from uiManager import mainWindow
 
 
 def getText(nodeList):
@@ -31,95 +32,108 @@ def setWorkingDirectory():
     # On cd à cette adresse pour créer le .db au bon endroit
     os.chdir(approot)
 
-# Modifier le dossier dans lequel la base de donnée sera utilisée
-setWorkingDirectory()
 
-# Connexion à la base de donnée
-base = sqlite3.connect('librecast.db')
+def main():
+    # Modifier le dossier dans lequel la base de donnée sera utilisée
+    setWorkingDirectory()
 
-# On crée un curseur (qui va agir sur la base)
-curseur = base.cursor()
+    # Connexion à la base de donnée
+    base = sqlite3.connect('librecast.db')
 
-# On crée la table "feeds" uniquement si elle n'existe pas
-curseur.execute('CREATE TABLE IF NOT EXISTS feeds (id INTEGER PRIMARY KEY AUTOINCREMENT, url text)')
+    # On crée un curseur (qui va agir sur la base)
+    curseur = base.cursor()
 
-# On demande une adresse de flux
-adresse = raw_input("Une adresse siouplé monsieur : ")
+    # On crée la table "feeds" uniquement si elle n'existe pas
+    curseur.execute('CREATE TABLE IF NOT EXISTS feeds (id INTEGER PRIMARY KEY AUTOINCREMENT, url text)')
 
-if (adresse != ""):
-    # Si l'adresse ne commence pas par "http://", "https://" ou "ftp://", on ajoute "http://"
-    if (not re.match('(?:http|ftp|https)://', adresse)):
-        adresse = 'http://' + adresse
+    # On demande une adresse de flux
+    adresse = raw_input("Une adresse siouplé monsieur : ")
 
-    # On compte le nombre d'élément qui ont pour url la variable adresse
-    curseur.execute('SELECT COUNT(*) FROM feeds WHERE url = :adresse', {"adresse": adresse})
-    resultat = curseur.fetchone()[0]
+    if (adresse != ""):
+        # Si l'adresse ne commence pas par "http://", "https://" ou "ftp://", on ajoute "http://"
+        if (not re.match('(?:http|ftp|https)://', adresse)):
+            adresse = 'http://' + adresse
 
-    if (resultat > 0):
-        print 'Cette adresse existe déjà'
-    else:
-        print 'Cette adresse est nouvelle, je vais l\'ajouter !'
-        curseur.execute('INSERT INTO feeds (url) VALUES (:adresse)', {"adresse": adresse})
+        # On compte le nombre d'élément qui ont pour url la variable adresse
+        curseur.execute('SELECT COUNT(*) FROM feeds WHERE url = :adresse', {"adresse": adresse})
+        resultat = curseur.fetchone()[0]
 
-# On sépare !
-print '-----------------------------'
+        if (resultat > 0):
+            print 'Cette adresse existe déjà'
+        else:
+            print 'Cette adresse est nouvelle, je vais l\'ajouter !'
+            curseur.execute('INSERT INTO feeds (url) VALUES (:adresse)', {"adresse": adresse})
 
-# On demande tous les feeds
-curseur.execute('SELECT * FROM feeds')
+    # On sépare !
+    print '-----------------------------'
 
-# On récupère tous les résultats
-resultats = curseur.fetchall()
+    # On demande tous les feeds
+    curseur.execute('SELECT * FROM feeds')
 
-# On les affiche
-for resultat in resultats:
-    print resultat[1]
+    # On récupère tous les résultats
+    resultats = curseur.fetchall()
 
-if (raw_input("Voulez-vous supprimer une URL (oui/NON) ? ") == "oui"):
-    adresse = raw_input("Quelle adresse : ")
-    curseur.execute('DELETE FROM feeds WHERE url = :adresse', {'adresse': adresse})
+    # On les affiche
+    for resultat in resultats:
+        print resultat[1]
 
-# On sépare !
-print '-----------------------------'
+    if (raw_input("Voulez-vous supprimer une URL (oui/NON) ? ") == "oui"):
+        adresse = raw_input("Quelle adresse : ")
+        curseur.execute('DELETE FROM feeds WHERE url = :adresse', {'adresse': adresse})
 
-# On demande tous les feeds
-curseur.execute('SELECT * FROM feeds')
+    # On sépare !
+    print '-----------------------------'
 
-# On récupère tous les résultats
-resultats = curseur.fetchall()
+    # On demande tous les feeds
+    curseur.execute('SELECT * FROM feeds')
 
-# On affiche le fichier situé à chaque URL
-for resultat in resultats:
-    # Initialiser la variable
-    resultat_de_la_requete = ''
+    # On récupère tous les résultats
+    resultats = curseur.fetchall()
 
-    # Un bloc try/catch pour capturer les exceptions lors de la requête, s'il y en a
-    try:
-        # Télécharger le fichier situé à l'adresse indiquée
-        resultat_de_la_requete = urllib2.urlopen(resultat[1])
+    # On affiche le fichier situé à chaque URL
+    for resultat in resultats:
+        # Initialiser la variable
+        resultat_de_la_requete = ''
 
-    # Si le téléchargement donne une erreur http (ex : 404)
-    except urllib2.HTTPError, e:
-        print 'HTTPError: ' + str(e.code)
+        # Un bloc try/catch pour capturer les exceptions lors de la requête, s'il y en a
+        try:
+            # Télécharger le fichier situé à l'adresse indiquée
+            resultat_de_la_requete = urllib2.urlopen(resultat[1])
 
-    # Si le téléchargement donne une erreur d'URL (ex : URL non conforme ou serveur indisponible)
-    except urllib2.URLError, e:
-        print 'URLError: ' + str(e.reason)
+        # Si le téléchargement donne une erreur http (ex : 404)
+        except urllib2.HTTPError, e:
+            print 'HTTPError: ' + str(e.code)
 
-    # Si le téléchargement donne une autre erreur (ex : protocole inconnu)
-    except httplib.HTTPException, e:
-        print 'HTTPException: ' + str(e)
+        # Si le téléchargement donne une erreur d'URL (ex : URL non conforme ou serveur indisponible)
+        except urllib2.URLError, e:
+            print 'URLError: ' + str(e.reason)
 
-    # Si le téléchargement n'a pas donné d'erreur
-    if resultat_de_la_requete != '':
-        # Lire ce fichier
-        flux = resultat_de_la_requete.read()
-        # Parser le fichier
-        flux_parser = xml.dom.minidom.parseString(flux)
-        # Transformer le fichier parser en texte, et l'afficher
-        print getText(flux_parser.getElementsByTagName("title")[0].childNodes)
+        # Si le téléchargement donne une autre erreur (ex : protocole inconnu)
+        except httplib.HTTPException, e:
+            print 'HTTPException: ' + str(e)
 
-# On enregistre les modifications
-base.commit()
+        # Si le téléchargement n'a pas donné d'erreur
+        if resultat_de_la_requete != '':
+            # Lire ce fichier
+            flux = resultat_de_la_requete.read()
+            # Parser le fichier
+            flux_parser = xml.dom.minidom.parseString(flux)
+            # Transformer le fichier parser en texte, et l'afficher
+            print getText(flux_parser.getElementsByTagName("title")[0].childNodes)
 
-# On ferme la base
-base.close()
+    # On enregistre les modifications
+    base.commit()
+
+    # On ferme la base
+    base.close()
+
+    # Appeler la classe créant l'interface. Note : Lorsqu'on entre dans la boucle principale de l'interface, on ne peut plus intéragir avec la console
+    mainWindow.main()
+
+"""
+Condition pour vérifier que le fichier est directement executé
+(par exemple depuis une ligne de commande)
+et n'est pas importé depuis un autre fichier, ce qui ferait de lui un module
+"""
+if __name__ == '__main__':
+    main()
