@@ -21,8 +21,8 @@ class mainUI(wx.Frame):
     def InitUI(self):
         menubar = wx.MenuBar()
         fileMenu = wx.Menu()
-        fitem = fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
         menubar.Append(fileMenu, '&File')
+        fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
         self.SetMenuBar(menubar)
 
         # On créé "l'arbre" avec les playlistes, les abonnements etc.
