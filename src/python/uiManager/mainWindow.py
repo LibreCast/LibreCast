@@ -30,19 +30,25 @@ class mainUI(wx.Frame):
     def __init__(self, *args, **kwargs):
         super(mainUI, self).__init__(*args, **kwargs)
 
+        # Créer toute l'interface
         self.InitUI()
 
     def InitUI(self):
+        # Créer la barre de menus
         menubar = wx.MenuBar()
+        # Créer un menu appelé 'File'
         fileMenu = wx.Menu()
+        # Ajouter dans ce menu une option pour quitter. Sur Mac OSX, elle n'y sera pas car l'option est déjà présente par défaut dans un autre menu
         fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
+        # Ajouter le menu 'File' à la barre de menus
         menubar.Append(fileMenu, '&File')
+        # Afficher la barre de menus dans l'application
         self.SetMenuBar(menubar)
 
         # On créé "l'arbre" avec les playlistes, les abonnements etc.
         self.CreateTree()
 
-        # Créer la barre de menu
+        # Créer la barre d'outils via la fonction locale (noter le 'b' minuscule dans 'bar')
         self.CreateToolbar()
 
         # Récupérer la taille de l'écran
@@ -62,15 +68,22 @@ class mainUI(wx.Frame):
     Code taken from the wxpython samples
     """
     def CreateTree(self):
+        # Créer un 'spliter' qui permet de couper l'écran en deux parties
         split = wx.SplitterWindow(self, -1)
+        # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
         tree = treeManager.pyTree(split, -1, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
+        # Créer la zone de texte
         text = wx.TextCtrl(split, -1, "", style=wx.TE_MULTILINE)
+        # Couper l'écran en deux avec à gauche l'arbre et à droite le texte
         split.SplitVertically(tree, text, 200)
+
+        # Donner à l'arbre une référence à la fonction modifiant le contenu de la zone de texte, afin qu'il puisse l'appeler
         tree.SetOutput(text.SetValue)
+        # Sélectionner par défaut dans l'arbre le premier choix
         tree.SelectItem(tree.root)
 
     def CreateToolbar(self):
-        # Créer la barre de menus avec refresh et search
+        # Créer la barre d'outils avec refresh et search (noter le 'B' majuscule dans 'Bar')
         toolbar = self.CreateToolBar()
 
         # Créer une variable qui contient l'image refresh.png dans le dossier resources
@@ -99,7 +112,7 @@ class mainUI(wx.Frame):
         # Afficher tous les éléments ajoutés ci-dessus
         toolbar.Realize()
 
-        # Modifier la taille des icones de la barre de menus
+        # Modifier la taille des icones de la barre d'outils
         toolbar.SetToolBitmapSize((32, 32))
 
     def OnRefresh(self, event):
