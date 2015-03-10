@@ -19,6 +19,12 @@ class mainUI(wx.Frame):
         self.InitUI()
 
     def InitUI(self):
+        menubar = wx.MenuBar()
+        fileMenu = wx.Menu()
+        fitem = fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
+        menubar.Append(fileMenu, '&File')
+        self.SetMenuBar(menubar)
+
         # On créé "l'arbre" avec les playlistes, les abonnements etc.
         self.CreateTree()
 
@@ -197,6 +203,7 @@ class pyTree(wx.TreeCtrl):
 
 def main():
     ex = wx.App()
+    ex.SetAppName("LibreCast")
     mainUI(None)
     ex.MainLoop()
 
