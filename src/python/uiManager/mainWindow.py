@@ -62,9 +62,8 @@ class mainUI(wx.Frame):
     Code taken from the wxpython samples
     """
     def CreateTree(self):
-        import __main__
         split = wx.SplitterWindow(self, -1)
-        tree = treeManager.pyTree(split, -1, __main__)
+        tree = treeManager.pyTree(split, -1, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
         text = wx.TextCtrl(split, -1, "", style=wx.TE_MULTILINE)
         split.SplitVertically(tree, text, 200)
         tree.SetOutput(text.SetValue)
