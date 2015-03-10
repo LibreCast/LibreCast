@@ -30,11 +30,16 @@ class pyTree(wx.TreeCtrl):
         """
         wx.TreeCtrl.__init__(self, parent, id)
 
+        # Si au moins un stule a été précisé dans la création de l'abre...
         if style:
+            # ...on l'applique
             self.SetWindowStyle(style)
 
+        # On créer la racine de l'arbre, c'est ce qui contiendra toutes nos playlistes etc. On choisit de ne pas l'afficher, mais uniquement son contenu (cf. styles)
         self.root = self.AddRoot('Data')
 
+        # On décompose les données délivrées avec l'arbre, et on les affiche dans ce dernier
+        # Note : À étudier en même temps que la variable 'data', puisque c'est de là qu'on extrait les données
         for group in data.keys():
             newGroup = self.AppendItem(self.root, group)
             if isinstance(data[group], dict):
@@ -47,23 +52,23 @@ class pyTree(wx.TreeCtrl):
                 for item in data[group]:
                     self.AppendItem(newGroup, item)
 
+        # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction OnSelChanged
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=self.GetId())
 
+        # Par défaut, on ne sait pas s'il y a une zone de texte modifiable
         self.output = None
 
     def SetOutput(self, output):
         """
-        Set output function (accepts single string). Used to display string
-        representation of the selected object by OnSelChanged.
+        Permet d'ajouter la fonction permettant de modifier la
+        zone de texte située à droite de l'abre.
         """
         self.output = output
 
     def OnSelChanged(self, event):
-        """
-        If an output function is defined, we try to print some
-        informative, interesting and thought-provoking stuff to it.
-        """
+        # Si on n'a pas ajouté la zone de texte avec SetOutput, on ne peut pas modifier le texte
         if not self.output:
             return
 
+        # Sinon, on affiche le texte
         apply(self.output, ('Not done yet',))
