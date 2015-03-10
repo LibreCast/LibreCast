@@ -8,7 +8,7 @@ import treeManager
 """
 TODO : Découper le contenu en plusieurs fichiers, avec notamment un pour la recherche et un pour l'arbre (~ Done)
        Ajouter de réelles fonctionnalitées aux boutons
-       Afficher du contenu récupéré d'autre part dans l'arbre
+       Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
        Ajouter les bouttons + et - pour l'arbre
        ...
 """
