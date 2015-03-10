@@ -64,9 +64,6 @@ class mainUI(wx.Frame):
         # Afficher la fenêtre
         self.Show(True)
 
-    """
-    Code taken from the wxpython samples
-    """
     def CreateTree(self):
         # Créer un 'spliter' qui permet de couper l'écran en deux parties
         split = wx.SplitterWindow(self, -1)
@@ -79,8 +76,6 @@ class mainUI(wx.Frame):
 
         # Donner à l'arbre une référence à la fonction modifiant le contenu de la zone de texte, afin qu'il puisse l'appeler
         tree.SetOutput(text.SetValue)
-        # Sélectionner par défaut dans l'arbre le premier choix
-        tree.SelectItem(tree.root)
 
     def CreateToolbar(self):
         # Créer la barre d'outils avec refresh et search (noter le 'B' majuscule dans 'Bar')
