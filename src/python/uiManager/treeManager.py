@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import wx
 
@@ -19,7 +19,7 @@ data = {
         'Programming Languages': [],
         'Toolkits': ['Paint']
     },
-    'List': ['Hello', 'I\'m a list', 'How about you?', 'Who are you?']
+    'List': ['Hello,', 'I\'m a list.', 'Who are you?']
 }
 
 
@@ -30,7 +30,7 @@ class pyTree(wx.TreeCtrl):
         """
         wx.TreeCtrl.__init__(self, parent, id)
 
-        # Si au moins un stule a été précisé dans la création de l'abre...
+        # Si au moins un style a été précisé dans la création de l'abre...
         if style:
             # ...on l'applique
             self.SetWindowStyle(style)
@@ -41,16 +41,16 @@ class pyTree(wx.TreeCtrl):
         # On décompose les données délivrées avec l'arbre, et on les affiche dans ce dernier
         # Note : À étudier en même temps que la variable 'data', puisque c'est de là qu'on extrait les données
         for group in data.keys():
-            newGroup = self.AppendItem(self.root, group)
+            newGroup = self.AppendItem(self.root, group.decode('utf-8'))
             if isinstance(data[group], dict):
                 for subGroup in data[group]:
-                    newSubGroup = self.AppendItem(newGroup, subGroup)
+                    newSubGroup = self.AppendItem(newGroup, subGroup.decode('utf-8'))
                     if isinstance(data[group][subGroup], list):
                         for item in data[group][subGroup]:
-                            self.AppendItem(newSubGroup, item)
+                            self.AppendItem(newSubGroup, item.decode('utf-8'))
             elif isinstance(data[group], list):
                 for item in data[group]:
-                    self.AppendItem(newGroup, item)
+                    self.AppendItem(newGroup, item.decode('utf-8'))
 
         # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction OnSelChanged
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=self.GetId())

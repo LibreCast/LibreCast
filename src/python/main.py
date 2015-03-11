@@ -1,6 +1,7 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Importer les librairies sqlite3, urllib2 (et httplib), minidom, regex, system et os
+# Importer les librairies sqlite3, regex, sys et os
 import sqlite3
 import re
 import os
@@ -93,12 +94,12 @@ def main():
     # On affiche le fichier situé à chaque URL
     for resultat in resultats:
         # Initialiser la variable
-        resultat_de_la_requete = httpRequestManager.openUrl(resultat[1])
+        resultat_de_la_requete = httpRequestManager.OpenUrl(resultat[1])
 
         # Si le téléchargement n'a pas donné d'erreur
         if resultat_de_la_requete != '':
             # Lire ce fichier
-            titre = xmlManager.parseXml(resultat_de_la_requete.read())
+            titre = xmlManager.ParseXml(resultat_de_la_requete.read())
 
             if titre != '':
                 print titre

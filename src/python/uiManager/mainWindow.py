@@ -1,9 +1,10 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import wx
 import os
 import sys
-import treeManager
+from uiManager import treeManager
+from uiManager import listManager
 
 """
 TODO : Découper le contenu en plusieurs fichiers, avec notamment un pour la recherche et un pour l'arbre (~ Done)
@@ -65,17 +66,15 @@ class mainUI(wx.Frame):
         self.Show(True)
 
     def CreateTree(self):
-        # Créer un 'spliter' qui permet de couper l'écran en deux parties
-        split = wx.SplitterWindow(self, -1)
+        # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
+        # Note : SP_NOSASH enpêche de redimensionner l'arbre
+        split = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE | wx.SP_BORDER)
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        tree = treeManager.pyTree(split, -1, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
-        # Créer la zone de texte
-        text = wx.TextCtrl(split, -1, "", style=wx.TE_MULTILINE)
-        # Couper l'écran en deux avec à gauche l'arbre et à droite le texte
-        split.SplitVertically(tree, text, 200)
-
-        # Donner à l'arbre une référence à la fonction modifiant le contenu de la zone de texte, afin qu'il puisse l'appeler
-        tree.SetOutput(text.SetValue)
+        mainTree = treeManager.pyTree(split, -1, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
+        # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
+        videoList = listManager.pyList(split, -1, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+        # Couper l'écran en deux avec à gauche l'arbre et à droite la liste de vidéos
+        split.SplitVertically(mainTree, videoList, 200)
 
     def CreateToolbar(self):
         # Créer la barre d'outils avec refresh et search (noter le 'B' majuscule dans 'Bar')
