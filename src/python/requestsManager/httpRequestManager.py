@@ -4,7 +4,7 @@ import urllib2
 import httplib
 
 
-def openUrl(url):
+def OpenUrl(url):
     # Initialiser la variable
     output = ''
 

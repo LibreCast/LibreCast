@@ -4,7 +4,7 @@ import xml.dom.minidom
 from xml.parsers.expat import ExpatError
 
 
-def getText(nodeList):
+def GetText(nodeList):
     rc = []
     for node in nodeList:
         if node.nodeType == node.TEXT_NODE:
@@ -12,7 +12,7 @@ def getText(nodeList):
     return ''.join(rc)
 
 
-def parseXml(file):
+def ParseXml(file):
     # Initialiser la variable
     output = ''
 
@@ -21,7 +21,7 @@ def parseXml(file):
         # Parser le fichier
         flux_parser = xml.dom.minidom.parseString(file)
         # Transformer le fichier parser en texte
-        output = getText(flux_parser.getElementsByTagName("title")[0].childNodes)
+        output = GetText(flux_parser.getElementsByTagName("title")[0].childNodes)
 
     # Si le fichier xml est mal formé
     except ExpatError, e:
