@@ -2,25 +2,28 @@
 
 import wx
 
-"""
-Exemple de données possibles que l'on peut réccupérer du xml.
-Il vaudrait mieux implémenter une fonction réccursive afin de
-pourvoir avoir autant de sous-groupes que l'on veut, mais
-les specs n'en prévoient qu'un nombre donné.
-"""
-data = {
-    'Programmer': {
-        'Operating Systems': ['Linux', 'FreeBSD', 'OpenBSD', 'NetBSD', 'Solaris'],
-        'Programming Languages': ['Java', 'C++', 'C', 'Pascal', 'Python', 'Ruby', 'Tcl', 'PHP'],
-        'Toolkits': ['Qt', 'MFC', 'wxPython', 'GTK+', 'Swing'],
-    },
-    'Other': {
-        'Operating Systems': ['Windows'],
-        'Programming Languages': [],
-        'Toolkits': ['Paint']
-    },
-    'List': ['Hello,', 'I\'m a list.', 'Who are you?']
-}
+
+# Classe permettant la création d'un arbre avec autant d'enfants que l'on veut, qui conserve sont ordre et qui peut avoir plusieurs enfants avec les même noms
+class treeData(object):
+    def __init__(self, value, children=[]):
+        self.value = value
+        self.children = children
+
+    def getString(self):
+        ret = repr(self.value)
+        return ret
+
+
+# Données servants d'example
+data = treeData('Root', [
+    treeData('Playlist', [
+        treeData('Vidéo'),
+        treeData('Vidéo'),
+        treeData('Encore une vidéo')]),
+    treeData('Abonnements', [
+        treeData("¡Chaîne!"),
+        treeData('"Chaîne"')])
+])
 
 
 class pyTree(wx.TreeCtrl):
@@ -40,17 +43,7 @@ class pyTree(wx.TreeCtrl):
 
         # On décompose les données délivrées avec l'arbre, et on les affiche dans ce dernier
         # Note : À étudier en même temps que la variable 'data', puisque c'est de là qu'on extrait les données
-        for group in data.keys():
-            newGroup = self.AppendItem(self.root, group.decode('utf-8'))
-            if isinstance(data[group], dict):
-                for subGroup in data[group]:
-                    newSubGroup = self.AppendItem(newGroup, subGroup.decode('utf-8'))
-                    if isinstance(data[group][subGroup], list):
-                        for item in data[group][subGroup]:
-                            self.AppendItem(newSubGroup, item.decode('utf-8'))
-            elif isinstance(data[group], list):
-                for item in data[group]:
-                    self.AppendItem(newGroup, item.decode('utf-8'))
+        self.addData(data, group=self.root)
 
         # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction OnSelChanged
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=self.GetId())
@@ -58,10 +51,20 @@ class pyTree(wx.TreeCtrl):
         # Par défaut, on ne sait pas s'il y a une zone de texte modifiable
         self.output = None
 
+    def addData(self, data, level=0, group=False):
+        if not group:
+            group = self.AppendItem(self.root, group.decode('utf-8'))
+        for child in data.children:
+            if len(child.children) > 0:
+                newSubGroup = self.AppendItem(group, child.value.decode('utf-8'))
+                self.addData(child, level+1, newSubGroup)
+            else:
+                self.AppendItem(group, child.value.decode('utf-8'))
+
     def SetOutput(self, output):
         """
         Permet d'ajouter la fonction permettant de modifier la
-        zone de texte située à droite de l'abre.
+        liste située à droite de l'abre.
         """
         self.output = output
 
@@ -71,4 +74,4 @@ class pyTree(wx.TreeCtrl):
             return
 
         # Sinon, on affiche le texte
-        apply(self.output, ('Not done yet',))
+        apply(self.output, ('Not done yet'))

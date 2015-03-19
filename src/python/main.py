@@ -12,14 +12,6 @@ from requestsManager import httpRequestManager
 from requestsManager import xmlManager
 
 
-def getText(nodeList):
-    rc = []
-    for node in nodeList:
-        if node.nodeType == node.TEXT_NODE:
-            rc.append(node.data)
-    return ''.join(rc)
-
-
 def setWorkingDirectory():
     # On récupère l'adresse du dossier du fichier actuel (...LibreCast/python/)
     try:
@@ -32,6 +24,33 @@ def setWorkingDirectory():
 
     # On cd à cette adresse pour créer le .db au bon endroit
     os.chdir(approot)
+
+
+def callHttpManager(urlList):
+    # On affiche le fichier situé à chaque URL
+    for resultat in urlList:
+
+        # Initialiser la variable
+        resultat_de_la_requete, tryNewPath = httpRequestManager.OpenUrl(resultat[1])
+
+        # Si le téléchargement n'a pas donné d'erreur
+        if resultat_de_la_requete != '':
+            # Lire ce fichier
+            titre = xmlManager.ParseXml(resultat_de_la_requete.read())
+
+            # Si le "parsage" du xml n'a pas donné d'erreur
+            if titre != '':
+                print titre
+            # Si le "parsage" du xml a donné une erreur
+            else:
+                pass
+
+        # Si le téléchargement a donné une erreur
+        elif tryNewPath:
+            # Si l'url ne se termine pas par .xml
+            if not resultat[1].endswith('.xml') and not resultat[1].endswith('.rss'):
+                urlList.append(['0', str(resultat[1] + '/flux.xml')])
+                urlList.append(['0', str(resultat[1] + '/feed.rss')])
 
 
 def main():
@@ -50,9 +69,9 @@ def main():
     # On demande une adresse de flux
     adresse = raw_input("Une adresse siouplé monsieur : ")
 
-    if (adresse != ""):
+    if (adresse != ''):
         # Si l'adresse ne commence pas par "http://", "https://" ou "ftp://", on ajoute "http://"
-        if (not re.match('(?:http|ftp|https)://', adresse)):
+        if (not re.match('(?:http|https|ftp|file):', adresse)):
             adresse = 'http://' + adresse
 
         # On compte le nombre d'élément qui ont pour url la variable adresse
@@ -80,6 +99,10 @@ def main():
 
     if (raw_input("Voulez-vous supprimer une URL (oui/NON) ? ") == "oui"):
         adresse = raw_input("Quelle adresse : ")
+        # Si l'adresse ne commence pas par "http://", "https://" ou "ftp://", on ajoute "http://"
+        if (not re.match('(?:http|https|ftp|file):', adresse)):
+            adresse = 'http://' + adresse
+
         curseur.execute('DELETE FROM feeds WHERE url = :adresse', {'adresse': adresse})
 
     # On sépare !
@@ -91,22 +114,8 @@ def main():
     # On récupère tous les résultats
     resultats = curseur.fetchall()
 
-    # On affiche le fichier situé à chaque URL
-    for resultat in resultats:
-        # Initialiser la variable
-        resultat_de_la_requete = httpRequestManager.OpenUrl(resultat[1])
-
-        # Si le téléchargement n'a pas donné d'erreur
-        if resultat_de_la_requete != '':
-            # Lire ce fichier
-            titre = xmlManager.ParseXml(resultat_de_la_requete.read())
-
-            if titre != '':
-                print titre
-
-        # Si le téléchargement a donné une erreur
-        else:
-            pass
+    # Afficher le fichier situé à chaque URL
+    callHttpManager(resultats)
 
     # On enregistre les modifications
     base.commit()
