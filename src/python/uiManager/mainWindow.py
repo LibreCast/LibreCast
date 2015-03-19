@@ -73,7 +73,7 @@ class mainUI(wx.Frame):
         # Créer un panel qui contient l'arbre et les bouttons ajouter/effacer
         panel = wx.Panel(split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
         # Modifier la couleur d'arrière plan du panel en gris clair
-        panel.SetBackgroundColour('#E6E6E6')
+        panel.SetBackgroundColour('#F0F0F0')
 
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
         mainTree = treeManager.pyTree(panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
