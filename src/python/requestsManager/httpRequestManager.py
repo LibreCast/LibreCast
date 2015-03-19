@@ -3,10 +3,14 @@
 import urllib2
 import httplib
 
+# Liste de codes d'erreur qui pourraient suggérer qu'ajouter "/feed.xml" ou "/feed.rss" donne une URL valide
+handledCodes = ['404', '410', '415', '418', '500']
+
 
 def OpenUrl(url):
     # Initialiser la variable
     output = ''
+    tryNewPath = False
 
     # Un bloc try/catch pour capturer les exceptions lors de la requête, s'il y en a
     try:
@@ -19,6 +23,9 @@ def OpenUrl(url):
         print 'Error for url: ' + url
         print 'HTTPError: ' + str(e.code)
         print '***  ERROR END  ***\n'
+
+        if str(e.code) in handledCodes:
+            tryNewPath = True
 
     # Si le téléchargement donne une erreur d'URL (ex : URL non conforme ou serveur indisponible)
     except urllib2.URLError, e:
@@ -34,4 +41,4 @@ def OpenUrl(url):
         print 'HTTPException: ' + str(e)
         print '***  ERROR END  ***\n'
 
-    return output
+    return output, tryNewPath
