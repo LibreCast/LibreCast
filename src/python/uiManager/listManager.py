@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import wx
+from uiManager import videoManager
 
 """
 Exemple de données possibles que l'on peut réccupérer du xml.
@@ -12,6 +13,9 @@ data = [['TiBounise & co',  'TiBounise Official', '11 mars 2015', '1:50'],
         ['L\'année de la catastrophe', 'TF1', '13 février 2001', '1:34:28'],
         ['Merci d\'utiliser LibreCast !', 'LibreCast', '1er janvier 1970', '3:05'],
         ]
+
+URL2 = 'http://download.wavetlan.com/SVV/Media/HTTP/MP4/ConvertedFiles/Media-Convert/Unsupported/dw11222.mp4'
+URL = 'http://videos-jp.jwpsrv.com/zWLy8Jer/videos/01QO7fTM-1753142.mp4?77c801d752d5207784c49e7ed80fb953798fae0fcca03ecf79558795ab7cb40ec3ce531b57a1995ab029a739fd890be5f9200aeec0341074b260400bf3fa74ee24b2b1e40742af65f997d1cfed8e8d1c2010b8ec75'
 
 
 class pyList(wx.ListCtrl):
@@ -64,3 +68,4 @@ class pyList(wx.ListCtrl):
 
     def PlayVideo(self, event):
         print 'Lancer la vidéos à l\'index ' + str(event.GetIndex())
+        videoManager.videoWindow(self, wx.ID_ANY, URL)
