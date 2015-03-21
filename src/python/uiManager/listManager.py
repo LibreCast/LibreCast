@@ -14,8 +14,7 @@ data = [['TiBounise & co',  'TiBounise Official', '11 mars 2015', '1:50'],
         ['Merci d\'utiliser LibreCast !', 'LibreCast', '1er janvier 1970', '3:05'],
         ]
 
-URL2 = 'http://download.wavetlan.com/SVV/Media/HTTP/MP4/ConvertedFiles/Media-Convert/Unsupported/dw11222.mp4'
-URL = 'http://videos-jp.jwpsrv.com/zWLy8Jer/videos/01QO7fTM-1753142.mp4?77c801d752d5207784c49e7ed80fb953798fae0fcca03ecf79558795ab7cb40ec3ce531b57a1995ab029a739fd890be5f9200aeec0341074b260400bf3fa74ee24b2b1e40742af65f997d1cfed8e8d1c2010b8ec75'
+URL = 'http://download.wavetlan.com/SVV/Media/HTTP/MP4/ConvertedFiles/Media-Convert/Unsupported/dw11222.mp4'
 
 
 class pyList(wx.ListCtrl):
