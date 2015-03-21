@@ -199,6 +199,9 @@ class videoWindow(wx.Frame):
             self.playButton.Refresh()
         # Si la vidéo es lancée
         elif st == MEDIASTATE_PLAYING:
+            # Mettre le taille du slider à jour lorsque la vidéo est lancée
+            # Note : La modifier après avoir testé l'URL ne semble pas fonctionner sous windows (car trop lent ?), on l'ajoute donc ici
+            self.timeSlider.SetRange(0, self.mc.Length())
             # Changer les images du bouton play
             self.playButton.SetBitmapLabel(wx.BitmapFromImage(self.pauseImage))
             self.playButton.SetBitmapSelected(wx.BitmapFromImage(self.selectedPauseImage))
