@@ -3,30 +3,59 @@
 import wx
 
 
-# Classe permettant la création d'un arbre avec autant d'enfants que l'on veut, qui conserve sont ordre et qui peut avoir plusieurs enfants avec les même noms
-class treeData(object):
-    def __init__(self, value, children=[]):
-        self.value = value
-        self.children = children
+class Tree(object):
 
-    def getString(self):
-        ret = repr(self.value)
-        return ret
+    def __init__(self):
+        self.name = None
+        self.children = []
+        self.parent = None
 
+    def nex(self, child):
+        "Gets a child by number"
+        return self.children[child]
 
-# Données servants d'example
-data = treeData('Root', [
-    treeData('Playlist', [
-        treeData('Vidéo'),
-        treeData('Vidéo'),
-        treeData('Encore une vidéo')]),
-    treeData('Abonnements', [
-        treeData("¡Chaîne!"),
-        treeData('"Chaîne"')])
-])
+    def parent(self):
+        return self.parent
+
+    def goto(self, data):
+        "Gets the children by name"
+        for child in range(0, len(self.children)):
+            if(self.children[child].name == data):
+                return self.children[child]
+
+    def add(self):
+        node1 = Tree()
+        self.children.append(node1)
+        node1.parent = self
+        return node1
+
+"""
+On créé l'arbre à partir des listes de chaînes et des playlists données.
+"""
+
+tree = Tree()
+tree.name = "root"
+
+playlists = tree.add()
+playlists.name = 'Playlists'
+
+channels = tree.add()
+channels.name = 'Abonnements'
+
+playlistContent = ['Vidéo', 'Vidéo', 'Encore une vidéo']
+channelsContent = ['"Vidéo"', '¿Vidéo?', '¡Vidéo!']
+
+for i in playlistContent:
+    playlist = playlists.add()
+    playlist.name = i
+
+for i in channelsContent:
+    channel = channels.add()
+    channel.name = i
 
 
 class pyTree(wx.TreeCtrl):
+
     def __init__(self, parent, id, style=''):
         """
         Initialize function
@@ -38,28 +67,30 @@ class pyTree(wx.TreeCtrl):
             # ...on l'applique
             self.SetWindowStyle(style)
 
-        # On créer la racine de l'arbre, c'est ce qui contiendra toutes nos playlistes etc. On choisit de ne pas l'afficher, mais uniquement son contenu (cf. styles)
+        # On créer la racine de l'arbre, c'est ce qui contiendra toutes nos
+        # playlistes etc. On choisit de ne pas l'afficher, mais uniquement son
+        # contenu (cf. styles)
         self.root = self.AddRoot('Data')
 
         # On décompose les données délivrées avec l'arbre, et on les affiche dans ce dernier
-        # Note : À étudier en même temps que la variable 'data', puisque c'est de là qu'on extrait les données
-        self.addData(data, group=self.root)
+        # Note : À étudier en même temps que la variable 'data', puisque c'est
+        # de là qu'on extrait les données
+        self.addData(tree, self.root)
 
-        # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction OnSelChanged
+        # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction
+        # OnSelChanged
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=self.GetId())
 
         # Par défaut, on ne sait pas s'il y a une zone de texte modifiable
         self.output = None
 
-    def addData(self, data, level=0, group=False):
-        if not group:
-            group = self.AppendItem(self.root, group.decode('utf-8'))
-        for child in data.children:
+    def addData(self, tree, group, level=0):
+        for child in tree.children:
             if len(child.children) > 0:
-                newSubGroup = self.AppendItem(group, child.value.decode('utf-8'))
-                self.addData(child, level+1, newSubGroup)
+                newSubGroup = self.AppendItem(group, child.name.decode('utf-8'))
+                self.addData(child, newSubGroup, level + 1)
             else:
-                self.AppendItem(group, child.value.decode('utf-8'))
+                self.AppendItem(group, child.name.decode('utf-8'))
 
     def SetOutput(self, output):
         """
@@ -69,7 +100,8 @@ class pyTree(wx.TreeCtrl):
         self.output = output
 
     def OnSelChanged(self, event):
-        # Si on n'a pas ajouté la zone de texte avec SetOutput, on ne peut pas modifier le texte
+        # Si on n'a pas ajouté la zone de texte avec SetOutput, on ne peut pas
+        # modifier le texte
         if not self.output:
             return
 
