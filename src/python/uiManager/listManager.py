@@ -13,9 +13,18 @@ data = [['TiBounise & co',  'TiBounise Official', '11 mars 2015', '1:50'],
         ['L\'année de la catastrophe', 'TF1', '13 février 2001', '1:34:28'],
         ['Merci d\'utiliser LibreCast !', 'LibreCast', '1er janvier 1970', '3:05'],
         ]
-
-URL = 'http://download.wavetlan.com/SVV/Media/HTTP/MP4/ConvertedFiles/Media-Convert/Unsupported/dw11222.mp4'
-
+# Durée : 0:04:03
+# URL = 'http://download.wavetlan.com/SVV/Media/HTTP/MP4/ConvertedFiles/Media-Convert/Unsupported/dw11222.mp4'
+# Durée : 0:02:48
+# URL = 'http://www.boisestatefootball.com/sites/default/files/videos/original/01%20-%20coach%20pete%20bio_4.mp4'
+# Durée : 0:01:25
+# URL = 'https://km.support.apple.com/library/APPLE/APPLECARE_ALLGEOS/HT1211/sample_iTunes.mov'
+# Durée : 0:00:52
+# URL = 'http://media.w3.org/2010/05/sintel/trailer.mp4'
+# Durée : 27:25
+# URL = 'http://samples.mplayerhq.hu/mov/quicktime.mov'
+# Durée : 0:09:56
+URL = 'http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_h264.mov'
 
 class pyList(wx.ListCtrl):
     def __init__(self, parent, id, style=''):
