@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Permet de récupérer des float depuis une division avec 'a/b
+# Permet de récupérer des float depuis une division
 from __future__ import division
 import wx
 import wx.media
 import os
 import sys
+from threading import Thread
 
 MEDIASTATE_PLAYING = 2
 
@@ -110,8 +111,10 @@ class videoWindow(wx.Frame):
             # Appeller self.soundSlider lorsque la valeur du slider est modifiée
             self.Bind(wx.EVT_SLIDER, self.OnVolume, self.soundSlider)
 
+            # Créer la gauge de téléchargement de la vidéo
+            self.downloadGauge = wx.Gauge(self, wx.ID_ANY, 100, size=(390, -1))
             # Créer le slider de l'avancement de la vidéo
-            self.timeSlider = wx.Slider(self, wx.ID_ANY)
+            self.timeSlider = wx.Slider(self.downloadGauge, wx.ID_ANY, pos=(-2, 1.5), size=(390, -1))
             # Appeller self.OnTimeSlider lorsque la valeur du slider est modifiée
             self.Bind(wx.EVT_SLIDER, self.OnTimeSlider, self.timeSlider)
 
@@ -145,7 +148,7 @@ class videoWindow(wx.Frame):
             # Ajouter un écart de 5 horizontalement entre les élément
             horizontalButtonSizer.Add((5, -1), 0)
             # Ajouter le slider qui affiche le temps écoulé, et qui se resize automatiquement
-            horizontalButtonSizer.Add(self.timeSlider, 1, wx.ALL, 0)
+            horizontalButtonSizer.Add(self.downloadGauge, 1, wx.ALL, 0)
             # Ajouter un écart de 5 horizontalement entre les élément
             horizontalButtonSizer.Add((5, -1), 0)
             # Ajouter le 3ème bouton
@@ -163,8 +166,11 @@ class videoWindow(wx.Frame):
         self.Bind(wx.EVT_SIZE, self.OnSize)
         # Appeler la méthode OnMediaLoaded lorsque la vidéo a fini de charger
         self.Bind(wx.media.EVT_MEDIA_LOADED, self.OnMediaLoaded, self.mc)
+
+        # Créer un thread pour tester si l'url est valide
+        thread = Thread(target=self.TestUrl, args=[url])
         # Lancer le test de connection après 100 ms
-        wx.CallLater(100, self.TestUrl, url)
+        wx.CallLater(100, thread.run)
 
         # Modifier la couleur d'arrière plan de la fenêtre en gris foncé
         self.SetBackgroundColour('#2D2D2D')
@@ -174,9 +180,6 @@ class videoWindow(wx.Frame):
         self.SetSize((9 * displaySize[0] / 10, 9 * displaySize[1] / 10))
         # Garder cette taille en mémoire
         self.InitialSize = self.GetSize()
-        # Modifier la taille minimale de la fenêtre, pour éviter que tout
-        # devienne trop moche par manque de place...
-        self.SetMinSize((250, 250))
         # Modifier le titre de la fenêtre
         self.SetTitle(url)
         # Centrer la fenêtre
@@ -202,23 +205,30 @@ class videoWindow(wx.Frame):
             # Mettre le taille du slider à jour lorsque la vidéo est lancée
             # Note : La modifier après avoir testé l'URL ne semble pas fonctionner sous windows (car trop lent ?), on l'ajoute donc ici
             self.timeSlider.SetRange(0, self.mc.Length())
+            # Modifier la taille maximale de la gauge afin qu'elle vaille la quantité de données à télécharger
+            self.downloadGauge.SetRange(self.mc.GetDownloadTotal())
             # Changer les images du bouton play
             self.playButton.SetBitmapLabel(wx.BitmapFromImage(self.pauseImage))
             self.playButton.SetBitmapSelected(wx.BitmapFromImage(self.selectedPauseImage))
             # Mettre le bouton play à jour
             self.playButton.Refresh()
 
+    # Appelée lorsque la taille de la fenêtre change
     def OnSize(self, event):
-        # Appelée lorsque la taille de la fenêtre change
         # Calculer le ratio de la fenêtre
         ratio = self.InitialSize[1]/self.InitialSize[0]
         # Calculer la hauteur correspondant à ce ration
         hsize = event.GetSize()[0]*ratio
+        # Si la taille est compatible avec l'écran
         # Appliquer ce ratio à la hauteur de la fenêtre
         self.SetSizeHints(minW=-1, minH=hsize, maxH=hsize)
+        # Modifier la taille du slider afichant le temps écoulé
+        self.timeSlider.SetSize((self.downloadGauge.GetSize()[0] + 7, self.downloadGauge.GetSize()[1]))
         # Calculer la taille des éléments de la fenêtre avec les fonctions par défaut
         event.Skip()
 
+    # Note : Cette fonction peut, dans certains cas, suspendre l'application (en mode 'ne répond plus' durant un certains temps)
+    #        On la lance donc dans une thread différente afin de ne pas suspendre l'interface
     def TestUrl(self, url):
         # On récuppère la vidéo à l'URL donnée
         r = self.mc.LoadURI(url)
@@ -226,8 +236,14 @@ class videoWindow(wx.Frame):
         if not r:
             print 'Failed to load video'
         else:
-            # Modifier la taille maximale du slider afin qu'elle vaille le temps de la vidéo (en ms)
-            self.timeSlider.SetRange(0, self.mc.Length())
+            print 'Loading video'
+            try:
+                # Modifier la taille maximale du slider afin qu'elle vaille le temps de la vidéo (en ms)
+                self.timeSlider.SetRange(0, self.mc.Length())
+                # Modifier la taille maximale de la gauge afin qu'elle vaille la quantité de données à télécharger
+                self.downloadGauge.SetRange(self.mc.GetDownloadTotal())
+            except:
+                pass
 
     def OnMediaLoaded(self, event):
         # Modifier la taille de la fenêtre
@@ -240,7 +256,7 @@ class videoWindow(wx.Frame):
         # Récupérer la valeur du slider pour le son
         offset = self.soundSlider.GetValue()
         # Modifier le volume en fonction de cette valeur
-        self.mc.SetVolume(round(offset/10))
+        self.mc.SetVolume(round(offset/10.0))
 
     def OnTimeSlider(self, event):
         # Récupérer la valeur du slider
@@ -253,6 +269,8 @@ class videoWindow(wx.Frame):
         offset = self.mc.Tell()
         # Modifier la valeur du slider pour l'avancement afin qu'il présente cette valeur
         self.timeSlider.SetValue(offset)
+        # Mettre à jour l'avancement du téléchargement
+        self.downloadGauge.SetValue(self.mc.GetDownloadProgress())
         # Si le temps écoulé est défini (donc la vidéo est chargée)
         if offset != -1 and self.mc.Length() != -1:
             # Si l'état stocké est différent de l'état actuel
@@ -261,13 +279,13 @@ class videoWindow(wx.Frame):
                 # Appeler la fonction qui repère que l'état de la vidéo a changé
                 self.OnStateChange()
             # Convertir les milisecondes du temps écoulé en heures, minutes et secondes
-            m, s = divmod((offset / 1000), 60)
+            m, s = divmod((offset / 1000.0), 60)
             h, m = divmod(m, 60)
             # Afficher ces valeurs dans la zone de texte
             self.currentTime.SetLabel('%d:%02d:%02d' % (h, m, s))
 
             # Convertir les milisecondes du temps total en heures, minutes et secondes
-            m, s = divmod((self.mc.Length() / 1000), 60)
+            m, s = divmod((self.mc.Length() / 1000.0), 60)
             h, m = divmod(m, 60)
             # Afficher ces valeurs dans la zone de texte
             self.totalTime.SetLabel('/ %d:%02d:%02d' % (h, m, s))
