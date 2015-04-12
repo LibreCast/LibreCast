@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Permet de récupérer des float depuis une division
-from __future__ import division
+from __future__ import division  # Permet de récupérer des float depuis une division habituelle
 import wx
 import wx.media
 import os
 import sys
 from threading import Thread
 
+# Permet de remplacer '2' dans le programme par une variable ayant du sens
+# Le '2' correspond à l'état du media player qui est en train de jouer
 MEDIASTATE_PLAYING = 2
 
 
@@ -22,12 +23,83 @@ def setWorkingDirectory():
     os.chdir(approot)
 
 
+class ProgressBar(wx.Panel):
+    def __init__(self, parent, id=-1, position=(0, 7), size=(100, 5), prog=0):
+        # Stocker la taille de la barre
+        self.width = size[0]
+        self.height = size[1]
+        # Stocker le progès actuel de la barre
+        self.downloadGauge = prog
+        # Stocker si la barre affiche une erreur (1) ou non (0)
+        self.error = 0
+        # Créer le panel de base
+        self.BasePanel = wx.Panel(parent, id, position, size, wx.BORDER)
+        # Créer le panel qui correspond à la jauge elle-même
+        self.downloadGaugePanel = wx.Panel(self.BasePanel, wx.ID_ANY, (0, 0), (self.height, self.width))
+        # Modifier l'arrière plan de ces deux panel et la couleur par défaut lorsqu'une erreur est affichée
+        self.backgroundColor = wx.WHITE
+        self.downloadGaugeColor = wx.GREEN
+        self.errorColor = wx.RED
+        self.BasePanel.SetBackgroundColour(self.backgroundColor)
+        # Appliquer le progès par défaut à la barre
+        self.SetProgress(prog)
+
+    def SetProgress(self, prog=50, error=0):
+        # Stocker le nouvel état d'erreur
+        self.error = error
+        # Stocker la nouveau progès
+        self.progress = prog
+        # Calculer la largeur du panel qui affiche le progès en fonction du progrès donné et de la taille du panel d'arrière plan
+        width = self.width * prog / 100
+
+        # Si le nouvel état est celui d'erreur
+        if (error):
+            # Modifier la couleur du panel, pour qu'elle soit celle stockée dans self.errorColor
+            self.downloadGaugePanel.SetBackgroundColour(self.errorColor)
+        else:
+            # Modifier la couleur du panel, pour qu'elle soit celle stockée dans self.downloadGaugeColor
+            self.downloadGaugePanel.SetBackgroundColour(self.downloadGaugeColor)
+        # Modifier la taille du panel avec la nouvelle lageur calculée
+        self.downloadGaugePanel.SetSize((width, self.height))
+
+    def SetWidth(self, width):
+        # Modifier la taille du panel qui contient la gauge
+        self.BasePanel.SetSize((width, self.BasePanel.GetSize()[1]))
+        # Stocker la nouvelle largeur
+        self.width = width
+        # Appeler la fonction SetProgress, car elle recalcule la largeur de la gauge
+        self.SetProgress(self.progress, self.error)
+
+    def SetBackgroundColor(self, color=wx.WHITE):
+        # Modifier la couleur stockée
+        self.backgroundColor = color
+        # Modfier la couleur d'arrière plan du panel qui contient la gauge
+        self.BasePanel.SetBackgroundColour(color)
+
+    def SetProgressColor(self, color=wx.GREEN):
+        # Modifier la couleur stockée
+        self.downloadGaugeColor = color
+        # Modfier la couleur d'arrière plan de la gauge
+        self.downloadGaugePanel.SetBackgroundColour(color)
+
+    def SetErrorColor(self, color=wx.RED):
+        # Modifier la couleur qui correspond à une erreur
+        self.errorColor = color
+
+    def GetProgress(self):
+        # Réccupérer le progès actuel
+        return self.myprogress
+
+
 class videoWindow(wx.Frame):
 
     def __init__(self, parent, id, url):
         wx.Frame.__init__(self, parent, id)
 
+        # Créer une variable qui stocke l'état actuel du media player
+        # Note : cela n'est utile que parce que l'évenement appelé lorsque le player est mis en pause ne fonctionne pas
         self.state = wx.media.MEDIASTATE_STOPPED
+        # Stocker la taille par défaut de la fenêtre.
         self.InitialSize = (800, 600)
 
         # Créer toute l'interface
@@ -111,10 +183,18 @@ class videoWindow(wx.Frame):
             # Appeller self.soundSlider lorsque la valeur du slider est modifiée
             self.Bind(wx.EVT_SLIDER, self.OnVolume, self.soundSlider)
 
-            # Créer la gauge de téléchargement de la vidéo
-            self.downloadGauge = wx.Gauge(self, wx.ID_ANY, 100, size=(390, -1))
+            # Créer un panel qui contient le slider représentant l'avancement de la vidéo et la gauge de chargement
+            self.timePanel = wx.Panel(self, wx.ID_ANY)
+            # Créer la barre de téléchargement
+            self.downloadGauge = ProgressBar(self.timePanel, wx.ID_ANY)
+            # Modifier la couleur de l'arrière plan (même couleur que l'arrière plant de la fenêtre)
+            self.downloadGauge.SetBackgroundColor('#2D2D2D')
+            # Modifier la couleur de "l'avancement" de la gauge
+            self.downloadGauge.SetProgressColor('#3084FB')
+            # Modifier la couleur qui est affichée en cas d'erreur
+            self.downloadGauge.SetErrorColor('#D12B2E')
             # Créer le slider de l'avancement de la vidéo
-            self.timeSlider = wx.Slider(self.downloadGauge, wx.ID_ANY, pos=(-2, 1.5), size=(390, -1))
+            self.timeSlider = wx.Slider(self.timePanel, wx.ID_ANY)
             # Appeller self.OnTimeSlider lorsque la valeur du slider est modifiée
             self.Bind(wx.EVT_SLIDER, self.OnTimeSlider, self.timeSlider)
 
@@ -132,35 +212,35 @@ class videoWindow(wx.Frame):
             # Ajouter un écart de 5 horizontalement avant les boutons
             horizontalButtonSizer.Add((5, -1), 0)
             # Ajouter le 1er boutton (bouton, resize, event, margin)
-            horizontalButtonSizer.Add(self.playButton, 0, wx.ALL, 0)
+            horizontalButtonSizer.Add(self.playButton, 0, wx.ALL)
             # Ajouter un écart de 10 horizontalement entre les élément
             horizontalButtonSizer.Add((10, -1), 0)
             # Ajouter le slider pour le son
-            horizontalButtonSizer.Add(self.soundSlider, 0, wx.ALL, 0)
+            horizontalButtonSizer.Add(self.soundSlider, 0, wx.ALL)
             # Ajouter un écart de 10 horizontalement entre les élément
             horizontalButtonSizer.Add((10, -1), 0)
             # Ajouter le texte affichant le temps écoulé
-            horizontalButtonSizer.Add(self.currentTime, 0, wx.ALL, 0)
+            horizontalButtonSizer.Add(self.currentTime, 0, wx.ALL)
             # Ajouter un écart de 5 horizontalement entre les élément
             horizontalButtonSizer.Add((5, -1), 0)
             # Ajouter le texte affichant le temps total
-            horizontalButtonSizer.Add(self.totalTime, 0, wx.ALL, 0)
+            horizontalButtonSizer.Add(self.totalTime, 0, wx.ALL)
             # Ajouter un écart de 5 horizontalement entre les élément
             horizontalButtonSizer.Add((5, -1), 0)
             # Ajouter le slider qui affiche le temps écoulé, et qui se resize automatiquement
-            horizontalButtonSizer.Add(self.downloadGauge, 1, wx.ALL, 0)
+            horizontalButtonSizer.Add(self.timePanel, 1, wx.ALL)
             # Ajouter un écart de 5 horizontalement entre les élément
-            horizontalButtonSizer.Add((5, -1), 0)
+            horizontalButtonSizer.Add((5, -1))
             # Ajouter le 3ème bouton
-            horizontalButtonSizer.Add(self.fullScreenButton, 0, wx.ALL, 0)
+            horizontalButtonSizer.Add(self.fullScreenButton, 0, wx.ALL)
 
             # Créer un sizer qui gère la vidéo et les boutons
-            verticalPanelSizer = wx.BoxSizer(wx.VERTICAL)
+            verticalSizer = wx.BoxSizer(wx.VERTICAL)
             # Ajouter l'arbre et le sizer horizontal (qui contient les boutons) au sizer vertical
-            verticalPanelSizer.Add(self.mc, 1, wx.EXPAND | wx.ALL, 0)
-            verticalPanelSizer.Add(horizontalButtonSizer, 0, wx.EXPAND | wx.ALL, 5)
+            verticalSizer.Add(self.mc, 1, wx.EXPAND | wx.ALL, 0)
+            verticalSizer.Add(horizontalButtonSizer, 0, wx.EXPAND | wx.ALL, 5)
             # Ajouter ce sizer
-            self.SetSizer(verticalPanelSizer)
+            self.SetSizer(verticalSizer)
 
         # Appeler la méthode OnSize lorsque l'utilisateur change la taille de la fenêtre
         self.Bind(wx.EVT_SIZE, self.OnSize)
@@ -205,8 +285,6 @@ class videoWindow(wx.Frame):
             # Mettre le taille du slider à jour lorsque la vidéo est lancée
             # Note : La modifier après avoir testé l'URL ne semble pas fonctionner sous windows (car trop lent ?), on l'ajoute donc ici
             self.timeSlider.SetRange(0, self.mc.Length())
-            # Modifier la taille maximale de la gauge afin qu'elle vaille la quantité de données à télécharger
-            self.downloadGauge.SetRange(self.mc.GetDownloadTotal())
             # Changer les images du bouton play
             self.playButton.SetBitmapLabel(wx.BitmapFromImage(self.pauseImage))
             self.playButton.SetBitmapSelected(wx.BitmapFromImage(self.selectedPauseImage))
@@ -219,13 +297,13 @@ class videoWindow(wx.Frame):
         ratio = self.InitialSize[1]/self.InitialSize[0]
         # Calculer la hauteur correspondant à ce ration
         hsize = event.GetSize()[0]*ratio
-        # Si la taille est compatible avec l'écran
         # Appliquer ce ratio à la hauteur de la fenêtre
         self.SetSizeHints(minW=-1, minH=hsize, maxH=hsize)
-        # Modifier la taille du slider afichant le temps écoulé
-        self.timeSlider.SetSize((self.downloadGauge.GetSize()[0] + 7, self.downloadGauge.GetSize()[1]))
         # Calculer la taille des éléments de la fenêtre avec les fonctions par défaut
         event.Skip()
+        # Appliquer la taille du panel qui les contient au slider et à la gauge
+        self.timeSlider.SetSize((self.timePanel.GetSize()[0], -1))
+        self.downloadGauge.SetWidth(self.timePanel.GetSize()[0])
 
     # Note : Cette fonction peut, dans certains cas, suspendre l'application (en mode 'ne répond plus' durant un certains temps)
     #        On la lance donc dans une thread différente afin de ne pas suspendre l'interface
@@ -240,8 +318,6 @@ class videoWindow(wx.Frame):
             try:
                 # Modifier la taille maximale du slider afin qu'elle vaille le temps de la vidéo (en ms)
                 self.timeSlider.SetRange(0, self.mc.Length())
-                # Modifier la taille maximale de la gauge afin qu'elle vaille la quantité de données à télécharger
-                self.downloadGauge.SetRange(self.mc.GetDownloadTotal())
             except:
                 pass
 
@@ -267,10 +343,19 @@ class videoWindow(wx.Frame):
     def OnTimer(self, event):
         # Récupérer le temps (en ms) écoulé
         offset = self.mc.Tell()
-        # Modifier la valeur du slider pour l'avancement afin qu'il présente cette valeur
-        self.timeSlider.SetValue(offset)
-        # Mettre à jour l'avancement du téléchargement
-        self.downloadGauge.SetValue(self.mc.GetDownloadProgress())
+        try:
+            # Modifier la valeur du slider pour l'avancement afin qu'il présente cette valeur
+            self.timeSlider.SetValue(offset)
+            # Si le téléchargement a bien commencé
+            if self.mc.DownloadProgress >= 0:
+                # Modifier l'avancement de la gauge afin qu'elle vaille l'avancement du téléchargement
+                self.downloadGauge.SetProgress(self.mc.DownloadProgress)
+            # Sinon
+            else:
+                # Afficher le contenu de la barre en rouge
+                self.downloadGauge.SetProgress(100, 1)
+        except:
+            pass
         # Si le temps écoulé est défini (donc la vidéo est chargée)
         if offset != -1 and self.mc.Length() != -1:
             # Si l'état stocké est différent de l'état actuel
@@ -303,12 +388,12 @@ class videoWindow(wx.Frame):
         # Si la fenêtre n'est pas en plein écran
         else:
             # La mettre en plein écran
-            self.fullScreenButton.SetBitmapLabel(wx.BitmapFromImage(self.windowedImage))
-            # Changer les images du bouton plein écran
-            self.fullScreenButton.SetBitmapSelected(wx.BitmapFromImage(self.selectedWindowedImage))
-            self.fullScreenButton.Refresh()
-            # Mettre le bouton plein écran à jour
             self.ShowFullScreen(True)
+            # Changer les images du bouton plein écran
+            self.fullScreenButton.SetBitmapLabel(wx.BitmapFromImage(self.windowedImage))
+            self.fullScreenButton.SetBitmapSelected(wx.BitmapFromImage(self.selectedWindowedImage))
+            # Mettre le bouton plein écran à jour
+            self.fullScreenButton.Refresh()
 
     def OnPlay(self, event):
         # 0: En train de charger, 1: En pause, 2: Lancée

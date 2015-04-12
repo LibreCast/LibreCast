@@ -7,10 +7,8 @@ from uiManager import treeManager
 from uiManager import listManager
 
 """
-TODO : Découper le contenu en plusieurs fichiers, avec notamment un pour la recherche et un pour l'arbre (~ Done)
-       Ajouter de réelles fonctionnalitées aux boutons
-       Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
-       ...
+TODO : Ajouter de réelles fonctionnalitées aux boutons
+       Afficher du contenu récupéré d'autre part dans l'arbre et dans la liste
 """
 
 
@@ -76,7 +74,7 @@ class mainUI(wx.Frame):
         panel.SetBackgroundColour('#F0F0F0')
 
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        mainTree = treeManager.pyTree(panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
+        self.Tree = treeManager.pyTree(panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
         # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
         videoList = listManager.pyList(split, wx.ID_ANY, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
 
@@ -107,7 +105,7 @@ class mainUI(wx.Frame):
         # Créer un sizer qui gère l'arbre et les boutons sous l'arbre
         verticalPanelSizer = wx.BoxSizer(wx.VERTICAL)
         # Ajouter l'arbre et le sizer horizontal (qui contient les boutons) au sizer vertical
-        verticalPanelSizer.Add(mainTree, 1, wx.EXPAND | wx.ALL, 0)
+        verticalPanelSizer.Add(self.Tree, 1, wx.EXPAND | wx.ALL, 0)
         verticalPanelSizer.Add(horizontalButtonSizer, 0, wx.EXPAND | wx.ALL, 5)
         # Ajouter ce sizer au panel
         panel.SetSizer(verticalPanelSizer)
@@ -131,16 +129,16 @@ class mainUI(wx.Frame):
 
         # Créer une barre de recherche
         self.searchbar = wx.SearchCtrl(toolbar, wx.ID_ANY, size=(200, -1), style=wx.TE_PROCESS_ENTER)
-        # Afficher le bouton annuler dans la barre de recherche
-        self.searchbar.ShowCancelButton(True)
+        # Ne pas afficher le bouton annuler dans la barre de recherche
+        self.searchbar.ShowCancelButton(False)
         # Afficher 'Search online content' par défaut dans la barre de recherche
         self.searchbar.SetDescriptiveText('Search online content')
         # Ajouter la barre de recherche
         searchbarctrl = toolbar.AddControl(self.searchbar)
         # Ajouter un évenement lorsque le texte change
         self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
-        # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
-        self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
+        # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (ne fonctionne pas sur OS X apparement...)
+        self.Bind(wx.EVT_TEXT_ENTER, self.OnSearch, searchbarctrl)
 
         # Afficher tous les éléments ajoutés ci-dessus
         toolbar.Realize()

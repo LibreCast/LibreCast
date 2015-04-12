@@ -6,30 +6,34 @@ import wx
 class Tree(object):
 
     def __init__(self):
+        # Initialiser le nom, les enfants et le parent
         self.name = None
         self.children = []
         self.parent = None
 
-    def nex(self, child):
-        "Gets a child by number"
+    def next(self, child):
+        # Récupérer l'enfant à un certain numéro
         return self.children[child]
 
     def parent(self):
+        # Récupérer le parent
         return self.parent
 
     def goto(self, data):
-        "Gets the children by name"
+        # Récupérer un enfant avec un certain nom
         for child in range(0, len(self.children)):
             if(self.children[child].name == data):
                 return self.children[child]
 
     def add(self):
+        # Ajouter un enfant
         node1 = Tree()
         self.children.append(node1)
         node1.parent = self
         return node1
 
 """
+Exemple de données :
 On créé l'arbre à partir des listes de chaînes et des playlists données.
 """
 
@@ -85,11 +89,16 @@ class pyTree(wx.TreeCtrl):
         self.output = None
 
     def addData(self, tree, group, level=0):
+        # Pour chaque enfant de l'arbre
         for child in tree.children:
+            # Si cet enfant à lui même des enfants
             if len(child.children) > 0:
+                # Créer un nouveau groupe, et appeler cette même fonction avec un nouveau père
                 newSubGroup = self.AppendItem(group, child.name.decode('utf-8'))
                 self.addData(child, newSubGroup, level + 1)
+            # Si cet enfant n'a pas d'enfants
             else:
+                # L'ajouter au groupe actuel
                 self.AppendItem(group, child.name.decode('utf-8'))
 
     def SetOutput(self, output):

@@ -8,7 +8,7 @@ handledCodes = ['404', '410', '415', '418', '500']
 
 
 def OpenUrl(url):
-    # Initialiser la variable
+    # Initialiser les variables
     output = ''
     tryNewPath = False
 
