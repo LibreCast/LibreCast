@@ -5,10 +5,15 @@ from xml.parsers.expat import ExpatError
 
 
 def GetText(nodeList):
+    # Initialiser la liste
     rc = []
+    # Tester tous les éléments de la liste données en paramètre
     for node in nodeList:
+        # Si l'élément testé actuellement est du texte
         if node.nodeType == node.TEXT_NODE:
+            # L'ajouter à la liste
             rc.append(node.data)
+    # Renvoyer tous les éléments trouvés sous forme de chaîne de caractère
     return ''.join(rc)
 
 

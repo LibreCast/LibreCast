@@ -7,6 +7,7 @@ import re
 import os
 import sys
 
+# Importer nos modules personnels
 from uiManager import mainWindow
 from requestsManager import httpRequestManager
 from requestsManager import xmlManager
