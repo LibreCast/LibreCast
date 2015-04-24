@@ -2,34 +2,105 @@
 
 import wx
 import os
-import sys
 from uiManager import treeManager
 from uiManager import listManager
 
 """
-TODO : Ajouter de réelles fonctionnalitées aux boutons
-       Afficher du contenu récupéré d'autre part dans l'arbre et dans la liste
+TODO : Découper le contenu en plusieurs fichiers, avec notamment un pour la recherche et un pour l'arbre (~ Done)
+       Ajouter de réelles fonctionnalitées aux boutons
+       Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
+       ...
 """
 
 
-def setWorkingDirectory():
-    # On récupère l'adresse du dossier du fichier actuel (...LibreCast/python/)
-    try:
-        approot = os.path.dirname(os.path.abspath(__file__))
-    except NameError:
-        approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+class AddAnUrl(wx.Dialog):
 
-    # On cd à cette adresse pour créer le .db au bon endroit
-    os.chdir(approot)
+    def __init__(self, *args, **kw):
+        super(AddAnUrl, self).__init__(*args, **kw)
+
+        ws = self.GetWindowStyle()
+        self.SetWindowStyle(ws & wx.STAY_ON_TOP)
+
+        # Bla bla quotidien
+        self.InitUI()
+        self.SetSize((300, 165))
+        self.SetTitle("Add an URL")
+
+    def InitUI(self):
+        # Lab Lab leutibah
+        pnl = wx.Panel(self)
+        panelVerticalSizer = wx.BoxSizer(wx.VERTICAL)
+        mainVerticalBox = wx.BoxSizer(wx.VERTICAL)
+
+        radioVerticalSizer = wx.BoxSizer(wx.VERTICAL)
+        # On créé les boutons radio et (IMPORTANT) on créé des variables propres à l'objet, on peut donc y accéder dans la méthode OnChangeDepth
+        createNewText = wx.StaticText(pnl, -1, "Create a new ", style=wx.EXPAND)
+        self.radio1 = wx.RadioButton(pnl, label='Playlist', style=wx.RB_GROUP)
+        self.radio2 = wx.RadioButton(pnl, label='URL')
+
+        # On sélectionne le premier bouton par défaut
+        self.radio2.SetValue(1)
+        self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioGroupSelected, self.radio1)
+        self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioURLSelected, self.radio2)
+
+        # On créé le texte. Même note que pour les boutons radio
+        self.selectUrl = wx.TextCtrl(pnl)
+        self.Text = wx.StaticText(pnl, -1, "Select the URL's name: ", style=wx.EXPAND | wx.ALIGN_LEFT)
+
+        radioVerticalSizer.Add(createNewText, wx.ALIGN_TOP)
+        radioVerticalSizer.Add(self.radio1)
+        radioVerticalSizer.Add(self.radio2)
+
+        URLVerticalSizer = wx.BoxSizer(wx.VERTICAL)
+        URLVerticalSizer.Add(self.Text, 0, wx.ALIGN_BOTTOM)
+        URLVerticalSizer.Add(self.selectUrl, 0, wx.EXPAND)
+
+        panelVerticalSizer.Add(radioVerticalSizer, 1, wx.LEFT | wx.EXPAND, 1)
+        panelVerticalSizer.Add(URLVerticalSizer, 1, wx.LEFT | wx.EXPAND)
+
+        pnl.SetSizer(panelVerticalSizer)
+
+        endButtonsSizer = wx.BoxSizer(wx.HORIZONTAL)
+        okButton = wx.Button(self, label='Ok')
+        closeButton = wx.Button(self, label='Cancel')
+        endButtonsSizer.Add(okButton)
+        endButtonsSizer.Add(closeButton, flag=wx.LEFT, border=5)
+
+        mainVerticalBox.Add(pnl, proportion=1, flag=wx.ALL | wx.EXPAND, border=5)
+        mainVerticalBox.Add(endButtonsSizer, flag=wx.ALIGN_CENTER | wx.TOP | wx.BOTTOM, border=10)
+
+        self.SetSizer(mainVerticalBox)
+
+        okButton.Bind(wx.EVT_BUTTON, self.OnOk)
+        closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
+
+    def OnOk(self, event):
+        # Fermer la fenêtre en disant que l'utilisateur a cliqué sur Ok
+        self.EndModal(wx.ID_OK)
+
+    def OnClose(self, event):
+        # Fermer la fenêtre en disant que l'utilisateur a cliqué sur Annuler
+        self.EndModal(wx.ID_ABORT)
+
+    def OnRadioGroupSelected(self, event):
+        self.Text.SetLabel("Select the Playlist's name : ")
+
+    def OnRadioURLSelected(self, event):
+        self.Text.SetLabel("Select the URL's name : ")
 
 
 class mainUI(wx.Frame):
 
-    def __init__(self, *args, **kwargs):
-        super(mainUI, self).__init__(*args, **kwargs)
+    def __init__(self, parent, id, database):
+        wx.Frame.__init__(self, parent, id)
+
+        self.setDatabase(database)
 
         # Créer toute l'interface
         self.InitUI()
+
+    def setDatabase(self, database):
+        self.database = database
 
     def InitUI(self):
         # Créer la barre de menus
@@ -41,6 +112,14 @@ class mainUI(wx.Frame):
         # Ajouter le menu 'File' à la barre de menus
         menubar.Append(fileMenu, '&File')
         # Afficher la barre de menus dans l'application
+        self.SetMenuBar(menubar)
+
+        # On ajoute une barre de menu edit
+        editMenu = wx.Menu()
+        menubar.Append(editMenu, '&Edit')
+        # On lui ajoute une option refresh avec raccourci
+        refreshItem = editMenu.Append(1, 'Refresh\tCtrl+R', 'Refresh Feeds')
+        self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
         self.SetMenuBar(menubar)
 
         # On créé "l'arbre" avec les playlistes, les abonnements etc.
@@ -73,14 +152,34 @@ class mainUI(wx.Frame):
         # Modifier la couleur d'arrière plan du panel en gris clair
         panel.SetBackgroundColour('#F0F0F0')
 
+        sidebar_tree = treeManager.Tree()
+        sidebar_tree.name = "root"
+
+        playlists_tree = sidebar_tree.add()
+        playlists_tree.name = 'Playlists'
+
+        #channels_tree = sidebar_tree.add()
+        #channels_tree.name = 'Abonnements'
+
+        playlists = self.database.getPlaylists()
+
+        for i in playlists:
+            playlist = playlists_tree.add()
+            playlist.name = i['name']
+
+        #for i in channelsContent:
+        #    channel = channels.add()
+        #    channel.name = i
+
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        self.Tree = treeManager.pyTree(panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
+        mainTree = treeManager.pyTree(sidebar_tree, panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
         # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
+        #videos = self.database.
         videoList = listManager.pyList(split, wx.ID_ANY, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
 
         # Créer les images pour les boutons
-        plusImage = wx.Image('resources/add.png')
-        removeImage = wx.Image('resources/remove.png')
+        plusImage = wx.Image(os.path.dirname(__file__)+'/resources/add.png')
+        removeImage = wx.Image(os.path.dirname(__file__)+'/resources/remove.png')
         # Modifier la taille des images
         plusImage.Rescale(8, 8)
         removeImage.Rescale(8, 8)
@@ -105,7 +204,7 @@ class mainUI(wx.Frame):
         # Créer un sizer qui gère l'arbre et les boutons sous l'arbre
         verticalPanelSizer = wx.BoxSizer(wx.VERTICAL)
         # Ajouter l'arbre et le sizer horizontal (qui contient les boutons) au sizer vertical
-        verticalPanelSizer.Add(self.Tree, 1, wx.EXPAND | wx.ALL, 0)
+        verticalPanelSizer.Add(mainTree, 1, wx.EXPAND | wx.ALL, 0)
         verticalPanelSizer.Add(horizontalButtonSizer, 0, wx.EXPAND | wx.ALL, 5)
         # Ajouter ce sizer au panel
         panel.SetSizer(verticalPanelSizer)
@@ -118,7 +217,7 @@ class mainUI(wx.Frame):
         toolbar = self.CreateToolBar()
 
         # Créer une variable qui contient l'image refresh.png dans le dossier resources
-        refreshImage = wx.Image('resources/refresh.png')
+        refreshImage = wx.Image(os.path.dirname(__file__)+'/resources/refresh.png')
         # Ajouter un bouton avec l'image refresh
         refreshTool = toolbar.AddLabelTool(wx.ID_ANY, 'Refresh', wx.BitmapFromImage(refreshImage), shortHelp='Refresh feeds')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
@@ -126,19 +225,20 @@ class mainUI(wx.Frame):
 
         # Ajouter un séparateur
         toolbar.AddSeparator()
+        # AddStrechableSpace()
 
         # Créer une barre de recherche
         self.searchbar = wx.SearchCtrl(toolbar, wx.ID_ANY, size=(200, -1), style=wx.TE_PROCESS_ENTER)
-        # Ne pas afficher le bouton annuler dans la barre de recherche
-        self.searchbar.ShowCancelButton(False)
+        # Afficher le bouton annuler dans la barre de recherche
+        self.searchbar.ShowCancelButton(True)
         # Afficher 'Search online content' par défaut dans la barre de recherche
         self.searchbar.SetDescriptiveText('Search online content')
         # Ajouter la barre de recherche
         searchbarctrl = toolbar.AddControl(self.searchbar)
         # Ajouter un évenement lorsque le texte change
         self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
-        # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (ne fonctionne pas sur OS X apparement...)
-        self.Bind(wx.EVT_TEXT_ENTER, self.OnSearch, searchbarctrl)
+        # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
+        self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
 
         # Afficher tous les éléments ajoutés ci-dessus
         toolbar.Realize()
@@ -151,11 +251,24 @@ class mainUI(wx.Frame):
 
     def OnClickAddButton(self, event):
         print('Add a url!')
+        # Creation du dialogue
+        addurl = AddAnUrl(None, title='Add an URL')
+        # On affiche le dialogue
+        modal = addurl.ShowModal()
+
+        # Si le résultat est le bouton 'ok'
+        if modal == wx.ID_OK:
+            # On affiche le bouton 'radio' sélectionné
+            if addurl.radio1.GetValue():
+                print 'Add Playlist named ' + addurl.selectUrl.GetValue()
+            else:
+                print 'Add URL: ' + addurl.selectUrl.GetValue()
 
     def OnClickRemoveButton(self, event):
         print('Remove a url')
 
     def OnSearch(self, event):
+
         texte = self.searchbar.GetValue()
         if texte != '':
             print('Rechercher : ' + texte)
@@ -170,10 +283,9 @@ class mainUI(wx.Frame):
             print('Aucune recherche')
 
 
-# Méthode appelée depuis le fichier principale pour créer l'interface graphique
-def main():
-    setWorkingDirectory()
+# Méthode appelée depuis le fichier principal pour créer l'interface graphique
+def main(database_instance):
     ex = wx.App()
     ex.SetAppName("LibreCast")
-    mainUI(None)
+    main_ui = mainUI(None, wx.ID_ANY, database_instance)
     ex.MainLoop()

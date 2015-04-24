@@ -32,35 +32,10 @@ class Tree(object):
         node1.parent = self
         return node1
 
-"""
-Exemple de données :
-On créé l'arbre à partir des listes de chaînes et des playlists données.
-"""
-
-tree = Tree()
-tree.name = "root"
-
-playlists = tree.add()
-playlists.name = 'Playlists'
-
-channels = tree.add()
-channels.name = 'Abonnements'
-
-playlistContent = ['Vidéo', 'Vidéo', 'Encore une vidéo']
-channelsContent = ['"Vidéo"', '¿Vidéo?', '¡Vidéo!']
-
-for i in playlistContent:
-    playlist = playlists.add()
-    playlist.name = i
-
-for i in channelsContent:
-    channel = channels.add()
-    channel.name = i
-
 
 class pyTree(wx.TreeCtrl):
 
-    def __init__(self, parent, id, style=''):
+    def __init__(self, tree, parent, id, style=''):
         """
         Initialize function
         """

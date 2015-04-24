@@ -9,10 +9,12 @@ Il vaudrait mieux implémenter une fonction réccursive afin de
 pourvoir avoir autant de sous-groupes que l'on veut, mais
 les specs n'en prévoient qu'un nombre donné.
 """
-data = [['TiBounise & co',  'TiBounise Official', '11 mars 2015', '1:50'],
+
+videoList = [['TiBounise & co',  'TiBounise Official', '11 mars 2015', '1:50'],
         ['L\'année de la catastrophe', 'TF1', '13 février 2001', '1:34:28'],
         ['Merci d\'utiliser LibreCast !', 'LibreCast', '1er janvier 1970', '3:05'],
         ]
+
 
 # Durée : 0:04:03
 # URL = 'http://download.wavetlan.com/SVV/Media/HTTP/MP4/ConvertedFiles/Media-Convert/Unsupported/dw11222.mp4'
@@ -50,8 +52,8 @@ class pyList(wx.ListCtrl):
 
         # On décompose les données délivrées avec la liste, et on les affiche dans celle-ci
         # Note : À étudier en même temps que la variable 'data', puisque c'est de là qu'on extrait les données
-        if isinstance(data, list):
-            for video in data:
+        if isinstance(videoList, list):
+            for video in videoList:
                 try:
                     self.AddLine(video[0], video[1], video[2], video[3])
                 except Exception, e:
