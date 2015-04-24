@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # Importer les librairies sqlite3, regex, sys et os
-import sqlite3
-import re
 import os
 import sys
+import database
 
 # Importer nos modules personnels
 from uiManager import mainWindow
@@ -59,74 +58,15 @@ def main():
     setWorkingDirectory()
 
     # Connexion à la base de donnée
-    base = sqlite3.connect('librecast.db')
-
-    # On crée un curseur (qui va agir sur la base)
-    curseur = base.cursor()
-
-    # On crée la table "feeds" uniquement si elle n'existe pas
-    curseur.execute('CREATE TABLE IF NOT EXISTS feeds (id INTEGER PRIMARY KEY AUTOINCREMENT, url text)')
-
-    # On demande une adresse de flux
-    adresse = raw_input("Une adresse siouplé monsieur : ")
-
-    if (adresse != ''):
-        # Si l'adresse ne commence pas par "http://", "https://" ou "ftp://", on ajoute "http://"
-        if (not re.match('(?:http|https|ftp|file):', adresse)):
-            adresse = 'http://' + adresse
-
-        # On compte le nombre d'élément qui ont pour url la variable adresse
-        curseur.execute('SELECT COUNT(*) FROM feeds WHERE url = :adresse', {"adresse": adresse})
-        resultat = curseur.fetchone()[0]
-
-        if (resultat > 0):
-            print 'Cette adresse existe déjà'
-        else:
-            print 'Cette adresse est nouvelle, je vais l\'ajouter !'
-            curseur.execute('INSERT INTO feeds (url) VALUES (:adresse)', {"adresse": adresse})
-
-    # On sépare !
-    print '-----------------------------'
-
-    # On demande tous les feeds
-    curseur.execute('SELECT * FROM feeds')
-
-    # On récupère tous les résultats
-    resultats = curseur.fetchall()
-
-    # On les affiche
-    for resultat in resultats:
-        print resultat[1]
-
-    if (raw_input("Voulez-vous supprimer une URL (oui/NON) ? ") == "oui"):
-        adresse = raw_input("Quelle adresse : ")
-        # Si l'adresse ne commence pas par "http://", "https://" ou "ftp://", on ajoute "http://"
-        if (not re.match('(?:http|https|ftp|file):', adresse)):
-            adresse = 'http://' + adresse
-
-        curseur.execute('DELETE FROM feeds WHERE url = :adresse', {'adresse': adresse})
-
-    # On sépare !
-    print '-----------------------------'
-
-    # On demande tous les feeds
-    curseur.execute('SELECT * FROM feeds')
-
-    # On récupère tous les résultats
-    resultats = curseur.fetchall()
-
-    # Afficher le fichier situé à chaque URL
-    callHttpManager(resultats)
-
-    # On enregistre les modifications
-    base.commit()
-
-    # On ferme la base
-    base.close()
+    database_instance = database.Database("database.db")
+    database_instance.initDB()
 
     # Appeler la classe créant l'interface.
     # Note : Lorsqu'on entre dans la boucle principale de l'interface, on ne peut plus intéragir avec la console via input()
-    mainWindow.main()
+    mainWindow.main(database_instance)
+
+    # Fermeture de la base de donnée
+    database_instance.close()
 
 """
 Condition pour vérifier que le fichier est directement executé

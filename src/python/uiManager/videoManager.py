@@ -102,6 +102,8 @@ class videoWindow(wx.Frame):
         # Stocker la taille par défaut de la fenêtre.
         self.InitialSize = (800, 600)
 
+        setWorkingDirectory()
+
         # Créer toute l'interface
         self.InitUI(url)
 
