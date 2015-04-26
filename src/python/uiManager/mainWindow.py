@@ -144,16 +144,16 @@ class mainUI(wx.Frame):
     def CreateTree(self):
         # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
         # Note : SP_NOSASH enpêche de redimensionner le spliter
-        split = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_LIVE_UPDATE | wx.SP_NOBORDER)
+        self.split = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_LIVE_UPDATE | wx.SP_NOBORDER)
         # Limiter la taille des deux parties de l'arbre à 150, pour des raison estétiques et pratiques
-        split.SetMinimumPaneSize(150)
+        self.split.SetMinimumPaneSize(150)
         # Créer un panel qui contient l'arbre et les bouttons ajouter/effacer
-        panel = wx.Panel(split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
+        panel = wx.Panel(self.split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
         # Modifier la couleur d'arrière plan du panel en gris clair
         panel.SetBackgroundColour('#F0F0F0')
 
         sidebar_tree = treeManager.Tree()
-        sidebar_tree.name = "root"
+        sidebar_tree.name = 'root'
 
         playlists_tree = sidebar_tree.add()
         playlists_tree.name = 'Playlists'
@@ -162,20 +162,21 @@ class mainUI(wx.Frame):
         #channels_tree.name = 'Abonnements'
 
         playlists = self.database.getPlaylists()
+        print playlists
 
         for i in playlists:
             playlist = playlists_tree.add()
-            playlist.name = i['name']
+            playlist.name = i[0].encode('utf-8')
 
         #for i in channelsContent:
         #    channel = channels.add()
         #    channel.name = i
 
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        mainTree = treeManager.pyTree(sidebar_tree, panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
+        self.mainTree = treeManager.pyTree(sidebar_tree, panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
         # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
         #videos = self.database.
-        videoList = listManager.pyList(split, wx.ID_ANY, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+        videoList = listManager.pyList(self.split, wx.ID_ANY, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
 
         # Créer les images pour les boutons
         plusImage = wx.Image(os.path.dirname(__file__)+'/resources/add.png')
@@ -204,13 +205,19 @@ class mainUI(wx.Frame):
         # Créer un sizer qui gère l'arbre et les boutons sous l'arbre
         verticalPanelSizer = wx.BoxSizer(wx.VERTICAL)
         # Ajouter l'arbre et le sizer horizontal (qui contient les boutons) au sizer vertical
-        verticalPanelSizer.Add(mainTree, 1, wx.EXPAND | wx.ALL, 0)
+        verticalPanelSizer.Add(self.mainTree, 1, wx.EXPAND | wx.ALL, 0)
         verticalPanelSizer.Add(horizontalButtonSizer, 0, wx.EXPAND | wx.ALL, 5)
         # Ajouter ce sizer au panel
         panel.SetSizer(verticalPanelSizer)
 
         # Couper l'écran en deux avec à gauche le panel (avec une taille par défaut de 200) et à droite la liste de vidéos
-        split.SplitVertically(panel, videoList, 200)
+        self.split.SplitVertically(panel, videoList, 200)
+
+    def RebuildTree(self):
+        self.split.Destroy()
+        self.CreateTree()
+        self.SetSize((self.GetSize()[0] - 1, self.GetSize()[1] - 1))
+        self.SetSize((self.GetSize()[0] + 1, self.GetSize()[1] + 1))
 
     def CreateToolbar(self):
         # Créer la barre d'outils avec refresh et search (noter le 'B' majuscule dans 'Bar')
@@ -260,12 +267,21 @@ class mainUI(wx.Frame):
         if modal == wx.ID_OK:
             # On affiche le bouton 'radio' sélectionné
             if addurl.radio1.GetValue():
-                print 'Add Playlist named ' + addurl.selectUrl.GetValue()
+                self.database.createPlaylist(addurl.selectUrl.GetValue())
             else:
-                print 'Add URL: ' + addurl.selectUrl.GetValue()
+                self.database.insertFeed(addurl.selectUrl.GetValue())
+
+            self.RebuildTree()
 
     def OnClickRemoveButton(self, event):
-        print('Remove a url')
+        item = self.mainTree.GetSelection()
+
+        if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
+            print('Cannot remove this item')
+        else:
+            playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(self.mainTree.GetSelection()))
+            self.database.removePlaylist(playlistID)
+            self.RebuildTree()
 
     def OnSearch(self, event):
 

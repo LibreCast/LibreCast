@@ -71,9 +71,17 @@ class Database(object):
         cursor = self.base.cursor()
 
         # On séléctionne toutes les playlists
-        cursor.execute('SELECT * FROM playlists')
+        cursor.execute('SELECT (name) FROM playlists')
 
         return cursor.fetchall()
+
+    def getPlaylistIDFromName(self, name):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT * FROM playlists WHERE name=(:name)', {"name": name})
+
+        allRows = cursor.fetchall()
+        return allRows[0][0]
 
     def removePlaylist(self, playlistId):
         cursor = self.base.cursor()
@@ -96,7 +104,6 @@ class Database(object):
         cursor = self.base.cursor()
 
         #cursor.execute('SELECT () FROM')
-
 
     def insertVideoInPlaylist(self, videoId, playlistId):
         cursor = self.base.cursor()
