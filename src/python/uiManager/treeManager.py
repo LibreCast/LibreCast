@@ -56,10 +56,6 @@ class pyTree(wx.TreeCtrl):
         # de là qu'on extrait les données
         self.addData(tree, self.root)
 
-        # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction
-        # OnSelChanged
-        self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=self.GetId())
-
         # Par défaut, on ne sait pas s'il y a une zone de texte modifiable
         self.output = None
 
