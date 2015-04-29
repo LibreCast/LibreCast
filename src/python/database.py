@@ -79,9 +79,12 @@ class Database(object):
         cursor = self.base.cursor()
 
         cursor.execute('SELECT * FROM playlists WHERE name=(:name)', {"name": name})
-
         allRows = cursor.fetchall()
-        return allRows[0][0]
+
+        if allRows:
+            return allRows[0][0]
+        else:
+            return -1
 
     def removePlaylist(self, playlistId):
         cursor = self.base.cursor()

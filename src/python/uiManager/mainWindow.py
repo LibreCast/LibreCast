@@ -114,6 +114,8 @@ class mainUI(wx.Frame):
         # Afficher la barre de menus dans l'application
         self.SetMenuBar(menubar)
 
+        self.videosList = []
+
         # On ajoute une barre de menu edit
         editMenu = wx.Menu()
         menubar.Append(editMenu, '&Edit')
@@ -123,7 +125,7 @@ class mainUI(wx.Frame):
         self.SetMenuBar(menubar)
 
         # On créé "l'arbre" avec les playlistes, les abonnements etc.
-        self.CreateTree()
+        self.CreateSplitter()
 
         # Créer la barre d'outils via la fonction locale (noter le 'b' minuscule dans 'bar')
         self.CreateToolbar()
@@ -142,15 +144,10 @@ class mainUI(wx.Frame):
         self.Show(True)
 
     def CreateTree(self):
-        # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
-        # Note : SP_NOSASH enpêche de redimensionner le spliter
-        self.split = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_LIVE_UPDATE | wx.SP_NOBORDER)
-        # Limiter la taille des deux parties de l'arbre à 150, pour des raison estétiques et pratiques
-        self.split.SetMinimumPaneSize(150)
         # Créer un panel qui contient l'arbre et les bouttons ajouter/effacer
-        panel = wx.Panel(self.split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
+        self.panel = wx.Panel(self.split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
         # Modifier la couleur d'arrière plan du panel en gris clair
-        panel.SetBackgroundColour('#F0F0F0')
+        self.panel.SetBackgroundColour('#F0F0F0')
 
         sidebar_tree = treeManager.Tree()
         sidebar_tree.name = 'root'
@@ -173,10 +170,11 @@ class mainUI(wx.Frame):
         #    channel.name = i
 
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        self.mainTree = treeManager.pyTree(sidebar_tree, panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
-        # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        #videos = self.database.
-        videoList = listManager.pyList(self.split, wx.ID_ANY, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+        self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
+        self.mainTree.ExpandAll()
+
+        # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction
+        self.mainTree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, self.mainTree)
 
         # Créer les images pour les boutons
         plusImage = wx.Image(os.path.dirname(__file__)+'/resources/add.png')
@@ -185,8 +183,8 @@ class mainUI(wx.Frame):
         plusImage.Rescale(8, 8)
         removeImage.Rescale(8, 8)
         # Créer les boutons
-        addButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(plusImage), style=wx.NO_BORDER)
-        removeButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(removeImage), style=wx.NO_BORDER)
+        addButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.BitmapFromImage(plusImage), style=wx.NO_BORDER)
+        removeButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.BitmapFromImage(removeImage), style=wx.NO_BORDER)
         # Ajouter un évenement lorsque chaque bouton est cliqué
         self.Bind(wx.EVT_BUTTON, self.OnClickAddButton, addButton)
         self.Bind(wx.EVT_BUTTON, self.OnClickRemoveButton, removeButton)
@@ -208,16 +206,42 @@ class mainUI(wx.Frame):
         verticalPanelSizer.Add(self.mainTree, 1, wx.EXPAND | wx.ALL, 0)
         verticalPanelSizer.Add(horizontalButtonSizer, 0, wx.EXPAND | wx.ALL, 5)
         # Ajouter ce sizer au panel
-        panel.SetSizer(verticalPanelSizer)
+        self.panel.SetSizer(verticalPanelSizer)
 
+    def CreateVideoList(self, videoList):
+        # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
+        self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+
+    def CreateSplitter(self):
+        # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
+        # Note : SP_NOSASH enpêche de redimensionner le spliter
+        self.split = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_LIVE_UPDATE | wx.SP_NOBORDER)
+        # Limiter la taille des deux parties de l'arbre à 150, pour des raison estétiques et pratiques
+        self.split.SetMinimumPaneSize(150)
+        self.CreateTree()
+        self.CreateVideoList(self.videosList)
         # Couper l'écran en deux avec à gauche le panel (avec une taille par défaut de 200) et à droite la liste de vidéos
-        self.split.SplitVertically(panel, videoList, 200)
+        self.split.SplitVertically(self.panel, self.videoList, 200)
 
     def RebuildTree(self):
-        self.split.Destroy()
+        oldPanel = self.panel
         self.CreateTree()
-        self.SetSize((self.GetSize()[0] - 1, self.GetSize()[1] - 1))
-        self.SetSize((self.GetSize()[0] + 1, self.GetSize()[1] + 1))
+        self.split.ReplaceWindow(oldPanel, self.panel)
+
+    def RebuildList(self):
+        oldList = self.videoList
+        self.CreateVideoList(self.videosList)
+        self.split.ReplaceWindow(oldList, self.videoList)
+
+    def OnSelChanged(self, e):
+        item = self.mainTree.GetSelection()
+
+        if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
+            print('No video to list.')
+        else:
+            playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
+            self.videosList = self.database.getVideosFromPlaylist(playlistID)
+            self.RebuildList()
 
     def CreateToolbar(self):
         # Créer la barre d'outils avec refresh et search (noter le 'B' majuscule dans 'Bar')
@@ -257,7 +281,6 @@ class mainUI(wx.Frame):
         print('Refreshing feeds...')
 
     def OnClickAddButton(self, event):
-        print('Add a url!')
         # Creation du dialogue
         addurl = AddAnUrl(None, title='Add an URL')
         # On affiche le dialogue
@@ -279,7 +302,7 @@ class mainUI(wx.Frame):
         if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
             print('Cannot remove this item')
         else:
-            playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(self.mainTree.GetSelection()))
+            playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
             self.database.removePlaylist(playlistID)
             self.RebuildTree()
 
