@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import wx
+import cPickle
+
+localTree = None
 
 
 class Tree(object):
@@ -41,6 +44,9 @@ class pyTree(wx.TreeCtrl):
         """
         wx.TreeCtrl.__init__(self, parent, id)
 
+        global localTree
+        localTree = self
+
         # Si au moins un style a été précisé dans la création de l'abre...
         if style:
             # ...on l'applique
@@ -67,10 +73,23 @@ class pyTree(wx.TreeCtrl):
                 # Créer un nouveau groupe, et appeler cette même fonction avec un nouveau père
                 newSubGroup = self.AppendItem(group, child.name.decode('utf-8'))
                 self.addData(child, newSubGroup, level + 1)
+
             # Si cet enfant n'a pas d'enfants
             else:
                 # L'ajouter au groupe actuel
                 self.AppendItem(group, child.name.decode('utf-8'))
+
+                if self.GetItemText(group) == "Playlists":
+                    print "Drag target:", child.name.decode('utf-8')
+                    self.SetDropTarget(ListDrop(child))
+
+    def insert(self, title, x, y):
+        index, flags = self.HitTest((x, y))
+        # playlist = self.GetFirstChild(self.GetRootItem())
+
+        if index.IsOk() and localTree.GetItemText(localTree.GetItemParent(localTree.GetSelection())) == "Playlists":
+            # Should add video to playlist with index
+            print 'Should add video "' + title[0] + '"' + ' to playlist "' + self.GetItemText(index) + '"'
 
     def SetOutput(self, output):
         """
@@ -79,11 +98,46 @@ class pyTree(wx.TreeCtrl):
         """
         self.output = output
 
-    def OnSelChanged(self, event):
-        # Si on n'a pas ajouté la zone de texte avec SetOutput, on ne peut pas
-        # modifier le texte
-        if not self.output:
-            return
 
-        # Sinon, on affiche le texte
-        apply(self.output, ('Not done yet'))
+class ListDrop(wx.PyDropTarget):
+
+    def __init__(self, source):
+        wx.PyDropTarget.__init__(self)
+
+        # specify the type of data we will accept
+        self.data = wx.CustomDataObject("ListCtrlItems")
+        self.SetDataObject(self.data)
+
+    def OnDragOver(self, x, y, d):
+        # provide visual feedback by selecting the item the mouse is over
+        item, flags = localTree.HitTest((x, y))
+        selections = localTree.GetSelections()
+
+        if item:
+            if selections != [item]:
+                localTree.UnselectAll()
+                localTree.SelectItem(item)
+                selectedItem = localTree.GetSelection()
+
+                if localTree.GetItemText(localTree.GetItemParent(selectedItem)) != "Playlists":
+                    localTree.UnselectAll()
+
+        elif selections:
+            localTree.UnselectAll()
+
+        return d
+
+    # Called when OnDrop returns True.  We need to get the data and
+    # do something with it.
+    def OnData(self, x, y, d):
+        # copy the data from the drag source to our data object
+        if self.GetData():
+            # convert it back to a list and give it to the viewer
+            ldata = self.data.GetData()
+            l = cPickle.loads(ldata)
+            localTree.insert(l, x, y)
+
+        # what is returned signals the source what to do
+        # with the original data (move, copy, etc.)  In this
+        # case we just return the suggested value given to us.
+        return d

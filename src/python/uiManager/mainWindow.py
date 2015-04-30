@@ -155,8 +155,8 @@ class mainUI(wx.Frame):
         playlists_tree = sidebar_tree.add()
         playlists_tree.name = 'Playlists'
 
-        #channels_tree = sidebar_tree.add()
-        #channels_tree.name = 'Abonnements'
+        channels_tree = sidebar_tree.add()
+        channels_tree.name = 'Abonnements'
 
         playlists = self.database.getPlaylists()
         print playlists
@@ -237,7 +237,7 @@ class mainUI(wx.Frame):
         item = self.mainTree.GetSelection()
 
         if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
-            print('No video to list.')
+            pass
         else:
             playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
             self.videosList = self.database.getVideosFromPlaylist(playlistID)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import wx
+import cPickle
 from uiManager import videoManager
 
 """
@@ -63,6 +64,46 @@ class pyList(wx.ListCtrl):
 
         # Appeler la fonction PlayVideo lorsqu'une ligne est double cliquée, ou que l'utilisateur appuye sur entrée en ayant sélectionné une ligne
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.PlayVideo, self)
+        self.Bind(wx.EVT_LIST_BEGIN_DRAG, self.startDrag)
+
+    def startDrag(self, e):
+        """ Put together a data object for drag-and-drop _from_ this list. """
+        l = []
+        idx = -1
+        idx = self.GetFocusedItem()
+        if idx != -1:
+            item = self.GetItem(idx, 0).GetText()
+            if item == "     Cette playlist est vide     ":
+                return
+
+            l.append(item)
+
+        # Pickle the items list.
+        itemdata = cPickle.dumps(l, 1)
+
+        # Create our own data format and use it in a custom data object
+        ldata = wx.CustomDataObject("ListCtrlItems")
+        ldata.SetData(itemdata)
+
+        # Now make a data object for the  item list.
+        data = wx.DataObjectComposite()
+        data.Add(ldata)
+
+        # Create drop source and begin drag-and-drop.
+        dropSource = wx.DropSource(self)
+        dropSource.SetData(data)
+        res = dropSource.DoDragDrop(flags=wx.Drag_DefaultMove)
+
+        # If move, we want to remove the item from this list.
+        if res == wx.DragMove:
+            # It's possible we are dragging/dropping from this list to this list.  In which case, the
+            # index we are removing may have changed...
+
+            # Find correct position.
+            l.reverse()  # Delete all the items, starting with the last item
+            for i in l:
+                pos = self.FindItem(i[0], i[2])
+                self.DeleteItem(pos)
 
     def AddLine(self, title, author, date, length):
         # Ajouter le contenu dans chaque colone, en le décodant en utf-8 afin d'éviter les problèmes d'accents etc.
