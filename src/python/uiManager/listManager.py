@@ -67,43 +67,40 @@ class pyList(wx.ListCtrl):
         self.Bind(wx.EVT_LIST_BEGIN_DRAG, self.startDrag)
 
     def startDrag(self, e):
-        """ Put together a data object for drag-and-drop _from_ this list. """
+        # Créer les données à transférer
         l = []
         idx = -1
+        # Réccuppérer l'object de la liste sélectionné
         idx = self.GetFocusedItem()
+
+        # Si idx n'a pas d'erreur
         if idx != -1:
             item = self.GetItem(idx, 0).GetText()
-            if item == "     Cette playlist est vide     ":
-                return
+            # Si l'object sélectionné correspond à une playlist vide (enlevé pour des tests)
+            #if item == "     Cette playlist est vide     ":
+                # Annuler
+                #return
 
+            # Sinon, ajouter l'objet à nos données
             l.append(item)
 
-        # Pickle the items list.
+        # Convertir la liste de données en octets
         itemdata = cPickle.dumps(l, 1)
 
-        # Create our own data format and use it in a custom data object
+        # Créer un format de données personnalisé
         ldata = wx.CustomDataObject("ListCtrlItems")
         ldata.SetData(itemdata)
 
-        # Now make a data object for the  item list.
+        # Créer les données qui vont être transférées
         data = wx.DataObjectComposite()
         data.Add(ldata)
 
-        # Create drop source and begin drag-and-drop.
+        # Créer une source de Drag and Drop
         dropSource = wx.DropSource(self)
         dropSource.SetData(data)
-        res = dropSource.DoDragDrop(flags=wx.Drag_DefaultMove)
 
-        # If move, we want to remove the item from this list.
-        if res == wx.DragMove:
-            # It's possible we are dragging/dropping from this list to this list.  In which case, the
-            # index we are removing may have changed...
-
-            # Find correct position.
-            l.reverse()  # Delete all the items, starting with the last item
-            for i in l:
-                pos = self.FindItem(i[0], i[2])
-                self.DeleteItem(pos)
+        # Commencer le drag and drop
+        dropSource.DoDragDrop()
 
     def AddLine(self, title, author, date, length):
         # Ajouter le contenu dans chaque colone, en le décodant en utf-8 afin d'éviter les problèmes d'accents etc.
