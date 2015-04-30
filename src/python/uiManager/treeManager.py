@@ -81,7 +81,6 @@ class pyTree(wx.TreeCtrl):
                 self.AppendItem(group, child.name.decode('utf-8'))
 
                 if self.GetItemText(group) == "Playlists":
-                    print "Drag target:", child.name.decode('utf-8')
                     self.SetDropTarget(ListDrop(child))
 
     def insert(self, title, x, y):
