@@ -35,21 +35,22 @@ class AddAnUrl(wx.Dialog):
         radioVerticalSizer = wx.BoxSizer(wx.VERTICAL)
         # On créé les boutons radio et (IMPORTANT) on créé des variables propres à l'objet, on peut donc y accéder dans la méthode OnChangeDepth
         createNewText = wx.StaticText(pnl, -1, "Create a new ", style=wx.EXPAND)
-        self.radio1 = wx.RadioButton(pnl, label='Playlist', style=wx.RB_GROUP)
-        self.radio2 = wx.RadioButton(pnl, label='URL')
+        self.radioPlaylist = wx.RadioButton(pnl, label='Playlist', style=wx.RB_GROUP)
+        self.radioURL = wx.RadioButton(pnl, label='URL')
 
         # On sélectionne le premier bouton par défaut
-        self.radio2.SetValue(1)
-        self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioGroupSelected, self.radio1)
-        self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioURLSelected, self.radio2)
+        self.radioURL.SetValue(1)
+        self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioGroupSelected, self.radioPlaylist)
+        self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioURLSelected, self.radioURL)
 
         # On créé le texte. Même note que pour les boutons radio
         self.selectUrl = wx.TextCtrl(pnl)
         self.Text = wx.StaticText(pnl, -1, "Select the URL's name: ", style=wx.EXPAND | wx.ALIGN_LEFT)
 
+        #TODO
         radioVerticalSizer.Add(createNewText, wx.ALIGN_TOP)
-        radioVerticalSizer.Add(self.radio1)
-        radioVerticalSizer.Add(self.radio2)
+        radioVerticalSizer.Add(self.radioURL)
+        radioVerticalSizer.Add(self.radioPlaylist)
 
         URLVerticalSizer = wx.BoxSizer(wx.VERTICAL)
         URLVerticalSizer.Add(self.Text, 0, wx.ALIGN_BOTTOM)
@@ -119,9 +120,19 @@ class mainUI(wx.Frame):
         # On ajoute une barre de menu edit
         editMenu = wx.Menu()
         menubar.Append(editMenu, '&Edit')
+
         # On lui ajoute une option refresh avec raccourci
-        refreshItem = editMenu.Append(1, 'Refresh\tCtrl+R', 'Refresh Feeds')
+        refreshItem = editMenu.Append(wx.ID_ANY, 'Refresh\tCtrl+R', 'Refresh feeds')
         self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
+
+        # On ajoute un raccourci pour ajouter une playlist ou une URL
+        addItem = editMenu.Append(wx.ID_ANY, 'Add new...\tCtrl+=', 'Add playlist or URL')
+        self.Bind(wx.EVT_MENU, self.OnClickAddButton, addItem)
+
+        # On ajoute un raccourci pour ajouter une playlist ou une URL
+        removeItem = editMenu.Append(wx.ID_ANY, 'Remove\tCtrl+-', 'Remove selected item')
+        self.Bind(wx.EVT_MENU, self.OnClickRemoveButton, removeItem)
+
         self.SetMenuBar(menubar)
 
         # On créé "l'arbre" avec les playlistes, les abonnements etc.
@@ -180,8 +191,8 @@ class mainUI(wx.Frame):
         plusImage = wx.Image(os.path.dirname(__file__)+'/resources/add.png')
         removeImage = wx.Image(os.path.dirname(__file__)+'/resources/remove.png')
         # Modifier la taille des images
-        plusImage.Rescale(8, 8)
-        removeImage.Rescale(8, 8)
+        plusImage.Rescale(12, 12)
+        removeImage.Rescale(12, 12)
         # Créer les boutons
         addButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.BitmapFromImage(plusImage), style=wx.NO_BORDER)
         removeButton = wx.BitmapButton(self.panel, wx.ID_ANY, wx.BitmapFromImage(removeImage), style=wx.NO_BORDER)
@@ -221,17 +232,19 @@ class mainUI(wx.Frame):
         self.CreateTree()
         self.CreateVideoList(self.videosList)
         # Couper l'écran en deux avec à gauche le panel (avec une taille par défaut de 200) et à droite la liste de vidéos
-        self.split.SplitVertically(self.panel, self.videoList, 200)
+        self.split.SplitVertically(self.panel, self.videoList, 210)
 
     def RebuildTree(self):
         oldPanel = self.panel
         self.CreateTree()
         self.split.ReplaceWindow(oldPanel, self.panel)
+        oldPanel.Destroy()
 
     def RebuildList(self):
         oldList = self.videoList
         self.CreateVideoList(self.videosList)
         self.split.ReplaceWindow(oldList, self.videoList)
+        oldList.Destroy()
 
     def OnSelChanged(self, e):
         item = self.mainTree.GetSelection()
@@ -289,7 +302,7 @@ class mainUI(wx.Frame):
         # Si le résultat est le bouton 'ok'
         if modal == wx.ID_OK:
             # On affiche le bouton 'radio' sélectionné
-            if addurl.radio1.GetValue():
+            if addurl.radioPlaylist.GetValue():
                 self.database.createPlaylist(addurl.selectUrl.GetValue())
             else:
                 self.database.insertFeed(addurl.selectUrl.GetValue())
