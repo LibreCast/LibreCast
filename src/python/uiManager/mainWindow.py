@@ -6,9 +6,9 @@ from uiManager import treeManager
 from uiManager import listManager
 
 """
-TODO : Découper le contenu en plusieurs fichiers, avec notamment un pour la recherche et un pour l'arbre (~ Done)
-       Ajouter de réelles fonctionnalitées aux boutons
-       Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
+TODO : Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
+       Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
+       Possibilité d'ajouter des chaînes
        ...
 """
 
@@ -47,7 +47,7 @@ class AddAnUrl(wx.Dialog):
         self.selectUrl = wx.TextCtrl(pnl)
         self.Text = wx.StaticText(pnl, -1, "Select the URL's name: ", style=wx.EXPAND | wx.ALIGN_LEFT)
 
-        #TODO
+        #TODO: Comments
         radioVerticalSizer.Add(createNewText, wx.ALIGN_TOP)
         radioVerticalSizer.Add(self.radioURL)
         radioVerticalSizer.Add(self.radioPlaylist)
@@ -220,6 +220,7 @@ class mainUI(wx.Frame):
         self.panel.SetSizer(verticalPanelSizer)
 
     def CreateVideoList(self, videoList):
+        self.videoList = None
         # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
         self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
 
@@ -244,14 +245,15 @@ class mainUI(wx.Frame):
         oldList = self.videoList
         self.CreateVideoList(self.videosList)
         self.split.ReplaceWindow(oldList, self.videoList)
-        oldList.Destroy()
+
+        oldList.Hide()
+        wx.CallLater(1000, oldList.Destroy)
 
     def OnSelChanged(self, e):
+        pass
         item = self.mainTree.GetSelection()
 
-        if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
-            pass
-        else:
+        if self.mainTree.GetItemParent(item) != self.mainTree.GetRootItem():
             playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
             self.videosList = self.database.getVideosFromPlaylist(playlistID)
             self.RebuildList()
@@ -337,7 +339,7 @@ class mainUI(wx.Frame):
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique
 def main(database_instance):
-    ex = wx.App()
+    ex = wx.App(0)
     ex.SetAppName("LibreCast")
     main_ui = mainUI(None, wx.ID_ANY, database_instance)
     ex.MainLoop()

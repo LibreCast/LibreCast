@@ -3,9 +3,6 @@
 import wx
 import cPickle
 
-# Copie globale de l'arbre, utilisée dans ListDrop
-localTree = None
-
 
 class Tree(object):
 
@@ -45,9 +42,6 @@ class pyTree(wx.TreeCtrl):
         """
         wx.TreeCtrl.__init__(self, parent, id)
 
-        global localTree
-        localTree = self
-
         # Si au moins un style a été précisé dans la création de l'abre...
         if style:
             # ...on l'applique
@@ -67,6 +61,8 @@ class pyTree(wx.TreeCtrl):
         self.output = None
 
     def addData(self, tree, group, level=0):
+        self.SetDropTarget(ListDrop(self))
+
         # Pour chaque enfant de l'arbre
         for child in tree.children:
             # Si cet enfant à lui même des enfants
@@ -80,15 +76,12 @@ class pyTree(wx.TreeCtrl):
                 # L'ajouter au groupe actuel
                 self.AppendItem(group, child.name.decode('utf-8'))
 
-                if self.GetItemText(group) == "Playlists":
-                    self.SetDropTarget(ListDrop(child))
-
     def insert(self, title, x, y):
         # Récuppérer l'élément dans lequel il faut ajouter la vidéo
         index, flags = self.HitTest((x, y))
 
         # Si l'élément existe, et que c'est bien une playlist
-        if index.IsOk() and localTree.GetItemText(localTree.GetItemParent(localTree.GetSelection())) == "Playlists":
+        if index.IsOk() and self.GetSelection() and self.GetItemText(self.GetItemParent(self.GetSelection())) == "Playlists":
             #TODO
             print 'Should add video "' + title[0] + '"' + ' to playlist "' + self.GetItemText(index) + '"'
 
@@ -98,35 +91,41 @@ class ListDrop(wx.PyDropTarget):
     def __init__(self, source):
         wx.PyDropTarget.__init__(self)
 
+        self.source = source
+
         # Dire quel type de données sont acceptées
         self.data = wx.CustomDataObject("ListCtrlItems")
         self.SetDataObject(self.data)
 
     def OnDragOver(self, x, y, d):
         # Montrer sur quel objet le Drag and Drop se fait
-        item, flags = localTree.HitTest((x, y))
-        selections = localTree.GetSelections()
+        item, flags = self.source.HitTest((x, y))
+        selections = self.source.GetSelections()
 
         # Si l'objet sur lequel la souris se situe appartiens bien à cette classe
         if item:
             # Si l'objet n'est pas actuellement sélectionné
             if selections != [item]:
                 # Déselectionner tous les éléments de l'arbre puis sélectionner cet élément
-                localTree.UnselectAll()
-                localTree.SelectItem(item)
+                self.source.UnselectAll()
+                self.source.SelectItem(item)
 
                 # Réccupérer l'élément sélectionné (pas sous forme d'index, contrairement à HitTest)
-                selectedItem = localTree.GetSelection()
+                selectedItem = self.source.GetSelection()
 
-                # Si l'élément n'a pas pour parent "Playlists"
-                if localTree.GetItemText(localTree.GetItemParent(selectedItem)) != "Playlists":
-                    # Le désélectionner
-                    localTree.UnselectAll()
+                try:
+                    # Si l'élément n'a pas pour parent "Playlists"
+                    if self.source.GetItemText(self.source.GetItemParent(selectedItem)) != "Playlists":
+                        # Le désélectionner
+                        self.source.UnselectAll()
+                except wx.PyAssertionError:
+                    # Le group acutel est root, crash sous windows
+                    self.source.UnselectAll()
 
         # Sinon
         elif selections:
             # Tout déselectionner dans l'arbre
-            localTree.UnselectAll()
+            self.source.UnselectAll()
 
         return d
 
@@ -139,6 +138,6 @@ class ListDrop(wx.PyDropTarget):
             l = cPickle.loads(ldata)
 
             # Dire à l'arbre qu'il faut insérer ces données dans une playlist
-            localTree.insert(l, x, y)
+            self.source.insert(l, x, y)
 
         return d

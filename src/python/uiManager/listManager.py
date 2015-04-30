@@ -36,6 +36,8 @@ class pyList(wx.ListCtrl):
         else:
             self.SetWindowStyle(wx.LC_REPORT)
 
+        self.dropSource = wx.DropSource(self)
+
         # Variable stockant l'index du dernier élément de la liste, pour pouvoir ajouter une ligne à la fin de la liste
         self.index = 0
 
@@ -96,11 +98,10 @@ class pyList(wx.ListCtrl):
         data.Add(ldata)
 
         # Créer une source de Drag and Drop
-        dropSource = wx.DropSource(self)
-        dropSource.SetData(data)
+        self.dropSource.SetData(data)
 
         # Commencer le drag and drop
-        dropSource.DoDragDrop()
+        self.dropSource.DoDragDrop()
 
     def AddLine(self, title, author, date, length):
         # Ajouter le contenu dans chaque colone, en le décodant en utf-8 afin d'éviter les problèmes d'accents etc.
