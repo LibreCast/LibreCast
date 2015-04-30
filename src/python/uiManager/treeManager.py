@@ -3,6 +3,7 @@
 import wx
 import cPickle
 
+# Copie globale de l'arbre, utilisée dans ListDrop
 localTree = None
 
 
@@ -84,19 +85,13 @@ class pyTree(wx.TreeCtrl):
                     self.SetDropTarget(ListDrop(child))
 
     def insert(self, title, x, y):
+        # Récuppérer l'élément dans lequel il faut ajouter la vidéo
         index, flags = self.HitTest((x, y))
-        # playlist = self.GetFirstChild(self.GetRootItem())
 
+        # Si l'élément existe, et que c'est bien une playlist
         if index.IsOk() and localTree.GetItemText(localTree.GetItemParent(localTree.GetSelection())) == "Playlists":
-            # Should add video to playlist with index
+            #TODO
             print 'Should add video "' + title[0] + '"' + ' to playlist "' + self.GetItemText(index) + '"'
-
-    def SetOutput(self, output):
-        """
-        Permet d'ajouter la fonction permettant de modifier la
-        liste située à droite de l'abre.
-        """
-        self.output = output
 
 
 class ListDrop(wx.PyDropTarget):
@@ -104,40 +99,47 @@ class ListDrop(wx.PyDropTarget):
     def __init__(self, source):
         wx.PyDropTarget.__init__(self)
 
-        # specify the type of data we will accept
+        # Dire quel type de données sont acceptées
         self.data = wx.CustomDataObject("ListCtrlItems")
         self.SetDataObject(self.data)
 
     def OnDragOver(self, x, y, d):
-        # provide visual feedback by selecting the item the mouse is over
+        # Montrer sur quel objet le Drag and Drop se fait
         item, flags = localTree.HitTest((x, y))
         selections = localTree.GetSelections()
 
+        # Si l'objet sur lequel la souris se situe appartiens bien à cette classe
         if item:
+            # Si l'objet n'est pas actuellement sélectionné
             if selections != [item]:
+                # Déselectionner tous les éléments de l'arbre puis sélectionner cet élément
                 localTree.UnselectAll()
                 localTree.SelectItem(item)
+
+                # Réccupérer l'élément sélectionné (pas sous forme d'index, contrairement à HitTest)
                 selectedItem = localTree.GetSelection()
 
+                # Si l'élément n'a pas pour parent "Playlists"
                 if localTree.GetItemText(localTree.GetItemParent(selectedItem)) != "Playlists":
+                    # Le désélectionner
                     localTree.UnselectAll()
 
+        # Sinon
         elif selections:
+            # Tout déselectionner dans l'arbre
             localTree.UnselectAll()
 
         return d
 
-    # Called when OnDrop returns True.  We need to get the data and
-    # do something with it.
     def OnData(self, x, y, d):
-        # copy the data from the drag source to our data object
+        # Si le Drag and Drop contient des données
         if self.GetData():
-            # convert it back to a list and give it to the viewer
+            # Réccupérer ces données, et les convertir d'octets en une liste
+            # Note : Évènement contraire de ce qu'il se passe dans "startDrag" de "listManager.py"
             ldata = self.data.GetData()
             l = cPickle.loads(ldata)
+
+            # Dire à l'arbre qu'il faut insérer ces données dans une playlist
             localTree.insert(l, x, y)
 
-        # what is returned signals the source what to do
-        # with the original data (move, copy, etc.)  In this
-        # case we just return the suggested value given to us.
         return d
