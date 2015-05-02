@@ -9,6 +9,7 @@ from uiManager import listManager
 TODO : Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
        Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
        Possibilité d'ajouter des chaînes
+       Regarder les TODO en commentaire : ajouter une fonctionnalité au bouton refresh...
        ...
 """
 
@@ -20,6 +21,9 @@ class AddAnUrl(wx.Dialog):
 
         ws = self.GetWindowStyle()
         self.SetWindowStyle(ws & wx.STAY_ON_TOP)
+
+        self.isDnD = False
+        self.InstancesToDestroy = []
 
         # Bla bla quotidien
         self.InitUI()
@@ -47,7 +51,7 @@ class AddAnUrl(wx.Dialog):
         self.selectUrl = wx.TextCtrl(pnl)
         self.Text = wx.StaticText(pnl, -1, "Select the URL's name: ", style=wx.EXPAND | wx.ALIGN_LEFT)
 
-        #TODO: Comments
+        # Ajouter les éléments aux différents sizer
         radioVerticalSizer.Add(createNewText, wx.ALIGN_TOP)
         radioVerticalSizer.Add(self.radioURL)
         radioVerticalSizer.Add(self.radioPlaylist)
@@ -59,19 +63,24 @@ class AddAnUrl(wx.Dialog):
         panelVerticalSizer.Add(radioVerticalSizer, 1, wx.LEFT | wx.EXPAND, 1)
         panelVerticalSizer.Add(URLVerticalSizer, 1, wx.LEFT | wx.EXPAND)
 
+        # Appliquer le sizer au panel
         pnl.SetSizer(panelVerticalSizer)
 
+        # Créer les boutons Ok et Cancel, et un sizer les contenants
         endButtonsSizer = wx.BoxSizer(wx.HORIZONTAL)
         okButton = wx.Button(self, label='Ok')
         closeButton = wx.Button(self, label='Cancel')
         endButtonsSizer.Add(okButton)
         endButtonsSizer.Add(closeButton, flag=wx.LEFT, border=5)
 
+        # Ajouter au sizer tous les élements de la fenêtre
         mainVerticalBox.Add(pnl, proportion=1, flag=wx.ALL | wx.EXPAND, border=5)
         mainVerticalBox.Add(endButtonsSizer, flag=wx.ALIGN_CENTER | wx.TOP | wx.BOTTOM, border=10)
 
+        # Appliquer ce sizer
         self.SetSizer(mainVerticalBox)
 
+        # Appeler les fonction OnOk et OnClose aux boutons ok et cancel
         okButton.Bind(wx.EVT_BUTTON, self.OnOk)
         closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
 
@@ -84,9 +93,11 @@ class AddAnUrl(wx.Dialog):
         self.EndModal(wx.ID_ABORT)
 
     def OnRadioGroupSelected(self, event):
+        # Changer le texte disant quel élément est créé
         self.Text.SetLabel("Select the Playlist's name : ")
 
     def OnRadioURLSelected(self, event):
+        # Changer le texte disant quel élément est créé
         self.Text.SetLabel("Select the URL's name : ")
 
 
@@ -160,6 +171,7 @@ class mainUI(wx.Frame):
         # Modifier la couleur d'arrière plan du panel en gris clair
         self.panel.SetBackgroundColour('#F0F0F0')
 
+        #TODO
         sidebar_tree = treeManager.Tree()
         sidebar_tree.name = 'root'
 
@@ -181,7 +193,7 @@ class mainUI(wx.Frame):
         #    channel.name = i
 
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, wx.ID_ANY, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
+        self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, wx.ID_ANY, self.OnDragAndDropEnd, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
         self.mainTree.ExpandAll()
 
         # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction
@@ -222,7 +234,7 @@ class mainUI(wx.Frame):
     def CreateVideoList(self, videoList):
         self.videoList = None
         # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+        self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
 
     def CreateSplitter(self):
         # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
@@ -234,29 +246,6 @@ class mainUI(wx.Frame):
         self.CreateVideoList(self.videosList)
         # Couper l'écran en deux avec à gauche le panel (avec une taille par défaut de 200) et à droite la liste de vidéos
         self.split.SplitVertically(self.panel, self.videoList, 210)
-
-    def RebuildTree(self):
-        oldPanel = self.panel
-        self.CreateTree()
-        self.split.ReplaceWindow(oldPanel, self.panel)
-        oldPanel.Destroy()
-
-    def RebuildList(self):
-        oldList = self.videoList
-        self.CreateVideoList(self.videosList)
-        self.split.ReplaceWindow(oldList, self.videoList)
-
-        oldList.Hide()
-        wx.CallLater(1000, oldList.Destroy)
-
-    def OnSelChanged(self, e):
-        pass
-        item = self.mainTree.GetSelection()
-
-        if self.mainTree.GetItemParent(item) != self.mainTree.GetRootItem():
-            playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
-            self.videosList = self.database.getVideosFromPlaylist(playlistID)
-            self.RebuildList()
 
     def CreateToolbar(self):
         # Créer la barre d'outils avec refresh et search (noter le 'B' majuscule dans 'Bar')
@@ -292,7 +281,54 @@ class mainUI(wx.Frame):
         # Modifier la taille des icones de la barre d'outils
         toolbar.SetToolBitmapSize((32, 32))
 
+    def RebuildTree(self):
+        #TODO: Comments
+        oldPanel = self.panel
+        self.CreateTree()
+        self.split.ReplaceWindow(oldPanel, self.panel)
+        oldPanel.Destroy()
+
+    def RebuildList(self):
+        #TODO: Comments
+        oldList = self.videoList
+
+        self.CreateVideoList(self.videosList)
+        self.split.ReplaceWindow(oldList, self.videoList)
+
+        if self.isDnD:
+            self.InstancesToDestroy.append(oldList)
+            oldList.Hide()
+        else:
+            wx.CallAfter(oldList.Destroy)
+
+    def OnDragAndDropStart(self):
+        #TODO: Comments
+        print "Start"
+        self.isDnD = True
+        self.InstancesToDestroy = []
+
+    def OnDragAndDropEnd(self):
+        #TODO: Comments
+        print "End"
+        self.isDnD = False
+
+        for instance in self.InstancesToDestroy[:-1]:
+            print "Destroying instance ", instance
+            wx.CallLater(1000, instance.Destroy)
+
+        self.InstancesToDestroy = []
+
+    def OnSelChanged(self, e):
+        #TODO: Comments
+        item = self.mainTree.GetSelection()
+
+        if self.mainTree.GetItemParent(item) != self.mainTree.GetRootItem():
+            playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
+            self.videosList = self.database.getVideosFromPlaylist(playlistID)
+            self.RebuildList()
+
     def OnRefresh(self, event):
+        #TODO
         print('Refreshing feeds...')
 
     def OnClickAddButton(self, event):
@@ -312,6 +348,7 @@ class mainUI(wx.Frame):
             self.RebuildTree()
 
     def OnClickRemoveButton(self, event):
+        #TODO: Comments
         item = self.mainTree.GetSelection()
 
         if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
@@ -322,15 +359,18 @@ class mainUI(wx.Frame):
             self.RebuildTree()
 
     def OnSearch(self, event):
-
+        #TODO: Comments
         texte = self.searchbar.GetValue()
+
         if texte != '':
             print('Rechercher : ' + texte)
         else:
             print('Ne pas rechercher')
 
     def OnSearchTextChanged(self, event):
+        #TODO: Comments
         texte = self.searchbar.GetValue()
+
         if texte != '':
             print('Nouvelle recherche : ' + texte)
         else:

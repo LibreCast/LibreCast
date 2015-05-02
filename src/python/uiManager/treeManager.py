@@ -36,11 +36,13 @@ class Tree(object):
 
 class pyTree(wx.TreeCtrl):
 
-    def __init__(self, tree, parent, id, style=''):
+    def __init__(self, tree, parent, id, onDnDEndMethod, style=''):
         """
         Initialize function
         """
         wx.TreeCtrl.__init__(self, parent, id)
+
+        self.onDnDEndMethod = onDnDEndMethod
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style:
@@ -61,7 +63,7 @@ class pyTree(wx.TreeCtrl):
         self.output = None
 
     def addData(self, tree, group, level=0):
-        self.SetDropTarget(ListDrop(self))
+        self.SetDropTarget(ListDrop(self, self.onDnDEndMethod))
 
         # Pour chaque enfant de l'arbre
         for child in tree.children:
@@ -88,10 +90,11 @@ class pyTree(wx.TreeCtrl):
 
 class ListDrop(wx.PyDropTarget):
 
-    def __init__(self, source):
+    def __init__(self, source, onDnDEndMethod):
         wx.PyDropTarget.__init__(self)
 
         self.source = source
+        self.onDnDEndMethod = onDnDEndMethod
 
         # Dire quel type de données sont acceptées
         self.data = wx.CustomDataObject("ListCtrlItems")
@@ -130,6 +133,8 @@ class ListDrop(wx.PyDropTarget):
         return d
 
     def OnData(self, x, y, d):
+        self.onDnDEndMethod()
+
         # Si le Drag and Drop contient des données
         if self.GetData():
             # Réccupérer ces données, et les convertir d'octets en une liste

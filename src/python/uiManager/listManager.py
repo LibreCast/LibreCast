@@ -26,8 +26,10 @@ URL = 'http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p
 
 
 class pyList(wx.ListCtrl):
-    def __init__(self, parent, id, videoList, style=''):
+    def __init__(self, parent, id, videoList, onDnDStartMethod, style=''):
         wx.ListCtrl.__init__(self, parent, id)
+
+        self.onDnDStartMethod = onDnDStartMethod
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style != '':
@@ -69,6 +71,8 @@ class pyList(wx.ListCtrl):
         self.Bind(wx.EVT_LIST_BEGIN_DRAG, self.startDrag)
 
     def startDrag(self, e):
+        self.onDnDStartMethod()
+
         # Créer les données à transférer
         l = []
         idx = -1
