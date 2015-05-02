@@ -5,10 +5,11 @@ import cPickle
 from uiManager import videoManager
 
 """
-Exemple de données possibles que l'on peut réccupérer du xml.
-Il vaudrait mieux implémenter une fonction réccursive afin de
-pourvoir avoir autant de sous-groupes que l'on veut, mais
-les specs n'en prévoient qu'un nombre donné.
+TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
+       Modifier l'icone de DnD, avec l'image "DnD.png"
+       Changer la vidéo affichée lorsqu'on double click dessus
+       Possibilité de renommer les playlists
+       ...
 """
 
 # Durée : 0:04:03
