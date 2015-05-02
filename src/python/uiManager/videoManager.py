@@ -303,9 +303,13 @@ class videoWindow(wx.Frame):
         self.SetSizeHints(minW=-1, minH=hsize, maxH=hsize)
         # Calculer la taille des éléments de la fenêtre avec les fonctions par défaut
         event.Skip()
+
         # Appliquer la taille du panel qui les contient au slider et à la gauge
-        self.timeSlider.SetSize((self.timePanel.GetSize()[0], -1))
-        self.downloadGauge.SetWidth(self.timePanel.GetSize()[0])
+        wx.CallAfter(self.timeSlider.SetSize, (self.timePanel.GetSize()[0], -1))
+        wx.CallAfter(self.downloadGauge.SetWidth, self.timePanel.GetSize()[0])
+
+    def printx(self, item):
+        print item
 
     # Note : Cette fonction peut, dans certains cas, suspendre l'application (en mode 'ne répond plus' durant un certains temps)
     #        On la lance donc dans une thread différente afin de ne pas suspendre l'interface
