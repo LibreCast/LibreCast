@@ -193,7 +193,7 @@ class mainUI(wx.Frame):
         #    channel.name = i
 
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, wx.ID_ANY, self.OnDragAndDropEnd, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES)
+        self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, wx.ID_ANY, self.OnDragAndDropEnd, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
         self.mainTree.ExpandAll()
 
         # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction
@@ -295,10 +295,13 @@ class mainUI(wx.Frame):
         self.CreateVideoList(self.videosList)
         self.split.ReplaceWindow(oldList, self.videoList)
 
-        if self.isDnD:
-            self.InstancesToDestroy.append(oldList)
-            oldList.Hide()
-        else:
+        try:
+            if self.isDnD:
+                self.InstancesToDestroy.append(oldList)
+                oldList.Hide()
+            else:
+                wx.CallAfter(oldList.Destroy)
+        except Exception:
             wx.CallAfter(oldList.Destroy)
 
     def OnDragAndDropStart(self):

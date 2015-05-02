@@ -3,6 +3,11 @@
 import wx
 import cPickle
 
+"""
+TODO : Right click -> Rename + Delete menus
+       ...
+"""
+
 
 class Tree(object):
 
@@ -59,8 +64,10 @@ class pyTree(wx.TreeCtrl):
         # de là qu'on extrait les données
         self.addData(tree, self.root)
 
-        # Par défaut, on ne sait pas s'il y a une zone de texte modifiable
-        self.output = None
+        self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnPlaylistRenamed)
+
+    def OnPlaylistRenamed(self, e):
+        print "Renamed ", e.GetOldItem(), " into ", e.GetLabel()
 
     def addData(self, tree, group, level=0):
         self.SetDropTarget(ListDrop(self, self.onDnDEndMethod))
