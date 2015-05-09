@@ -67,25 +67,6 @@ class Database(object):
 
         self.base.commit()
 
-    def getPlaylists(self):
-        cursor = self.base.cursor()
-
-        # On séléctionne toutes les playlists
-        cursor.execute('SELECT (name) FROM playlists')
-
-        return cursor.fetchall()
-
-    def getPlaylistIDFromName(self, name):
-        cursor = self.base.cursor()
-
-        cursor.execute('SELECT * FROM playlists WHERE name=(:name)', {"name": name})
-        allRows = cursor.fetchall()
-
-        if allRows:
-            return allRows[0][0]
-        else:
-            return -1
-
     def removePlaylist(self, playlistId):
         cursor = self.base.cursor()
 
@@ -93,20 +74,6 @@ class Database(object):
         cursor.execute('DELETE FROM playlists WHERE id = :id', {'id': playlistId})
 
         self.base.commit()
-
-    def getVideosFromPlaylist(self, playlistId):
-        cursor = self.base.cursor()
-
-        # On séléctionne toutes les playlists
-        cursor.execute('SELECT * FROM playlistsVideos WHERE playlistId = :id', {'id': playlistId})
-
-        return cursor.fetchall()
-
-    def getAllVideos(self):
-        #TODO
-        cursor = self.base.cursor()
-
-        #cursor.execute('SELECT () FROM')
 
     def insertVideoInPlaylist(self, videoId, playlistId):
         cursor = self.base.cursor()
@@ -128,6 +95,69 @@ class Database(object):
         })
 
         self.base.commit()
+
+    def getFeeds(self):
+        cursor = self.base.cursor()
+
+        # On séléctionne toutes les playlists
+        cursor.execute('SELECT * FROM feeds')
+
+        return cursor.fetchall()
+
+    def getFeedIDFromURL(self, url):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT * FROM feeds WHERE url=(:url)', {"url": url})
+        allRows = cursor.fetchall()
+
+        if allRows:
+            return allRows[0][0]
+        else:
+            return -1
+
+    def getPlaylistIDFromName(self, name):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT * FROM playlists WHERE name=(:name)', {"name": name})
+        allRows = cursor.fetchall()
+
+        if allRows:
+            return allRows[0][0]
+        else:
+            return -1
+
+    def getVideoIDFromName(self, name):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT * FROM videos WHERE name=(:name)', {"name": name})
+        allRows = cursor.fetchall()
+
+        if allRows:
+            return allRows[0][0]
+        else:
+            return -1
+
+    def getPlaylists(self):
+        cursor = self.base.cursor()
+
+        # On séléctionne toutes les playlists
+        cursor.execute('SELECT (name) FROM playlists')
+
+        return cursor.fetchall()
+
+    def getVideosFromPlaylist(self, playlistId):
+        cursor = self.base.cursor()
+
+        # On séléctionne toutes les playlists
+        cursor.execute('SELECT * FROM playlistsVideos WHERE playlistId = :id', {'id': playlistId})
+
+        return cursor.fetchall()
+
+    def getAllVideos(self):
+        #TODO
+        cursor = self.base.cursor()
+
+        #cursor.execute('SELECT () FROM')
 
     def close(self):
         cursor = self.base.cursor()

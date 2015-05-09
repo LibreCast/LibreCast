@@ -12,17 +12,6 @@ from threading import Thread
 MEDIASTATE_PLAYING = 2
 
 
-def setWorkingDirectory():
-    # On récupère l'adresse du dossier du fichier actuel (...LibreCast/python/)
-    try:
-        approot = os.path.dirname(os.path.abspath(__file__))
-    except NameError:
-        approot = os.path.dirname(os.path.abspath(sys.argv[0]))
-
-    # On cd à cette adresse pour accéder aux images directement via le dossier resources
-    os.chdir(approot)
-
-
 class ProgressBar(wx.Panel):
     def __init__(self, parent, id=-1, position=(0, 7), size=(100, 5), prog=0):
         # Stocker la taille de la barre
@@ -102,21 +91,31 @@ class videoWindow(wx.Frame):
         # Stocker la taille par défaut de la fenêtre.
         self.InitialSize = (800, 600)
 
-        setWorkingDirectory()
-
         # Créer toute l'interface
         self.InitUI(url)
 
     def initImages(self):
+        # Set root path
+        try:
+            approot = os.path.dirname(os.path.abspath(__file__))
+        except NameError:  # We are the main py2exe script, not a module
+            approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+        if('.exe' in approot):
+            approot = approot.replace('LibreCast.exe', '')
+
+        if('uiManager' in approot):
+            approot = approot.replace('/uiManager', '')
+
         # Créer les images pour les boutons
-        self.pauseImage = wx.Image('resources/pause.png')
-        self.playImage = wx.Image('resources/play.png')
-        self.fullScreenImage = wx.Image('resources/fullScreen.png')
-        self.windowedImage = wx.Image('resources/windowed.png')
-        self.selectedPauseImage = wx.Image('resources/pauseSelected.png')
-        self.selectedPlayImage = wx.Image('resources/playSelected.png')
-        self.selectedFullScreenImage = wx.Image('resources/fullScreenSelected.png')
-        self.selectedWindowedImage = wx.Image('resources/windowedSelected.png')
+        self.pauseImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'pause.png'))
+        self.playImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'play.png'))
+        self.fullScreenImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'fullScreen.png'))
+        self.windowedImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'windowed.png'))
+        self.selectedPauseImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'pauseSelected.png'))
+        self.selectedPlayImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'playSelected.png'))
+        self.selectedFullScreenImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'fullScreenSelected.png'))
+        self.selectedWindowedImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'windowedSelected.png'))
 
         # Modifier la taille des images
         self.pauseImage.Rescale(22, 22)
@@ -307,9 +306,6 @@ class videoWindow(wx.Frame):
         # Appliquer la taille du panel qui les contient au slider et à la gauge
         wx.CallAfter(self.timeSlider.SetSize, (self.timePanel.GetSize()[0], -1))
         wx.CallAfter(self.downloadGauge.SetWidth, self.timePanel.GetSize()[0])
-
-    def printx(self, item):
-        print item
 
     # Note : Cette fonction peut, dans certains cas, suspendre l'application (en mode 'ne répond plus' durant un certains temps)
     #        On la lance donc dans une thread différente afin de ne pas suspendre l'interface

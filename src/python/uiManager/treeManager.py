@@ -4,7 +4,7 @@ import wx
 import cPickle
 
 """
-TODO : Right click -> Rename + Delete menus
+TODO : Sauvegarder le fait qu'une playlist est renommée
        ...
 """
 
@@ -41,13 +41,17 @@ class Tree(object):
 
 class pyTree(wx.TreeCtrl):
 
-    def __init__(self, tree, parent, id, onDnDEndMethod, style=''):
+    def __init__(self, tree, parent, database, id, onDnDEndMethod, onDnDLeftTargetMethod, OnDnDEnteredTarget, RemoveMethod, style=''):
         """
         Initialize function
         """
         wx.TreeCtrl.__init__(self, parent, id)
 
+        self.database = database
         self.onDnDEndMethod = onDnDEndMethod
+        self.onDnDLeftTargetMethod = onDnDLeftTargetMethod
+        self.OnDnDEnteredTarget = OnDnDEnteredTarget
+        self.OnClickRemoveButton = RemoveMethod
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style:
@@ -65,12 +69,48 @@ class pyTree(wx.TreeCtrl):
         self.addData(tree, self.root)
 
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnPlaylistRenamed)
+        self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self.OnPlaylistWillBeRenamed)
+        self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.OnRightClicked)
 
     def OnPlaylistRenamed(self, e):
+        #TODO
         print "Renamed ", e.GetOldItem(), " into ", e.GetLabel()
 
+    def OnPlaylistWillBeRenamed(self, e):
+        #TODO: Comments
+
+        if self.GetItemText(self.GetItemParent(self.GetSelection())) != "Playlists":
+            e.Veto()
+
+    def OnRightClicked(self, event):
+            #TODO: Comments
+            self.list_item_clicked = event.GetItem()
+
+            menu_titles = ["Rename", "Delete"]
+
+            menu = wx.Menu()
+            self.menu_title_by_id = {}
+            for title in menu_titles:
+                itemId = wx.NewId()
+                self.menu_title_by_id[itemId] = title
+                menu.Append(itemId, title)
+                wx.EVT_MENU(menu, itemId, self.OnMenuSelected)
+
+            self.PopupMenu(menu, event.GetPoint())
+            menu.Destroy()
+
+    def OnMenuSelected(self, event):
+        #TODO: Comments
+        operation = self.menu_title_by_id[event.GetId()]
+        target = self.list_item_clicked
+
+        if operation == "Delete":
+            wx.CallAfter(self.OnClickRemoveButton, event)
+        elif operation == "Rename":
+            self.EditLabel(target)
+
     def addData(self, tree, group, level=0):
-        self.SetDropTarget(ListDrop(self, self.onDnDEndMethod))
+        self.SetDropTarget(ListDrop(self, self.onDnDEndMethod, self.onDnDLeftTargetMethod, self.OnDnDEnteredTarget))
 
         # Pour chaque enfant de l'arbre
         for child in tree.children:
@@ -92,16 +132,20 @@ class pyTree(wx.TreeCtrl):
         # Si l'élément existe, et que c'est bien une playlist
         if index.IsOk() and self.GetSelection() and self.GetItemText(self.GetItemParent(self.GetSelection())) == "Playlists":
             #TODO
-            print 'Should add video "' + title[0] + '"' + ' to playlist "' + self.GetItemText(index) + '"'
+            playlistID = self.database.getPlaylistIDFromName(self.GetItemText(index))
+            videoID = self.database.getVideoIDFromName(title[0])
+            print 'Should add video "' + unicode(title[0]) + '" with ID ' + str(videoID) + ' to playlist "' + self.GetItemText(index) + '" with ID ' + str(playlistID)
 
 
 class ListDrop(wx.PyDropTarget):
 
-    def __init__(self, source, onDnDEndMethod):
+    def __init__(self, source, onDnDEndMethod, onDnDLeftTargetMethod, OnDnDEnteredTarget):
         wx.PyDropTarget.__init__(self)
 
         self.source = source
         self.onDnDEndMethod = onDnDEndMethod
+        self.onDnDLeftTargetMethod = onDnDLeftTargetMethod
+        self.OnDnDEnteredTarget = OnDnDEnteredTarget
 
         # Dire quel type de données sont acceptées
         self.data = wx.CustomDataObject("ListCtrlItems")
@@ -138,6 +182,12 @@ class ListDrop(wx.PyDropTarget):
             self.source.UnselectAll()
 
         return d
+
+    def OnLeave(self):
+        self.onDnDLeftTargetMethod()
+
+    def OnEnter(self, x, y, d):
+        self.OnDnDEnteredTarget()
 
     def OnData(self, x, y, d):
         self.onDnDEndMethod()

@@ -2,6 +2,7 @@
 
 import wx
 import os
+import sys
 from uiManager import treeManager
 from uiManager import listManager
 
@@ -12,6 +13,18 @@ TODO : Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
        Regarder les TODO en commentaire : ajouter une fonctionnalité au bouton refresh...
        ...
 """
+
+# Set root path
+try:
+    approot = os.path.dirname(os.path.abspath(__file__))
+except NameError:  # We are the main py2exe script, not a module
+    approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+if('.exe' in approot):
+    approot = approot.replace('LibreCast.exe', '')
+
+if('uiManager' in approot):
+    approot = approot.replace('/uiManager', '')
 
 
 class AddAnUrl(wx.Dialog):
@@ -28,7 +41,7 @@ class AddAnUrl(wx.Dialog):
         # Bla bla quotidien
         self.InitUI()
         self.SetSize((300, 165))
-        self.SetTitle("Add an URL")
+        self.SetTitle('Add an URL')
 
     def InitUI(self):
         # Lab Lab leutibah
@@ -38,7 +51,7 @@ class AddAnUrl(wx.Dialog):
 
         radioVerticalSizer = wx.BoxSizer(wx.VERTICAL)
         # On créé les boutons radio et (IMPORTANT) on créé des variables propres à l'objet, on peut donc y accéder dans la méthode OnChangeDepth
-        createNewText = wx.StaticText(pnl, -1, "Create a new ", style=wx.EXPAND)
+        createNewText = wx.StaticText(pnl, -1, 'Create a new ', style=wx.EXPAND)
         self.radioPlaylist = wx.RadioButton(pnl, label='Playlist', style=wx.RB_GROUP)
         self.radioURL = wx.RadioButton(pnl, label='URL')
 
@@ -49,7 +62,7 @@ class AddAnUrl(wx.Dialog):
 
         # On créé le texte. Même note que pour les boutons radio
         self.selectUrl = wx.TextCtrl(pnl)
-        self.Text = wx.StaticText(pnl, -1, "Select the URL's name: ", style=wx.EXPAND | wx.ALIGN_LEFT)
+        self.Text = wx.StaticText(pnl, -1, 'Select the URL\'s name: ', style=wx.EXPAND | wx.ALIGN_LEFT)
 
         # Ajouter les éléments aux différents sizer
         radioVerticalSizer.Add(createNewText, wx.ALIGN_TOP)
@@ -94,11 +107,11 @@ class AddAnUrl(wx.Dialog):
 
     def OnRadioGroupSelected(self, event):
         # Changer le texte disant quel élément est créé
-        self.Text.SetLabel("Select the Playlist's name : ")
+        self.Text.SetLabel('Select the Playlist\'s name : ')
 
     def OnRadioURLSelected(self, event):
         # Changer le texte disant quel élément est créé
-        self.Text.SetLabel("Select the URL's name : ")
+        self.Text.SetLabel('Select the URL\'s name : ')
 
 
 class mainUI(wx.Frame):
@@ -184,24 +197,31 @@ class mainUI(wx.Frame):
         playlists = self.database.getPlaylists()
         print playlists
 
+        feeds = self.database.getFeeds()
+        print feeds
+
         for i in playlists:
             playlist = playlists_tree.add()
             playlist.name = i[0].encode('utf-8')
+
+        for i in feeds:
+            feed = channels_tree.add()
+            feed.name = i[1].encode('utf-8')
 
         #for i in channelsContent:
         #    channel = channels.add()
         #    channel.name = i
 
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, wx.ID_ANY, self.OnDragAndDropEnd, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
+        self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
         self.mainTree.ExpandAll()
 
         # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction
         self.mainTree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, self.mainTree)
 
         # Créer les images pour les boutons
-        plusImage = wx.Image(os.path.dirname(__file__)+'/resources/add.png')
-        removeImage = wx.Image(os.path.dirname(__file__)+'/resources/remove.png')
+        plusImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'add.png'))
+        removeImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'remove.png'))
         # Modifier la taille des images
         plusImage.Rescale(12, 12)
         removeImage.Rescale(12, 12)
@@ -252,7 +272,7 @@ class mainUI(wx.Frame):
         toolbar = self.CreateToolBar()
 
         # Créer une variable qui contient l'image refresh.png dans le dossier resources
-        refreshImage = wx.Image(os.path.dirname(__file__)+'/resources/refresh.png')
+        refreshImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'refresh.png'))
         # Ajouter un bouton avec l'image refresh
         refreshTool = toolbar.AddLabelTool(wx.ID_ANY, 'Refresh', wx.BitmapFromImage(refreshImage), shortHelp='Refresh feeds')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
@@ -294,41 +314,35 @@ class mainUI(wx.Frame):
 
         self.CreateVideoList(self.videosList)
         self.split.ReplaceWindow(oldList, self.videoList)
-
-        try:
-            if self.isDnD:
-                self.InstancesToDestroy.append(oldList)
-                oldList.Hide()
-            else:
-                wx.CallAfter(oldList.Destroy)
-        except Exception:
-            wx.CallAfter(oldList.Destroy)
+        wx.CallAfter(oldList.Destroy)
 
     def OnDragAndDropStart(self):
         #TODO: Comments
-        print "Start"
         self.isDnD = True
         self.InstancesToDestroy = []
 
-    def OnDragAndDropEnd(self):
-        #TODO: Comments
-        print "End"
+    def OnDragAndDropLeftTarget(self):
         self.isDnD = False
 
-        for instance in self.InstancesToDestroy[:-1]:
-            print "Destroying instance ", instance
-            wx.CallLater(1000, instance.Destroy)
+    def OnDragAndDropEnteredTarget(self):
+        self.isDnD = True
 
-        self.InstancesToDestroy = []
+    def OnDragAndDropEnd(self):
+        #TODO: Comments
+        self.isDnD = False
 
     def OnSelChanged(self, e):
-        #TODO: Comments
-        item = self.mainTree.GetSelection()
+        if not hasattr(self, 'isDnD'):
+            self.isDnD = False
 
-        if self.mainTree.GetItemParent(item) != self.mainTree.GetRootItem():
-            playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
-            self.videosList = self.database.getVideosFromPlaylist(playlistID)
-            self.RebuildList()
+        if not self.isDnD:
+            #TODO: Comments
+            item = self.mainTree.GetSelection()
+
+            if self.mainTree.GetItemParent(item) != self.mainTree.GetRootItem():
+                playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
+                self.videosList = self.database.getVideosFromPlaylist(playlistID)
+                self.RebuildList()
 
     def OnRefresh(self, event):
         #TODO
@@ -341,12 +355,15 @@ class mainUI(wx.Frame):
         modal = addurl.ShowModal()
 
         # Si le résultat est le bouton 'ok'
-        if modal == wx.ID_OK:
-            # On affiche le bouton 'radio' sélectionné
+        if modal == wx.ID_OK and addurl.selectUrl.GetValue():
+            # Si le bouton radio des playlist est sélectionné
             if addurl.radioPlaylist.GetValue():
-                self.database.createPlaylist(addurl.selectUrl.GetValue())
+                # Si une playlist ne porte pas déjà ce nom
+                if self.database.getPlaylistIDFromName(addurl.selectUrl.GetValue()) == -1:
+                    self.database.createPlaylist(addurl.selectUrl.GetValue())
             else:
-                self.database.insertFeed(addurl.selectUrl.GetValue())
+                if self.database.getFeedIDFromURL(addurl.selectUrl.GetValue()) == -1:
+                    self.database.insertFeed(addurl.selectUrl.GetValue())
 
             self.RebuildTree()
 
@@ -357,8 +374,13 @@ class mainUI(wx.Frame):
         if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
             print('Cannot remove this item')
         else:
-            playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
-            self.database.removePlaylist(playlistID)
+            if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Playlists':
+                playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
+                self.database.removePlaylist(playlistID)
+            else:
+                feedID = self.database.getFeedIDFromURL(self.mainTree.GetItemText(item))
+                self.database.removeFeed(feedID)
+
             self.RebuildTree()
 
     def OnSearch(self, event):
@@ -383,6 +405,6 @@ class mainUI(wx.Frame):
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique
 def main(database_instance):
     ex = wx.App(0)
-    ex.SetAppName("LibreCast")
+    ex.SetAppName('LibreCast')
     main_ui = mainUI(None, wx.ID_ANY, database_instance)
     ex.MainLoop()
