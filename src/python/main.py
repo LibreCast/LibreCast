@@ -11,19 +11,14 @@ from uiManager import mainWindow
 from requestsManager import httpRequestManager
 from requestsManager import xmlManager
 
+# Set root path
+try:
+    approot = os.path.dirname(os.path.abspath(__file__))
+except NameError:  # We are the main py2exe script, not a module
+    approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-def setWorkingDirectory():
-    # On récupère l'adresse du dossier du fichier actuel (...LibreCast/python/)
-    try:
-        approot = os.path.dirname(os.path.abspath(__file__))
-    except NameError:
-        approot = os.path.dirname(os.path.abspath(sys.argv[0]))
-
-    # Depuis cette adresse, on récupère le dossier dans lequel notre dossier est situé (.../LibreCast)
-    approot = os.path.dirname(approot)
-
-    # On cd à cette adresse pour créer le .db au bon endroit
-    os.chdir(approot)
+if('.exe' in approot):
+    approot = approot.replace('LibreCast.exe', '')
 
 
 def callHttpManager(urlList):
@@ -55,10 +50,10 @@ def callHttpManager(urlList):
 
 def main():
     # Modifier le dossier dans lequel la base de donnée sera utilisée
-    setWorkingDirectory()
+    #setWorkingDirectory()
 
     # Connexion à la base de donnée
-    database_instance = database.Database("database.db")
+    database_instance = database.Database(os.path.join(os.environ.get('RESOURCEPATH', approot), 'database.db'))
     database_instance.initDB()
 
     # Appeler la classe créant l'interface.
