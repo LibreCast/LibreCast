@@ -38,24 +38,24 @@ class AddAnUrl(wx.Dialog):
         self.isDnD = False
         self.InstancesToDestroy = []
 
-        # Bla bla quotidien
+        # Initialisation du dialogue d'ajout
         self.InitUI()
         self.SetSize((300, 165))
         self.SetTitle('Add an URL')
 
     def InitUI(self):
-        # Lab Lab leutibah
+        # Création du panel et des boxSizer associés
         pnl = wx.Panel(self)
         panelVerticalSizer = wx.BoxSizer(wx.VERTICAL)
         mainVerticalBox = wx.BoxSizer(wx.VERTICAL)
 
         radioVerticalSizer = wx.BoxSizer(wx.VERTICAL)
-        # On créé les boutons radio et (IMPORTANT) on créé des variables propres à l'objet, on peut donc y accéder dans la méthode OnChangeDepth
+        # On créé les boutons radio et on créé des variables propres à l'objet, on peut donc y accéder dans la méthode OnChangeDepth
         createNewText = wx.StaticText(pnl, -1, 'Create a new ', style=wx.EXPAND)
         self.radioPlaylist = wx.RadioButton(pnl, label='Playlist', style=wx.RB_GROUP)
         self.radioURL = wx.RadioButton(pnl, label='URL')
 
-        # On sélectionne le premier bouton par défaut
+        # On sélectionne le premier bouton  par défaut
         self.radioURL.SetValue(1)
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioGroupSelected, self.radioPlaylist)
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioURLSelected, self.radioURL)
@@ -73,24 +73,25 @@ class AddAnUrl(wx.Dialog):
         URLVerticalSizer.Add(self.Text, 0, wx.ALIGN_BOTTOM)
         URLVerticalSizer.Add(self.selectUrl, 0, wx.EXPAND)
 
+        # On ajoute les Sizer des boutons radio et du texte URL au Sizer du panel
         panelVerticalSizer.Add(radioVerticalSizer, 1, wx.LEFT | wx.EXPAND, 1)
         panelVerticalSizer.Add(URLVerticalSizer, 1, wx.LEFT | wx.EXPAND)
 
-        # Appliquer le sizer au panel
+        # On applique le sizer au panel
         pnl.SetSizer(panelVerticalSizer)
 
-        # Créer les boutons Ok et Cancel, et un sizer les contenants
+        # Créer les boutons Ok et Cancel, et un sizer les contenant
         endButtonsSizer = wx.BoxSizer(wx.HORIZONTAL)
         okButton = wx.Button(self, label='Ok')
         closeButton = wx.Button(self, label='Cancel')
         endButtonsSizer.Add(okButton)
         endButtonsSizer.Add(closeButton, flag=wx.LEFT, border=5)
 
-        # Ajouter au sizer tous les élements de la fenêtre
+        # Ajouter au sizer tous les élements de la fenêtre (panel et boutons de fin)
         mainVerticalBox.Add(pnl, proportion=1, flag=wx.ALL | wx.EXPAND, border=5)
         mainVerticalBox.Add(endButtonsSizer, flag=wx.ALIGN_CENTER | wx.TOP | wx.BOTTOM, border=10)
 
-        # Appliquer ce sizer
+        # Appliquer ce sizer à la fenêtre
         self.SetSizer(mainVerticalBox)
 
         # Appeler les fonction OnOk et OnClose aux boutons ok et cancel
@@ -98,19 +99,19 @@ class AddAnUrl(wx.Dialog):
         closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
 
     def OnOk(self, event):
-        # Fermer la fenêtre en disant que l'utilisateur a cliqué sur Ok
+        # Fermer la fenêtre en renvoyant l'information que l'utilisateur a cliqué sur Ok
         self.EndModal(wx.ID_OK)
 
     def OnClose(self, event):
-        # Fermer la fenêtre en disant que l'utilisateur a cliqué sur Annuler
+        # Fermer la fenêtre en renvoyant l'information que l'utilisateur a cliqué sur Annuler
         self.EndModal(wx.ID_ABORT)
 
     def OnRadioGroupSelected(self, event):
-        # Changer le texte disant quel élément est créé
+        # Changer le texte disant quel élément est créé (nouvelle playlist)
         self.Text.SetLabel('Select the Playlist\'s name : ')
 
     def OnRadioURLSelected(self, event):
-        # Changer le texte disant quel élément est créé
+        # Changer le texte disant quel élément est créé (nouvelle URL)
         self.Text.SetLabel('Select the URL\'s name : ')
 
 
@@ -121,7 +122,7 @@ class mainUI(wx.Frame):
 
         self.setDatabase(database)
 
-        # Créer toute l'interface
+        # Créer toute l'interface utilisateur
         self.InitUI()
 
     def setDatabase(self, database):
@@ -184,16 +185,19 @@ class mainUI(wx.Frame):
         # Modifier la couleur d'arrière plan du panel en gris clair
         self.panel.SetBackgroundColour('#F0F0F0')
 
-        #TODO
+        # Créer la racine principale de l'arbre
         sidebar_tree = treeManager.Tree()
         sidebar_tree.name = 'root'
 
+        # Ajouter une branche playlists affiliée à sidebar_tree (racine)
         playlists_tree = sidebar_tree.add()
         playlists_tree.name = 'Playlists'
-
+        
+        # Ajouter une branche channels affiliée à sidebar_tree (racine) 
         channels_tree = sidebar_tree.add()
         channels_tree.name = 'Abonnements'
 
+        # Afficher les playlists de la base de données
         playlists = self.database.getPlaylists()
         print playlists
 
@@ -202,6 +206,7 @@ class mainUI(wx.Frame):
 
         for i in playlists:
             playlist = playlists_tree.add()
+        # Vérifier l'encodage du nom des playlists (utf-8)
             playlist.name = i[0].encode('utf-8')
 
         for i in feeds:
@@ -302,7 +307,7 @@ class mainUI(wx.Frame):
         toolbar.SetToolBitmapSize((32, 32))
 
     def RebuildTree(self):
-        #TODO: Comments
+        # Sauvegarde et suppression de l'ancien panel; remplacement par le nouvel panel
         oldPanel = self.panel
         self.CreateTree()
         self.split.ReplaceWindow(oldPanel, self.panel)
@@ -317,18 +322,19 @@ class mainUI(wx.Frame):
         wx.CallAfter(oldList.Destroy)
 
     def OnDragAndDropStart(self):
-        #TODO: Comments
+        # Fonction appelée lorsque l'utilisateur commence un glisser-déposer
         self.isDnD = True
         self.InstancesToDestroy = []
 
+        # Lorsque l'on sort de la zone de dépot du glisser-déposer
     def OnDragAndDropLeftTarget(self):
         self.isDnD = False
-
+    
+        # Lorsque l'on entre dans la zone de dépot du glisser-déposer
     def OnDragAndDropEnteredTarget(self):
         self.isDnD = True
 
     def OnDragAndDropEnd(self):
-        #TODO: Comments
         self.isDnD = False
 
     def OnSelChanged(self, e):
@@ -336,7 +342,6 @@ class mainUI(wx.Frame):
             self.isDnD = False
 
         if not self.isDnD:
-            #TODO: Comments
             item = self.mainTree.GetSelection()
 
             if self.mainTree.GetItemParent(item) != self.mainTree.GetRootItem():
@@ -345,7 +350,7 @@ class mainUI(wx.Frame):
                 self.RebuildList()
 
     def OnRefresh(self, event):
-        #TODO
+        # Rafraîchissement de la fenêtre
         print('Refreshing feeds...')
 
     def OnClickAddButton(self, event):
@@ -368,7 +373,7 @@ class mainUI(wx.Frame):
             self.RebuildTree()
 
     def OnClickRemoveButton(self, event):
-        #TODO: Comments
+        # Fonction de suppression d'items/feeds de l'arbre sélectionnés
         item = self.mainTree.GetSelection()
 
         if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
@@ -380,11 +385,11 @@ class mainUI(wx.Frame):
             else:
                 feedID = self.database.getFeedIDFromURL(self.mainTree.GetItemText(item))
                 self.database.removeFeed(feedID)
-
+        # Application des changements à l'arbre
             self.RebuildTree()
 
     def OnSearch(self, event):
-        #TODO: Comments
+        # Fonction de la barre de recherche
         texte = self.searchbar.GetValue()
 
         if texte != '':
@@ -393,7 +398,7 @@ class mainUI(wx.Frame):
             print('Ne pas rechercher')
 
     def OnSearchTextChanged(self, event):
-        #TODO: Comments
+        # Si le texte recherché n'est pas vide, récupérer la valeur de la recherche
         texte = self.searchbar.GetValue()
 
         if texte != '':
