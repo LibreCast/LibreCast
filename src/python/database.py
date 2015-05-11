@@ -23,9 +23,10 @@ class Database(object):
             id INTEGER PRIMARY KEY AUTOINCREMENT,\
             name text,\
             urls text,\
-            length int,\
+            length text,\
             publisher text,\
-            pubdate date\
+            pubdate text,\
+            fluxid int\
         )')
 
         # Création de la table des vidéos
@@ -153,11 +154,41 @@ class Database(object):
 
         return cursor.fetchall()
 
-    def getAllVideos(self):
-        #TODO
+    def insertVideo(self,name,urls,length,author,pubdate,fluxId):
         cursor = self.base.cursor()
 
-        #cursor.execute('SELECT () FROM')
+        cursor.execute(
+            'INSERT INTO videos (name,urls,length,publisher,pubdate,fluxid) VALUES (:name,:urls,:length,:publisher,:pubdate,:fluxid)', {
+            "urls": urls,
+            "name":name,
+            "length":length,
+            "publisher":author,
+            "pubdate":pubdate,
+            "fluxid":fluxId
+        })
+
+        self.base.commit()
+
+    def getAllVideos(self):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT * FROM videos')
+
+        return cursor.fetchall()
+
+    def getVideosFromFeed(self, fluxId):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT * FROM videos WHERE fluxid = :id',{"id":fluxId})
+
+        return cursor.fetchall()
+
+    def removeAllVideos(self):
+        cursor = self.base.cursor()
+
+
+
+        self.base.commit()
 
     def close(self):
         cursor = self.base.cursor()

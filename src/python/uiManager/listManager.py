@@ -58,7 +58,8 @@ class pyList(wx.ListCtrl):
             if isinstance(videoList, list):
                 for video in videoList:
                     try:
-                        self.AddLine(video[0], video[1], video[2], video[3])
+                        print type(video[1]), type(video[2]), type(video[3]), type(video[4])
+                        self.AddLine(video[1], video[4], video[5], video[3])
                     except Exception, e:
                         print e
 
