@@ -5,6 +5,9 @@ import os
 import sys
 from uiManager import treeManager
 from uiManager import listManager
+from pyxmlcast import *
+from threading import Thread
+from requestsManager import httpRequestManager
 
 """
 TODO : Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
@@ -344,14 +347,44 @@ class mainUI(wx.Frame):
         if not self.isDnD:
             item = self.mainTree.GetSelection()
 
-            if self.mainTree.GetItemParent(item) != self.mainTree.GetRootItem():
+            if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Playlists':
                 playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
                 self.videosList = self.database.getVideosFromPlaylist(playlistID)
                 self.RebuildList()
+            elif self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
+                fluxID = self.database.getFeedIDFromURL(self.mainTree.GetItemText(item))
+                self.videosList = self.database.getVideosFromFeed(fluxID)
+                self.RebuildList()
 
     def OnRefresh(self, event):
-        # Rafraîchissement de la fenêtre
-        print('Refreshing feeds...')
+        # Rafraîchissement de la fenêtre, dans une thread séparée
+        # pour éviter de bloquer l'interface
+        thread = Thread(target=self.refreshFlux, args=[])
+        wx.CallAfter(thread.run)
+    
+    def refreshFlux(self):
+        feeds = self.database.getFeeds()
+        
+        for feed in feeds:
+            url = feed[1]
+            xmlContent = httpRequestManager.OpenUrl(url+"/flux.xml")
+
+            # URL invalide
+            if not xmlContent[1]:
+                pass
+            
+            parsedCast = PyXMLCast(xmlContent[0])
+            videos = parsedCast.getAllVideos()
+            for video in videos:
+                self.database.insertVideo(
+                    video['title'],
+                    video['url'],
+                    video['length'],
+                    video['author'],
+                    video['pubdate'],
+                    feed[0]
+                )
+        print self.database.getAllVideos()
 
     def OnClickAddButton(self, event):
         # Creation du dialogue
