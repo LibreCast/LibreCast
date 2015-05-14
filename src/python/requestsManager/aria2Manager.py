@@ -26,3 +26,15 @@ class Aria2Manager(object):
 		total = infos['totalLength']
 		
 		return math.trunc((float(current)/float(total)) * 100)
+
+	def getDownloadSpeed(self,gid):
+		infos = self.getInfos(gid)
+
+		return infos['downloadSpeed']
+
+	def getETA(self,gid):
+		infos = self.getInfos(gid)
+
+		remainingSize = int(infos['totalLength']) - int(infos['completedLength'])
+
+		return math.trunc(float(remainingSize)/float(infos['downloadSpeed']))
