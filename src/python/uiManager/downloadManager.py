@@ -76,7 +76,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
     		sizer.Add(titleLabel, 0, wx.TOP | wx.RIGHT | wx.LEFT, 5)
     		sizer.Add(progressSizer, 1, wx.RIGHT | wx.LEFT | wx.EXPAND, 10)
-    		sizer.Add(infoLabel, 0, wx.RIGHT | wx.LEFT | wx.BOTTOM | wx.TOP, 5)
+    		sizer.Add(infoLabel, 0, wx.ALL, 5)
 
     		if download_count% 2 != 0:
     			panel.SetBackgroundColour(wx.Colour(239, 245, 255))
