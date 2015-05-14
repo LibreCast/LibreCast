@@ -5,6 +5,8 @@ import sys
 import wx
 import wx.lib.scrolledpanel as scrolled
 
+from wx.lib.pubsub import pub
+
 try:
     approot = os.path.dirname(os.path.abspath(__file__))
 except NameError:  # We are the main py2exe script, not a module
