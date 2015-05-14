@@ -3,6 +3,7 @@
 
 from lxml import etree
 
+
 class PyXMLCast(object):
     def __init__(self, xmlFile):
         self.channel = etree.parse(xmlFile).find('channel')
@@ -19,20 +20,20 @@ class PyXMLCast(object):
     def getAllVideos(self):
         items = self.channel.findall('item')
         videos = []
-        
+
         for item in items:
             video = {
-                'title':item.find('title').text,
-                'description':item.find('itunes:summary',namespaces={
-                    'itunes':'http://www.itunes.com/dtds/podcast-1.0.dtd'
+                'title': item.find('title').text,
+                'description': item.find('itunes:summary', namespaces={
+                    'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
                 }).text,
-                'length':item.find('itunes:duration',namespaces={
-                    'itunes':'http://www.itunes.com/dtds/podcast-1.0.dtd'
+                'length': item.find('itunes:duration', namespaces={
+                    'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
                 }).text,
-                'author':item.find('itunes:author',namespaces={
-                    'itunes':'http://www.itunes.com/dtds/podcast-1.0.dtd'
+                'author': item.find('itunes:author', namespaces={
+                    'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
                 }).text,
-                'pubdate':item.find('pubDate').text
+                'pubdate': item.find('pubDate').text
             }
 
             if item.find('magnet') is not None:
@@ -43,4 +44,3 @@ class PyXMLCast(object):
             videos += [video]
 
         return videos
-
