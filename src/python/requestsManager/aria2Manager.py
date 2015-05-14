@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import xmlrpclib
+import math
 
 class Aria2Manager(object):
 	def __init__(self):
@@ -15,5 +16,13 @@ class Aria2Manager(object):
 	def pause(self):
 		self.rpc.aria2.pauseAll()
 
-	def getProgession(self,gid):
-		self.rpc.aria2.tellStatus(gid)
+	def getInfos(self,gid):
+		return self.rpc.aria2.tellStatus(gid)
+
+	def getProgressPercentage(self,gid):
+		infos = self.getInfos(gid)
+		
+		current = infos['completedLength']
+		total = infos['totalLength']
+		
+		return math.trunc((float(current)/float(total)) * 100)
