@@ -65,15 +65,18 @@ class DownloadPanel(scrolled.ScrolledPanel):
     		progressSizer = wx.BoxSizer(wx.HORIZONTAL)
     		gauge = Gauge(panel, 8, self.download_number)
     		cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel.png'))
-    		cancelImage.Rescale(15, 15)
+    		cancelImage.Rescale(12, 12)
+    		cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel_pressed.png'))
+    		cancelImagePressed.Rescale(12, 12)
     		cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER)
+    		cancelButton.SetBitmapSelected(wx.BitmapFromImage(cancelImagePressed))
 
     		progressSizer.Add(gauge, 1, wx.RIGHT | wx.EXPAND, 10)
     		progressSizer.Add(cancelButton, 0, wx.RIGHT | wx.LEFT, 5)
 
     		sizer.Add(titleLabel, 0, wx.TOP | wx.RIGHT | wx.LEFT, 5)
     		sizer.Add(progressSizer, 1, wx.RIGHT | wx.LEFT | wx.EXPAND, 10)
-    		sizer.Add(infoLabel, 0, wx.RIGHT | wx.LEFT | wx.BOTTOM, 5)
+    		sizer.Add(infoLabel, 0, wx.RIGHT | wx.LEFT | wx.BOTTOM | wx.TOP, 5)
 
     		if download_count% 2 != 0:
     			panel.SetBackgroundColour(wx.Colour(239, 245, 255))
