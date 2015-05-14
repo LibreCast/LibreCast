@@ -49,9 +49,6 @@ def callHttpManager(urlList):
 
 
 def main():
-    # Modifier le dossier dans lequel la base de donnée sera utilisée
-    #setWorkingDirectory()
-
     # Connexion à la base de donnée
     database_instance = database.Database(os.path.join(os.environ.get('RESOURCEPATH', approot), 'database.db'))
     database_instance.initDB()
