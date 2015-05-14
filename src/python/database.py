@@ -5,6 +5,7 @@ import sqlite3
 
 
 class Database(object):
+
     def __init__(self, dbfile):
         super(Database, self).__init__()
         self.base = sqlite3.connect(dbfile)
@@ -154,18 +155,17 @@ class Database(object):
 
         return cursor.fetchall()
 
-    def insertVideo(self,name,urls,length,author,pubdate,fluxId):
+    def insertVideo(self, name, urls, length, author, pubdate, fluxId):
         cursor = self.base.cursor()
 
-        cursor.execute(
-            'INSERT INTO videos (name,urls,length,publisher,pubdate,fluxid) VALUES (:name,:urls,:length,:publisher,:pubdate,:fluxid)', {
-            "urls": urls,
-            "name":name,
-            "length":length,
-            "publisher":author,
-            "pubdate":pubdate,
-            "fluxid":fluxId
-        })
+        cursor.execute('INSERT INTO videos (name,urls,length,publisher,pubdate,fluxid) VALUES (:name,:urls,:length,:publisher,:pubdate,:fluxid)', {
+                "urls": urls,
+                "name": name,
+                "length": length,
+                "publisher": author,
+                "pubdate": pubdate,
+                "fluxid": fluxId
+            })
 
         self.base.commit()
 
@@ -179,14 +179,12 @@ class Database(object):
     def getVideosFromFeed(self, fluxId):
         cursor = self.base.cursor()
 
-        cursor.execute('SELECT * FROM videos WHERE fluxid = :id',{"id":fluxId})
+        cursor.execute('SELECT * FROM videos WHERE fluxid = :id', {"id": fluxId})
 
         return cursor.fetchall()
 
     def removeAllVideos(self):
         cursor = self.base.cursor()
-
-
 
         self.base.commit()
 
