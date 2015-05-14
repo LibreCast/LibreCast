@@ -117,7 +117,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
             progressSizer = wx.BoxSizer(wx.HORIZONTAL)
             gauge = Gauge(panel, fsize, self.download_number)
-            cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'cancel.png'))
+            cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel.png'))
             cancelImage.Rescale(15, 15)
             cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER)
 
