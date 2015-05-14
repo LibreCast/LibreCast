@@ -32,54 +32,64 @@ class DownloadPanel(scrolled.ScrolledPanel):
     def __init__(self, parent):
         scrolled.ScrolledPanel.__init__(self, parent)
 
-        self.data = []
         self.download_number = 1
+        self.downloads = [
+        	{
+        		"gid":"1234",
+        		"title":"XViD.NyXD.avi"
+        	},
+        	{
+        		"gid":"1274",
+        		"title":"LOL.Scout.avi"
+        	}
+        ]
 
         self.SetBackgroundColour(wx.Colour(255, 255, 255))
+        self.rebuildInterface()
 
-        # Create the sizers
-        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+    def rebuildInterface(self):
+    	self.mainSizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.SetSizer(self.mainSizer)
+    	download_count = 0
+
+    	for download in self.downloads:
+    		panel = wx.Panel(self)
+    		sizer = wx.BoxSizer(wx.VERTICAL)
+
+    		titleLabel = wx.StaticText(panel, label=download['title'])
+
+    		font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+    		infoLabel = wx.StaticText(panel, label="%s of %s (%s/sec) — %s remaining" % ("53.7", "195 MB", "21.6 MB", "6 seconds"))
+    		infoLabel.SetFont(font)
+
+    		progressSizer = wx.BoxSizer(wx.HORIZONTAL)
+    		gauge = Gauge(panel, 8, self.download_number)
+    		cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel.png'))
+    		cancelImage.Rescale(15, 15)
+    		cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER)
+
+    		progressSizer.Add(gauge, 1, wx.RIGHT | wx.EXPAND, 10)
+    		progressSizer.Add(cancelButton, 0, wx.RIGHT | wx.LEFT, 5)
+
+    		sizer.Add(titleLabel, 0, wx.TOP | wx.RIGHT | wx.LEFT, 5)
+    		sizer.Add(progressSizer, 1, wx.RIGHT | wx.LEFT | wx.EXPAND, 10)
+    		sizer.Add(infoLabel, 0, wx.RIGHT | wx.LEFT | wx.BOTTOM, 5)
+
+    		if download_count% 2 != 0:
+    		    panel.SetBackgroundColour(wx.Colour(255, 255, 255))
+    		else:
+    			panel.SetBackgroundColour(wx.Colour(239, 245, 255))
+
+    		panel.SetSizer(sizer)
+    		self.mainSizer.Add(panel, 0, wx.EXPAND)
+
+    		self.Layout()
+    		self.SetupScrolling()
+
+    		download_count += 1
+
+    	self.SetSizer(self.mainSizer)
         self.SetAutoLayout(1)
-        self.SetupScrolling()
-        self.addDownload(None)
-        self.addDownload(None)
-
-    def addDownload(self,url):
-    	panel = wx.Panel(self)
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        fname = "XViD.Screener.illegal.avi"
-        lbl = wx.StaticText(panel, label="%s" % fname)
-        self.infoLabel = wx.StaticText(panel, label="%s of %s (%s/sec) — %s remaining" % ("53.7", "195 MB", "21.6 MB", "6 seconds"))
-        font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
-        self.infoLabel.SetFont(font)
-
-        progressSizer = wx.BoxSizer(wx.HORIZONTAL)
-        gauge = Gauge(panel, 8, self.download_number)
-        cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel.png'))
-        cancelImage.Rescale(15, 15)
-        cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER)
-
-        progressSizer.Add(gauge, 1, wx.RIGHT | wx.EXPAND, 10)
-        progressSizer.Add(cancelButton, 0, wx.RIGHT | wx.LEFT, 5)
-
-        sizer.Add(lbl, 0, wx.TOP | wx.RIGHT | wx.LEFT, 5)
-        sizer.Add(progressSizer, 1, wx.RIGHT | wx.LEFT | wx.EXPAND, 10)
-        sizer.Add(self.infoLabel, 0, wx.RIGHT | wx.LEFT | wx.BOTTOM, 5)
-
-        if self.download_number % 2 != 0:
-            panel.SetBackgroundColour(wx.Colour(255, 255, 255))
-        else:
-            panel.SetBackgroundColour(wx.Colour(239, 245, 255))
-        panel.SetSizer(sizer)
-        self.mainSizer.Add(panel, 0, wx.EXPAND)
-
-        self.Layout()
-
-        # start thread
-        self.download_number += 1
-
         self.SetupScrolling()
 
 class DownloaderFrame(wx.Frame):
