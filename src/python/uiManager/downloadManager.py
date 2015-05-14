@@ -6,48 +6,7 @@ import sys
 import wx
 import wx.lib.scrolledpanel as scrolled
 
-from threading import Thread
 from wx.lib.pubsub import pub
-
-
-class DownloadThread(Thread):
-
-    def __init__(self, gnum, url, fsize):
-        Thread.__init__(self)
-        self.fsize = fsize
-        self.gnum = gnum
-        self.url = url
-        self.start()
-
-    def run(self):
-        local_fname = os.path.basename(self.url)
-        count = 1
-        while True:
-            if os.path.exists(local_fname):
-                tmp, ext = os.path.splitext(local_fname)
-                cnt = "(%s)" % count
-                local_fname = tmp + cnt + ext
-                count += 1
-            else:
-                break
-        req = requests.get(self.url, stream=True)
-        total_size = 0
-        print local_fname
-        with open(local_fname, "wb") as fh:
-            for byte in req.iter_content(chunk_size=1024):
-                if byte:
-                    fh.write(byte)
-                    fh.flush()
-                total_size += len(byte)
-                if total_size < self.fsize:
-                    wx.CallAfter(pub.sendMessage,
-                                 "update_%s" % self.gnum,
-                                 msg=total_size)
-        print "DONE!"
-        wx.CallAfter(pub.sendMessage,
-                     "update_%s" % self.gnum,
-                     msg=self.fsize)
-
 
 class Gauge(wx.Gauge):
     def __init__(self, parent, range, num):
@@ -70,26 +29,15 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         # Create the sizers
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
-        dlSizer = wx.BoxSizer(wx.HORIZONTAL)
-
-        # Create the widgets
-        lbl = wx.StaticText(self, label="Download URL:")
-        self.dl_txt = wx.TextCtrl(self)
-        btn = wx.Button(self, label="Download")
-        btn.Bind(wx.EVT_BUTTON, self.onDownload)
-
-        # Layout the widgets
-        dlSizer.Add(lbl, 0, wx.ALL | wx.CENTER, 5)
-        dlSizer.Add(self.dl_txt, 1, wx.EXPAND | wx.ALL, 5)
-        dlSizer.Add(btn, 0, wx.ALL, 5)
-        self.mainSizer.Add(dlSizer, 0, wx.EXPAND)
 
         self.SetSizer(self.mainSizer)
         self.SetAutoLayout(1)
         self.SetupScrolling()
+        self.onDownload(None)
+        self.onDownload(None)
 
     def onDownload(self, event):
-        url = self.dl_txt.GetValue()
+        url = "http://tibounise.com"
 
         # Set root path
         try:
@@ -104,19 +52,16 @@ class DownloadPanel(scrolled.ScrolledPanel):
             approot = approot.replace('/uiManager', '')
 
         try:
-            header = requests.head(url)
-            fsize = int(header.headers["content-length"]) / 1024
-
             panel = wx.Panel(self)
             sizer = wx.BoxSizer(wx.VERTICAL)
-            fname = os.path.basename(url)
-            lbl = wx.StaticText(panel, label="Downloading %s" % fname)
+            fname = "XViD.Screener.illegal.avi"
+            lbl = wx.StaticText(panel, label="%s" % fname)
             self.infoLabel = wx.StaticText(panel, label="%s of %s (%s/sec) — %s remaining" % ("53.7", "195 MB", "21.6 MB", "6 seconds"))
             font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
             self.infoLabel.SetFont(font)
 
             progressSizer = wx.BoxSizer(wx.HORIZONTAL)
-            gauge = Gauge(panel, fsize, self.download_number)
+            gauge = Gauge(panel, 8, self.download_number)
             cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel.png'))
             cancelImage.Rescale(15, 15)
             cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER)
@@ -138,8 +83,6 @@ class DownloadPanel(scrolled.ScrolledPanel):
             self.Layout()
 
             # start thread
-            DownloadThread(self.download_number, url, fsize)
-            self.dl_txt.SetValue("")
             self.download_number += 1
         except Exception, e:
             print "Error: ", e
