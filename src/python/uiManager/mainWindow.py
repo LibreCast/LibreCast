@@ -195,8 +195,8 @@ class mainUI(wx.Frame):
         # Ajouter une branche playlists affiliée à sidebar_tree (racine)
         playlists_tree = sidebar_tree.add()
         playlists_tree.name = 'Playlists'
-        
-        # Ajouter une branche channels affiliée à sidebar_tree (racine) 
+
+        # Ajouter une branche channels affiliée à sidebar_tree (racine)
         channels_tree = sidebar_tree.add()
         channels_tree.name = 'Abonnements'
 
@@ -332,7 +332,7 @@ class mainUI(wx.Frame):
         # Lorsque l'on sort de la zone de dépot du glisser-déposer
     def OnDragAndDropLeftTarget(self):
         self.isDnD = False
-    
+
         # Lorsque l'on entre dans la zone de dépot du glisser-déposer
     def OnDragAndDropEnteredTarget(self):
         self.isDnD = True
@@ -361,10 +361,10 @@ class mainUI(wx.Frame):
         # pour éviter de bloquer l'interface
         thread = Thread(target=self.refreshFlux, args=[])
         wx.CallAfter(thread.run)
-    
+
     def refreshFlux(self):
         feeds = self.database.getFeeds()
-        
+
         for feed in feeds:
             url = feed[1]
             xmlContent = httpRequestManager.OpenUrl(url+"/flux.xml")
@@ -372,7 +372,7 @@ class mainUI(wx.Frame):
             # URL invalide
             if not xmlContent[1]:
                 pass
-            
+
             parsedCast = PyXMLCast(xmlContent[0])
             videos = parsedCast.getAllVideos()
             for video in videos:
