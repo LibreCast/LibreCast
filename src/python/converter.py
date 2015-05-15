@@ -2,9 +2,7 @@ import math
 
 
 class Converter():
-    def ConvertSize(size):
-        size_name = ("Ko", "Mo", "Go", "To", "Po", "Eo", "Zo", "Yo")
-    def ConvertSize(self, size):
+    def ConvertSize(self,size):
         size_name = ("Octets", "Kio", "Mio", "Gio", "Tio", "Pio", "Eio", "Zio", "Yio")
         try:
             i = int(math.floor(math.log(size, 1024)))
@@ -17,7 +15,7 @@ class Converter():
         except:
             return '0 octets'
 
-    def ConvertTime(seconds):
+    def ConvertTime(self,seconds):
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
 
@@ -30,13 +28,3 @@ class Converter():
                 return "%d minutes restantes" % (m)
         else:
             return "%d secondes restantes" % s
-
-converter = Converter()
-
-print converter.ConvertSize(10287824)
-print converter.ConvertSize(9999)
-print converter.ConvertSize(0)
-
-print converter.ConvertTime(395)
-print converter.ConvertTime(180)
-print converter.ConvertTime(0)

@@ -42,11 +42,13 @@ class DownloadPanel(scrolled.ScrolledPanel):
         self.aria2 = aria2Manager.Aria2Manager()
 
     def OnTimer(self, event):
+        converter = Converter()
+
         for download in self.downloads:
             eta = self.aria2.getETA(download['gid'])
             percentage = self.aria2.getProgressPercentage(download['gid'])
             downloadSpeed = self.aria2.getDownloadSpeed(download['gid'])
-            download['infoLabel'].SetLabel('%s of %s (%s/sec) - %s s remaining' % ('53.7', '195 MB', downloadSpeed, eta))
+            download['infoLabel'].SetLabel('%s of %s (%s/sec) - %s s remaining' % ('53.7', '195 MB', converter.ConvertSize(downloadSpeed), eta))
             download['gauge'].SetValue(percentage)
 
     def AddDownload(self, url, title):
