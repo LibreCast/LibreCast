@@ -30,7 +30,7 @@ class Aria2Manager(object):
 	def getDownloadSpeed(self,gid):
 		infos = self.getInfos(gid)
 
-		return infos['downloadSpeed']
+		return int(infos['downloadSpeed'])
 
 	def getETA(self,gid):
 		infos = self.getInfos(gid)
