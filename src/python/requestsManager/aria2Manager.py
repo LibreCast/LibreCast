@@ -19,7 +19,7 @@ class Aria2Manager(object):
 	def getInfos(self,gid):
 		return self.rpc.aria2.tellStatus(gid)
 
-	def getProgressPercentage(self,gid):
+	def getProgress(self,gid):
 		infos = self.getInfos(gid)
 		
 		current = infos['completedLength']
@@ -28,7 +28,7 @@ class Aria2Manager(object):
 		if (int(total) == 0):
 			return 0
 		
-		return math.trunc((float(current)/float(total)) * 100)
+		return math.trunc((float(current)/float(total)) * 1000)
 
 	def getDownloadSpeed(self,gid):
 		infos = self.getInfos(gid)
@@ -37,6 +37,11 @@ class Aria2Manager(object):
 
 	def remove(self,gid):
 		self.rpc.aria2.remove(gid)
+
+	def getSize(self,gid):
+		infos = self.getInfos(gid)
+
+		return int(infos['totalLength']), int(infos['completedLength'])
 
 	def getETA(self,gid):
 		infos = self.getInfos(gid)

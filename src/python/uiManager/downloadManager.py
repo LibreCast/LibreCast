@@ -46,12 +46,13 @@ class DownloadPanel(scrolled.ScrolledPanel):
         converter = Converter()
 
         for download in self.downloads:
-            percentage = self.aria2.getProgressPercentage(download['gid'])
+            percentage = self.aria2.getProgress(download['gid'])
             download['gauge'].SetValue(percentage)
             if (self.ticks == 0):
+                size = self.aria2.getSize(download['gid'])
                 eta = self.aria2.getETA(download['gid'])
                 downloadSpeed = self.aria2.getDownloadSpeed(download['gid'])
-                download['infoLabel'].SetLabel('%s of %s (%s/sec) - %s s remaining' % ('53.7', '195 MB', converter.ConvertSize(downloadSpeed), eta))
+                download['infoLabel'].SetLabel('%s of %s (%s/sec) - %s' % (converter.ConvertSize(size[1]), converter.ConvertSize(size[0]), converter.ConvertSize(downloadSpeed), converter.ConvertTime(downloadSpeed)))
 
         self.ticks += 1
         if self.ticks > 5:
@@ -70,7 +71,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         infoLabel.SetFont(font)
 
         progressSizer = wx.BoxSizer(wx.HORIZONTAL)
-        gauge = wx.Gauge(panel, wx.ID_ANY, 100, style=wx.GA_HORIZONTAL | wx.GA_SMOOTH)
+        gauge = wx.Gauge(panel, wx.ID_ANY, 1000, style=wx.GA_HORIZONTAL | wx.GA_SMOOTH)
         cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel.png'))
         cancelImage.Rescale(12, 12)
         cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel_pressed.png'))
