@@ -5,6 +5,8 @@ import sys
 import wx
 import wx.lib.scrolledpanel as scrolled
 
+from requestsManager import aria2Manager
+
 try:
     approot = os.path.dirname(os.path.abspath(__file__))
 except NameError:
@@ -36,12 +38,15 @@ class DownloadPanel(scrolled.ScrolledPanel):
         self.SetBackgroundColour(wx.Colour(255, 255, 255))
         self.SetAutoLayout(1)
 
+        self.aria2 = aria2Manager.Aria2Manager()
+
     def OnTimer(self, event):
         for download in self.downloads:
-            download['gauge'].SetValue(download['gauge'].GetValue() + 1)
-
-    def UpdateInfoLabel(self, id):
-        self.downloads[id]['infoLabel'].SetLabel('%s of %s (%s/sec) - %s remaining' % ('53.7', '195 MB', '21.6 MB', '10 seconds'))
+            eta = self.aria2.getETA(download['gid'])
+            percentage = self.aria2.getProgressPercentage(download['gid'])
+            downloadSpeed = self.aria2.getDownloadSpeed(download['gid'])
+            download['infoLabel'].SetLabel('%s of %s (%s/sec) - %s s remaining' % ('53.7', '195 MB', downloadSpeed, eta))
+            download['gauge'].SetValue(percentage)
 
     def AddDownload(self, url, title):
         panel = wx.Panel(self)
@@ -50,7 +55,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         titleLabel = wx.StaticText(panel, label=title)
 
         font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
-        infoLabel = wx.StaticText(panel, label='%s of %s (%s/sec) - %s remaining' % ('53.7', '195 MB', '21.6 MB', '6 seconds'))
+        infoLabel = wx.StaticText(panel, label='Waiting for informations')
         infoLabel.SetFont(font)
 
         progressSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -79,10 +84,9 @@ class DownloadPanel(scrolled.ScrolledPanel):
         self.downloads += [{
             'panel': panel,
             'infoLabel': infoLabel,
-            'gauge': gauge
+            'gauge': gauge,
+            'gid':self.aria2.addDownload(url)
         }]
-
-        self.UpdateInfoLabel(0)
 
         self.alternateColors()
 
