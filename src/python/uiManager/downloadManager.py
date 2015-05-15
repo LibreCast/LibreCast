@@ -40,6 +40,9 @@ class DownloadPanel(scrolled.ScrolledPanel):
         for download in self.downloads:
             download['gauge'].SetValue(download['gauge'].GetValue() + 1)
 
+    def UpdateInfoLabel(self, id):
+        self.downloads[id]['infoLabel'].SetValue('%s of %s (%s/sec) - %s remaining' % ('53.7', '195 MB', '21.6 MB', '6 seconds'))
+
     def AddDownload(self, url, title):
         panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -47,7 +50,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         titleLabel = wx.StaticText(panel, label=title)
 
         font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
-        infoLabel = wx.StaticText(panel, label="%s of %s (%s/sec) - %s remaining" % ("53.7", "195 MB", "21.6 MB", "6 seconds"))
+        infoLabel = wx.StaticText(panel, label='%s of %s (%s/sec) - %s remaining' % ('53.7', '195 MB', '21.6 MB', '6 seconds'))
         infoLabel.SetFont(font)
 
         progressSizer = wx.BoxSizer(wx.HORIZONTAL)
