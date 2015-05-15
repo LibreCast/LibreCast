@@ -452,9 +452,7 @@ class mainUI(wx.Frame):
 
     def OnShowDownloadWindow(self, event):
         self.downloadManager.Show(True)
-        self.downloadManager.AddDownload('lol', 'lol2')
-        self.downloadManager.AddDownload('lol', 'lol2')
-        self.downloadManager.AddDownload('lol', 'lol2')
+        self.downloadManager.AddDownload('http://localhost:8000/f9k1107_8820ed00920fr_travel_router_man.pdf', 'f9k1107_8820ed00920fr_travel_router_man.pdf')
 
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique
