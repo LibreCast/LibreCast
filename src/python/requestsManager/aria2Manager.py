@@ -24,6 +24,9 @@ class Aria2Manager(object):
 		
 		current = infos['completedLength']
 		total = infos['totalLength']
+
+		if (int(total) == 0):
+			return 0
 		
 		return math.trunc((float(current)/float(total)) * 100)
 
@@ -39,5 +42,8 @@ class Aria2Manager(object):
 		infos = self.getInfos(gid)
 
 		remainingSize = int(infos['totalLength']) - int(infos['completedLength'])
+
+		if int(infos['downloadSpeed']) == 0:
+			return -1
 
 		return math.trunc(float(remainingSize)/float(infos['downloadSpeed']))
