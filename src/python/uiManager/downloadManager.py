@@ -41,7 +41,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
             download['gauge'].SetValue(download['gauge'].GetValue() + 1)
 
     def UpdateInfoLabel(self, id):
-        self.downloads[id]['infoLabel'].SetValue('%s of %s (%s/sec) - %s remaining' % ('53.7', '195 MB', '21.6 MB', '6 seconds'))
+        self.downloads[id]['infoLabel'].SetLabel('%s of %s (%s/sec) - %s remaining' % ('53.7', '195 MB', '21.6 MB', '10 seconds'))
 
     def AddDownload(self, url, title):
         panel = wx.Panel(self)
@@ -81,6 +81,8 @@ class DownloadPanel(scrolled.ScrolledPanel):
             'infoLabel': infoLabel,
             'gauge': gauge
         }]
+
+        self.UpdateInfoLabel(0)
 
         self.alternateColors()
 
