@@ -9,7 +9,7 @@ class Converter():
             p = math.pow(1024, i)
             s = round(size/p, 2)
             if (s > 0):
-                return '%s %s' % (s, size_name[i])
+                return '%.1f %s' % (s, size_name[i])
             else:
                 return '0 octets'
         except:
