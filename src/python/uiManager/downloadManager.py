@@ -26,6 +26,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         self.download_number = 1
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.ticks = 0
 
         self.downloads = []
 
@@ -45,11 +46,16 @@ class DownloadPanel(scrolled.ScrolledPanel):
         converter = Converter()
 
         for download in self.downloads:
-            eta = self.aria2.getETA(download['gid'])
             percentage = self.aria2.getProgressPercentage(download['gid'])
-            downloadSpeed = self.aria2.getDownloadSpeed(download['gid'])
-            download['infoLabel'].SetLabel('%s of %s (%s/sec) - %s s remaining' % ('53.7', '195 MB', converter.ConvertSize(downloadSpeed), eta))
             download['gauge'].SetValue(percentage)
+            if (self.ticks == 0):
+                eta = self.aria2.getETA(download['gid'])
+                downloadSpeed = self.aria2.getDownloadSpeed(download['gid'])
+                download['infoLabel'].SetLabel('%s of %s (%s/sec) - %s s remaining' % ('53.7', '195 MB', converter.ConvertSize(downloadSpeed), eta))
+
+        self.ticks += 1
+        if self.ticks > 5:
+            self.ticks = 0
 
     def AddDownload(self, url, title):
         gid = self.aria2.addDownload(url)
@@ -122,6 +128,8 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         self.Layout()
         self.SetupScrolling()
+
+        self.alternateColors()
 
         del self.downloads[delindex]
 
