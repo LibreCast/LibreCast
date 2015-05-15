@@ -59,7 +59,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         infoLabel.SetFont(font)
 
         progressSizer = wx.BoxSizer(wx.HORIZONTAL)
-        gauge = wx.Gauge(panel, 100)
+        gauge = wx.Gauge(panel, wx.ID_ANY, 100, style=wx.GA_HORIZONTAL | wx.GA_SMOOTH)
         cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel.png'))
         cancelImage.Rescale(12, 12)
         cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel_pressed.png'))
