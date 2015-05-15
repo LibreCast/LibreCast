@@ -4,6 +4,7 @@ import os
 import sys
 import wx
 import wx.lib.scrolledpanel as scrolled
+from converter import Converter
 
 from requestsManager import aria2Manager
 
