@@ -170,6 +170,8 @@ class mainUI(wx.Frame):
         # Créer la barre d'outils via la fonction locale (noter le 'b' minuscule dans 'bar')
         self.CreateToolbar()
 
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+
         # Récupérer la taille de l'écran
         displaySize = wx.DisplaySize()
         # Modifier la taille de la fenêtre pour qu'elle fasse 4/5 de l'écran
@@ -185,6 +187,11 @@ class mainUI(wx.Frame):
         self.downloadManager.Show(False)
         # Afficher la fenêtre
         self.Show(True)
+
+    def OnClose(self, event):
+        self.DestroyChildren()
+        self.downloadManager.Destroy()
+        self.Destroy()
 
     def CreateTree(self):
         # Créer un panel qui contient l'arbre et les bouttons ajouter/effacer
@@ -455,12 +462,12 @@ class mainUI(wx.Frame):
 
     def OnShowDownloadWindow(self, event):
         self.downloadManager.Show(True)
-        self.downloadManager.AddDownload('http://debian.univ-lorraine.fr/debian-cd/8.0.0/i386/iso-cd/debian-8.0.0-i386-netinst.iso', 'debian-8.0.0-amd64-DVD-1.iso')
+        self.downloadManager.AddDownload('http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_h264.mov', 'big_buck_bunny_720p_h264.mov')
 
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique
 def main(database_instance):
-    ex = wx.App(0)
-    ex.SetAppName('LibreCast')
+    app = wx.App(0)
+    app.SetAppName('LibreCast')
     mainUI(None, wx.ID_ANY, database_instance)
-    ex.MainLoop()
+    app.MainLoop()
