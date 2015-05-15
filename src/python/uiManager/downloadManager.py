@@ -115,8 +115,13 @@ class DownloadPanel(scrolled.ScrolledPanel):
         for index, download in enumerate(self.downloads):
             if download['gid'] == gid:
                 self.aria2.remove(gid)
-                download['panel'].destroy()
+                download['panel'].Destroy()
                 delindex = index
+
+        self.SetSizer(self.mainSizer)
+
+        self.Layout()
+        self.SetupScrolling()
 
         del self.downloads[delindex]
 
