@@ -455,7 +455,7 @@ class mainUI(wx.Frame):
 
     def OnShowDownloadWindow(self, event):
         self.downloadManager.Show(True)
-        self.downloadManager.AddDownload('http://localhost:8000/f9k1107_8820ed00920fr_travel_router_man.pdf', 'f9k1107_8820ed00920fr_travel_router_man.pdf')
+        self.downloadManager.AddDownload('http://debian.univ-lorraine.fr/debian-cd/8.0.0/i386/iso-cd/debian-8.0.0-i386-netinst.iso', 'debian-8.0.0-amd64-DVD-1.iso')
 
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique
