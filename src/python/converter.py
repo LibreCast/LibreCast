@@ -3,7 +3,7 @@ import math
 
 class Converter():
     def ConvertSize(self, size):
-        size_name = ("Ko", "Mo", "Go", "To", "Po", "Eo", "Zo", "Yo")
+        size_name = ("Octets", "Kio", "Mio", "Gio", "Tio", "Pio", "Eio", "Zio", "Yio")
         try:
             i = int(math.floor(math.log(size, 1024)))
             p = math.pow(1024, i)
@@ -35,6 +35,6 @@ print converter.ConvertSize(10287824)
 print converter.ConvertSize(9999)
 print converter.ConvertSize(0)
 
-print converter.ConvertTime(25000)
+print converter.ConvertTime(395)
 print converter.ConvertTime(180)
 print converter.ConvertTime(0)
