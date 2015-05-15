@@ -290,13 +290,6 @@ class mainUI(wx.Frame):
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
         self.Bind(wx.EVT_TOOL, self.OnRefresh, refreshTool)
 
-        # Créer une variable qui contient l'image refresh.png dans le dossier resources
-        downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'downloads.png'))
-        # Ajouter un bouton avec l'image refresh
-        downloadTool = toolbar.AddLabelTool(wx.ID_ANY, 'Downloads', wx.BitmapFromImage(downloadImage), shortHelp='Downloads window')
-        # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
-        self.Bind(wx.EVT_TOOL, self.OnShowDownloadWindow, downloadTool)
-
         # Ajouter un séparateur
         toolbar.AddSeparator()
         # AddStrechableSpace()
@@ -313,6 +306,16 @@ class mainUI(wx.Frame):
         self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
         # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
         self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
+
+        # Ajouter un séparateur
+        toolbar.AddSeparator()
+
+        # Créer une variable qui contient l'image downloads.png dans le dossier resources
+        downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'downloads.png'))
+        # Ajouter un bouton avec l'image download
+        downloadTool = toolbar.AddLabelTool(wx.ID_ANY, 'Downloads', wx.BitmapFromImage(downloadImage), shortHelp='Downloads window')
+        # Ajouter un évenement lorsque le bouton est cliqué (la fonction downloadTool est appellée)
+        self.Bind(wx.EVT_TOOL, self.OnShowDownloadWindow, downloadTool)
 
         # Afficher tous les éléments ajoutés ci-dessus
         toolbar.Realize()
