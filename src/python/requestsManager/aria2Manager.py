@@ -32,6 +32,9 @@ class Aria2Manager(object):
 
 		return int(infos['downloadSpeed'])
 
+	def remove(self,gid):
+		self.rpc.aria2.remove(gid)
+
 	def getETA(self,gid):
 		infos = self.getInfos(gid)
 

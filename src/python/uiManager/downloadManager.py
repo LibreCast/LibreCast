@@ -52,6 +52,8 @@ class DownloadPanel(scrolled.ScrolledPanel):
             download['gauge'].SetValue(percentage)
 
     def AddDownload(self, url, title):
+        gid = self.aria2.addDownload(url)
+
         panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -67,8 +69,9 @@ class DownloadPanel(scrolled.ScrolledPanel):
         cancelImage.Rescale(12, 12)
         cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel_pressed.png'))
         cancelImagePressed.Rescale(12, 12)
-        cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER)
+        cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER, name=gid)
         cancelButton.SetBitmapSelected(wx.BitmapFromImage(cancelImagePressed))
+        cancelButton.Bind(wx.EVT_BUTTON,self.OnStopDownload)
 
         progressSizer.Add(gauge, 1, wx.RIGHT | wx.EXPAND, 10)
         progressSizer.Add(cancelButton, 0, wx.RIGHT | wx.LEFT | wx.TOP, 3)
@@ -88,7 +91,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
             'panel': panel,
             'infoLabel': infoLabel,
             'gauge': gauge,
-            'gid': self.aria2.addDownload(url)
+            'gid': gid
         }]
 
         self.alternateColors()
@@ -98,11 +101,24 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         for download in self.downloads:
             if count % 2 == 0:
-                download['panel'].SetBackgroundColour(wx.Colour(239, 245, 255))
-            else:
                 download['panel'].SetBackgroundColour(wx.Colour(255, 255, 255))
+            else:
+                download['panel'].SetBackgroundColour(wx.Colour(239, 245, 255))
 
             count += 1
+
+    def OnStopDownload(self,event):
+        button = event.GetEventObject()
+        gid = button.GetName()
+        delindex = -1
+
+        for index, download in enumerate(self.downloads):
+            if download['gid'] == gid:
+                self.aria2.remove(gid)
+                download['panel'].destroy()
+                delindex = index
+
+        del self.downloads[delindex]
 
 
 class DownloaderFrame(wx.Frame):
