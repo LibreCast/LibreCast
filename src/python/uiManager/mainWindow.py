@@ -8,6 +8,7 @@ from uiManager import listManager
 from pyxmlcast import *
 from threading import Thread
 from requestsManager import httpRequestManager
+from uiManager import downloadManager
 
 """
 TODO : Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
@@ -179,6 +180,9 @@ class mainUI(wx.Frame):
         self.SetTitle('LibreCast')
         # Centrer la fenêtre
         self.Centre()
+        # Création de la fenêtre de téléchargement
+        self.downloadManager = downloadManager.DownloaderFrame()
+        self.downloadManager.Show(False)
         # Afficher la fenêtre
         self.Show(True)
 
@@ -285,6 +289,13 @@ class mainUI(wx.Frame):
         refreshTool = toolbar.AddLabelTool(wx.ID_ANY, 'Refresh', wx.BitmapFromImage(refreshImage), shortHelp='Refresh feeds')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
         self.Bind(wx.EVT_TOOL, self.OnRefresh, refreshTool)
+
+        # Créer une variable qui contient l'image refresh.png dans le dossier resources
+        downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'downloads.png'))
+        # Ajouter un bouton avec l'image refresh
+        downloadTool = toolbar.AddLabelTool(wx.ID_ANY, 'Downloads', wx.BitmapFromImage(downloadImage), shortHelp='Downloads window')
+        # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
+        self.Bind(wx.EVT_TOOL, self.OnShowDownloadWindow, downloadTool)
 
         # Ajouter un séparateur
         toolbar.AddSeparator()
@@ -439,10 +450,16 @@ class mainUI(wx.Frame):
         else:
             print('Aucune recherche')
 
+    def OnShowDownloadWindow(self, event):
+        self.downloadManager.Show(True)
+        self.downloadManager.AddDownload('lol', 'lol2')
+        self.downloadManager.AddDownload('lol', 'lol2')
+        self.downloadManager.AddDownload('lol', 'lol2')
+
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique
 def main(database_instance):
     ex = wx.App(0)
     ex.SetAppName('LibreCast')
-    main_ui = mainUI(None, wx.ID_ANY, database_instance)
+    mainUI(None, wx.ID_ANY, database_instance)
     ex.MainLoop()
