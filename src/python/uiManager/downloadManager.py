@@ -86,7 +86,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
             'panel': panel,
             'infoLabel': infoLabel,
             'gauge': gauge,
-            'gid':self.aria2.addDownload(url)
+            'gid': self.aria2.addDownload(url)
         }]
 
         self.alternateColors()
