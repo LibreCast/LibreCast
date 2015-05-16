@@ -12,8 +12,7 @@ from requestsManager import httpRequestManager
 from uiManager import downloadManager
 
 """
-TODO : Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
-       Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
+TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
        Regarder les TODO en commentaire
        ...
 """
@@ -45,7 +44,7 @@ class AddAnUrl(wx.Dialog):
         # Initialisation du dialogue d'ajout
         self.InitUI()
         self.SetSize((300, 165))
-        self.SetTitle('Add an URL')
+        self.SetTitle('Ajouter un élément')
 
     def InitUI(self):
         # Création du panel et des boxSizer associés
@@ -55,7 +54,7 @@ class AddAnUrl(wx.Dialog):
 
         radioVerticalSizer = wx.BoxSizer(wx.VERTICAL)
         # On créé les boutons radio et on créé des variables propres à l'objet, on peut donc y accéder dans la méthode OnChangeDepth
-        createNewText = wx.StaticText(pnl, -1, 'Create a new ', style=wx.EXPAND)
+        createNewText = wx.StaticText(pnl, -1, 'Ajouter une :', style=wx.EXPAND)
         self.radioPlaylist = wx.RadioButton(pnl, label='Playlist', style=wx.RB_GROUP)
         self.radioURL = wx.RadioButton(pnl, label='URL')
 
@@ -66,7 +65,7 @@ class AddAnUrl(wx.Dialog):
 
         # On créé le texte. Même note que pour les boutons radio
         self.selectUrl = wx.TextCtrl(pnl)
-        self.Text = wx.StaticText(pnl, -1, 'Select the URL\'s name: ', style=wx.EXPAND | wx.ALIGN_LEFT)
+        self.Text = wx.StaticText(pnl, -1, 'Entrer l\'URL :', style=wx.EXPAND | wx.ALIGN_LEFT)
 
         # Ajouter les éléments aux différents sizer
         radioVerticalSizer.Add(createNewText, wx.ALIGN_TOP)
@@ -87,7 +86,7 @@ class AddAnUrl(wx.Dialog):
         # Créer les boutons Ok et Cancel, et un sizer les contenant
         endButtonsSizer = wx.BoxSizer(wx.HORIZONTAL)
         okButton = wx.Button(self, label='Ok')
-        closeButton = wx.Button(self, label='Cancel')
+        closeButton = wx.Button(self, label='Annuler')
         endButtonsSizer.Add(okButton)
         endButtonsSizer.Add(closeButton, flag=wx.LEFT, border=5)
 
@@ -112,11 +111,11 @@ class AddAnUrl(wx.Dialog):
 
     def OnRadioGroupSelected(self, event):
         # Changer le texte disant quel élément est créé (nouvelle playlist)
-        self.Text.SetLabel('Select the Playlist\'s name : ')
+        self.Text.SetLabel('Entrer le nom de la playlist :')
 
     def OnRadioURLSelected(self, event):
         # Changer le texte disant quel élément est créé (nouvelle URL)
-        self.Text.SetLabel('Select the URL\'s name : ')
+        self.Text.SetLabel('Entrer l\'URL :')
 
 
 class mainUI(wx.Frame):
