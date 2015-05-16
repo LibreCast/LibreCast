@@ -7,23 +7,9 @@ from uiManager import videoManager
 """
 TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
        Modifier l'icone de DnD, avec l'image "DnD.png"
-       Changer la vidéo affichée lorsqu'on double click dessus
        Possibilité de renommer les playlists
        ...
 """
-
-# Durée : 0:04:03
-# URL = 'http://download.wavetlan.com/SVV/Media/HTTP/MP4/ConvertedFiles/Media-Convert/Unsupported/dw11222.mp4'
-# Durée : 0:02:48
-# URL = 'http://www.boisestatefootball.com/sites/default/files/videos/original/01%20-%20coach%20pete%20bio_4.mp4'
-# Durée : 0:01:25
-# URL = 'https://km.support.apple.com/library/APPLE/APPLECARE_ALLGEOS/HT1211/sample_iTunes.mov'
-# Durée : 0:00:52
-# URL = 'http://media.w3.org/2010/05/sintel/trailer.mp4'
-# Durée : 27:25
-# URL = 'http://samples.mplayerhq.hu/mov/quicktime.mov'
-# Durée : 0:09:56
-URL = 'http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_h264.mov'
 
 
 class pyList(wx.ListCtrl):
@@ -77,30 +63,36 @@ class pyList(wx.ListCtrl):
         #TODO: Comments
         self.list_item_clicked = event.GetIndex()
 
-        menu_titles = ['Download']
+        if self.list_item_clicked >= 0:
+            menu_titles = ['Télécharger la vidéo', 'Copier l\'adresse']
 
-        menu = wx.Menu()
-        self.menu_title_by_id = {}
-        for title in menu_titles:
-            itemId = wx.NewId()
-            self.menu_title_by_id[itemId] = title
-            menu.Append(itemId, title)
-            wx.EVT_MENU(menu, itemId, self.OnMenuSelected)
+            menu = wx.Menu()
+            self.menu_title_by_id = {}
+            for title in menu_titles:
+                itemId = wx.NewId()
+                self.menu_title_by_id[itemId] = title
+                menu.Append(itemId, title)
+                wx.EVT_MENU(menu, itemId, self.OnMenuSelected)
 
-        self.PopupMenu(menu, event.GetPoint())
-        menu.Destroy()
+            self.PopupMenu(menu, event.GetPoint())
+            menu.Destroy()
 
     def OnMenuSelected(self, event):
         #TODO: Comments
         operation = self.menu_title_by_id[event.GetId()]
         index = self.list_item_clicked
 
-        if operation == 'Download':
+        if operation == 'Télécharger la vidéo':
             wx.CallAfter(self.DownloadURLAtIndex, index)
+        elif operation == 'Copier l\'adresse':
+            clipdata = wx.TextDataObject()
+            clipdata.SetText(self.URLsByIndex[index][0])
+            wx.TheClipboard.Open()
+            wx.TheClipboard.SetData(clipdata)
+            wx.TheClipboard.Close()
 
     def DownloadURLAtIndex(self, index):
-        if index >= 0:
-            self.downloadVideo(self.URLsByIndex[index][0], self.URLsByIndex[index][1])
+        self.downloadVideo(self.URLsByIndex[index][0], self.URLsByIndex[index][1])
 
     def startDrag(self, e):
         self.onDnDStartMethod()
