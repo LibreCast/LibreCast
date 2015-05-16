@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import wx
+import os
+import sys
 import cPickle
 
 """
@@ -72,21 +74,25 @@ class pyTree(wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self.OnPlaylistWillBeRenamed)
         self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.OnRightClicked)
 
-    def OnPlaylistRenamed(self, e):
-        #TODO
-        print "Renamed ", e.GetOldItem(), " into ", e.GetLabel()
+    def OnPlaylistRenamed(self, event):
+        #TODO: Save changes in database
+        if event.GetLabel() != '':
+            print "Renamed ", event.GetOldItem(), " into ", event.GetLabel()
 
-    def OnPlaylistWillBeRenamed(self, e):
+    def OnPlaylistWillBeRenamed(self, event):
         #TODO: Comments
 
         if self.GetItemText(self.GetItemParent(self.GetSelection())) != 'Playlists':
-            e.Veto()
+            event.Veto()
 
     def OnRightClicked(self, event):
             #TODO: Comments
             self.list_item_clicked = event.GetItem()
 
-            menu_titles = ['Rename', 'Delete']
+            if self.GetItemText(self.GetItemParent(self.GetSelection())) == 'Playlists':
+                menu_titles = ['Rename', 'Delete']
+            elif self.GetItemParent(self.GetSelection()) != self.GetRootItem():
+                menu_titles = ['Delete']
 
             menu = wx.Menu()
             self.menu_title_by_id = {}
@@ -110,7 +116,21 @@ class pyTree(wx.TreeCtrl):
             self.EditLabel(target)
 
     def addData(self, tree, group, level=0):
+        # Set root path
+        try:
+            approot = os.path.dirname(os.path.abspath(__file__))
+        except NameError:  # We are the main py2exe script, not a module
+            approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+        if('.exe' in approot):
+            approot = approot.replace('LibreCast.exe', '')
+
+        if('uiManager' in approot):
+            approot = approot.replace('/uiManager', '')
+
         self.SetDropTarget(ListDrop(self, self.onDnDEndMethod, self.onDnDLeftTargetMethod, self.OnDnDEnteredTarget))
+
+        imageList = wx.ImageList(16, 16)
 
         # Pour chaque enfant de l'arbre
         for child in tree.children:
@@ -123,7 +143,13 @@ class pyTree(wx.TreeCtrl):
             # Si cet enfant n'a pas d'enfants
             else:
                 # L'ajouter au groupe actuel
-                self.AppendItem(group, child.name.decode('utf-8'))
+                newItem = self.AppendItem(group, child.name.decode('utf-8'))
+                if self.GetItemText(group) == 'Abonnements':
+                    image = imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
+
+                    self.AssignImageList(imageList)
+                    self.SetPyData(newItem, None)
+                    self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
 
     def insert(self, title, x, y):
         # Récuppérer l'élément dans lequel il faut ajouter la vidéo
@@ -134,7 +160,8 @@ class pyTree(wx.TreeCtrl):
             #TODO
             playlistID = self.database.getPlaylistIDFromName(self.GetItemText(index))
             videoID = self.database.getVideoIDFromName(title[0])
-            print 'Should add video "' + unicode(title[0]) + '" with ID ' + str(videoID) + ' to playlist "' + self.GetItemText(index) + '" with ID ' + str(playlistID)
+            if playlistID != -1 and videoID != -1:
+                self.database.insertVideoInPlaylist(videoID, playlistID)
 
 
 class ListDrop(wx.PyDropTarget):
