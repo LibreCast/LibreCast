@@ -150,4 +150,4 @@ class pyList(wx.ListCtrl):
     def PlayVideo(self, event):
         print 'Lancer la vidéos à l\'index ' + str(event.GetIndex())
         # Afficher une fenêtre avec la vidéo située à l'URL donnée
-        videoManager.videoWindow(self, wx.ID_ANY, URL)
+        videoManager.videoWindow(self, wx.ID_ANY, self.URLsByIndex[event.GetIndex()][0])
