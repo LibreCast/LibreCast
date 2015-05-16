@@ -2,7 +2,7 @@ import math
 
 
 class Converter():
-    def ConvertSize(self,size):
+    def ConvertSize(self, size):
         size_name = ("Octets", "Kio", "Mio", "Gio", "Tio", "Pio", "Eio", "Zio", "Yio")
         try:
             i = int(math.floor(math.log(size, 1024)))
@@ -15,7 +15,7 @@ class Converter():
         except:
             return '0 octets'
 
-    def ConvertTime(self,seconds):
+    def ConvertTime(self, seconds):
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
 
@@ -26,5 +26,7 @@ class Converter():
                 return "%d heures restantes" % (h)
         elif m > 0:
                 return "%d minutes restantes" % (m)
-        else:
+        elif s > 0:
             return "%d secondes restantes" % s
+        else:
+            return "0 secondes restantes"
