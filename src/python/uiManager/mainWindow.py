@@ -3,6 +3,7 @@
 import wx
 import os
 import sys
+import re
 from uiManager import treeManager
 from uiManager import listManager
 from pyxmlcast import *
@@ -433,11 +434,14 @@ class mainUI(wx.Frame):
         # Si le résultat est le bouton 'ok'
         if modal == wx.ID_OK and addurl.selectUrl.GetValue():
             # Si le bouton radio des playlist est sélectionné
-            if addurl.radioPlaylist.GetValue():
+            if addurl.radioPlaylist.GetValue() and re.match('^https?://(\S)+$', addurl.selectUrl.GetValue()) is not None:
+                   print('L\'URL est valide.')
+                   
                 # Si une playlist ne porte pas déjà ce nom
                 if self.database.getPlaylistIDFromName(addurl.selectUrl.GetValue()) == -1:
                     self.database.createPlaylist(addurl.selectUrl.GetValue())
             else:
+                   print('L\'URL n\'est pas valide.')
                 if self.database.getFeedIDFromURL(addurl.selectUrl.GetValue()) == -1:
                     self.database.insertFeed(addurl.selectUrl.GetValue())
                 self.OnRefresh(None)
