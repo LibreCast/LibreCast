@@ -405,7 +405,7 @@ class mainUI(wx.Frame):
 
         for feed in feeds:
             url = feed[1]
-            xmlContent = httpRequestManager.OpenUrl(url+"/flux.xml")
+            xmlContent = httpRequestManager.OpenUrl(url)
 
             # URL invalide
             if not xmlContent[1]:

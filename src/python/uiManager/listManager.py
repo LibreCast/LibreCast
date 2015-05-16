@@ -59,7 +59,6 @@ class pyList(wx.ListCtrl):
             for video in videoList:
                 try:
                     self.AddLine(video[1], video[4], video[5], video[3])
-                    print video
                     self.URLsByIndex.append((video[2], video[1]))
                 except Exception, e:
                     print e

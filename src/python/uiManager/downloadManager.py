@@ -46,13 +46,29 @@ class DownloadPanel(scrolled.ScrolledPanel):
         converter = Converter()
 
         for download in self.downloads:
-            percentage = self.aria2.getProgress(download['gid'])
-            download['gauge'].SetValue(percentage)
-            if (self.ticks == 0):
-                size = self.aria2.getSize(download['gid'])
-                eta = self.aria2.getETA(download['gid'])
-                downloadSpeed = self.aria2.getDownloadSpeed(download['gid'])
-                download['infoLabel'].SetLabel('%s sur %s (%s/sec) - %s' % (converter.ConvertSize(size[1]), converter.ConvertSize(size[0]), converter.ConvertSize(downloadSpeed), converter.ConvertTime(eta)))
+            if not download['done']:
+                percentage = self.aria2.getProgress(download['gid'])
+                if percentage < 1000:
+                    download['gauge'].SetValue(percentage)
+                    if (self.ticks == 0):
+                        size = self.aria2.getSize(download['gid'])
+                        eta = self.aria2.getETA(download['gid'])
+                        downloadSpeed = self.aria2.getDownloadSpeed(download['gid'])
+                        download['infoLabel'].SetLabel('%s sur %s (%s/sec) - %s' % (converter.ConvertSize(size[1]), converter.ConvertSize(size[0]), converter.ConvertSize(downloadSpeed), converter.ConvertTime(eta)))
+                else:
+                    download['done'] = True
+                    size = self.aria2.getSize(download['gid'])
+                    download['infoLabel'].SetLabel('%s' % converter.ConvertSize(size[0]))
+
+                    sizer = download['panel'].GetSizer()
+                    font = wx.Font(10, wx.DEFAULT, wx.ITALIC, wx.NORMAL)
+                    doneLabel = wx.StaticText(download['panel'], label='Téléchargement terminé')
+                    doneLabel.SetFont(font)
+                    doneLabel.SetForegroundColour((109, 109, 109))
+                    sizer.Replace(download['gauge'], doneLabel, True)
+                    download['gauge'].Destroy()
+                    download['gauge'] = None
+                    self.Layout()
 
         self.ticks += 1
         if self.ticks > 5:
@@ -67,7 +83,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         titleLabel = wx.StaticText(panel, label=title)
 
         font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
-        infoLabel = wx.StaticText(panel, label='Waiting for informations')
+        infoLabel = wx.StaticText(panel, label='En attente d\'informations')
         infoLabel.SetFont(font)
 
         progressSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -84,7 +100,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         progressSizer.Add(cancelButton, 0, wx.RIGHT | wx.LEFT | wx.TOP, 3)
 
         sizer.Add(titleLabel, 0, wx.TOP | wx.RIGHT | wx.LEFT, 5)
-        sizer.Add(progressSizer, 1, wx.RIGHT | wx.LEFT | wx.EXPAND, 10)
+        sizer.Add(progressSizer, 1, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
         sizer.Add(infoLabel, 0, wx.ALL, 5)
 
         panel.SetSizer(sizer)
@@ -98,7 +114,8 @@ class DownloadPanel(scrolled.ScrolledPanel):
             'panel': panel,
             'infoLabel': infoLabel,
             'gauge': gauge,
-            'gid': gid
+            'gid': gid,
+            'done': False
         }]
 
         self.alternateColors()
@@ -121,18 +138,19 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         for index, download in enumerate(self.downloads):
             if download['gid'] == gid:
-                self.aria2.remove(gid)
+                if not download['done']:
+                    self.aria2.remove(gid)
                 download['panel'].Destroy()
                 delindex = index
+                break
 
+        self.downloads.pop(delindex)
         self.SetSizer(self.mainSizer)
 
         self.Layout()
         self.SetupScrolling()
 
         self.alternateColors()
-
-        del self.downloads[delindex]
 
 
 class DownloaderFrame(wx.Frame):
