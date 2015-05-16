@@ -14,8 +14,7 @@ from uiManager import downloadManager
 """
 TODO : Afficher du contenu récupéré d'autre part dans l'arbre (~ Done)
        Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
-       Possibilité d'ajouter des chaînes
-       Regarder les TODO en commentaire : ajouter une fonctionnalité au bouton refresh...
+       Regarder les TODO en commentaire
        ...
 """
 
@@ -299,7 +298,7 @@ class mainUI(wx.Frame):
         self.split.SetMinimumPaneSize(150)
         self.CreateTree()
         self.CreateVideoList(self.videosList)
-        # Couper l'écran en deux avec à gauche le panel (avec une taille par défaut de 200) et à droite la liste de vidéos
+        # Couper l'écran en deux avec à gauche le panel (avec une taille par défaut de 210) et à droite la liste de vidéos
         self.split.SplitVertically(self.panel, self.videoList, 210)
 
     def CreateToolbar(self):
@@ -313,8 +312,9 @@ class mainUI(wx.Frame):
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
         self.Bind(wx.EVT_TOOL, self.OnRefresh, refreshTool)
 
+        """
         # Ajouter un séparateur
-        #toolbar.AddSeparator()
+        toolbar.AddSeparator()
         # AddStrechableSpace()
 
         # Créer une barre de recherche
@@ -324,14 +324,15 @@ class mainUI(wx.Frame):
         # Afficher 'Search online content' par défaut dans la barre de recherche
         self.searchbar.SetDescriptiveText('Rechercher')
         # Ajouter la barre de recherche
-        #searchbarctrl = toolbar.AddControl(self.searchbar)
+        searchbarctrl = toolbar.AddControl(self.searchbar)
         # Ajouter un évenement lorsque le texte change
-        #self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
+        self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
         # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
-        #self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
+        self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
 
         # Ajouter un séparateur
         #toolbar.AddSeparator()
+        """
 
         # Créer une variable qui contient l'image downloads.png dans le dossier resources
         downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'downloads.png'))
