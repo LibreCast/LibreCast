@@ -50,18 +50,15 @@ class pyList(wx.ListCtrl):
         self.InsertColumn(2, 'Date')
         self.InsertColumn(3, 'Length')
 
-        if not videoList:
-            self.AddLine("     Cette playlist est vide     ", "n/a", "n/a", "n/a")
-        else:
-            # On décompose les données délivrées avec la liste, et on les affiche dans celle-ci
-            # Note : À étudier en même temps que la variable 'data', puisque c'est de là qu'on extrait les données
-            if isinstance(videoList, list):
-                for video in videoList:
-                    try:
-                        print type(video[1]), type(video[2]), type(video[3]), type(video[4])
-                        self.AddLine(video[1], video[4], video[5], video[3])
-                    except Exception, e:
-                        print e
+        # On décompose les données délivrées avec la liste, et on les affiche dans celle-ci
+        # Note : À étudier en même temps que la variable 'data', puisque c'est de là qu'on extrait les données
+        if isinstance(videoList, list):
+            for video in videoList:
+                try:
+                    print type(video[1]), type(video[2]), type(video[3]), type(video[4])
+                    self.AddLine(video[1], video[4], video[5], video[3])
+                except Exception, e:
+                    print e
 
         # Modifier la largeur des 4 colonnes afin que le contenu de chacune soit entièrement affiché
         self.SetColumnWidth(0, wx.LIST_AUTOSIZE)
@@ -84,10 +81,6 @@ class pyList(wx.ListCtrl):
         # Si idx n'a pas d'erreur
         if idx != -1:
             item = self.GetItem(idx, 0).GetText()
-            # Si l'object sélectionné correspond à une playlist vide (enlevé pour des tests)
-            #if item == "     Cette playlist est vide     ":
-                # Annuler
-                #return
 
             # Sinon, ajouter l'objet à nos données
             l.append(item)
@@ -96,7 +89,7 @@ class pyList(wx.ListCtrl):
         itemdata = cPickle.dumps(l, 1)
 
         # Créer un format de données personnalisé
-        ldata = wx.CustomDataObject("ListCtrlItems")
+        ldata = wx.CustomDataObject('ListCtrlItems')
         ldata.SetData(itemdata)
 
         # Créer les données qui vont être transférées

@@ -78,7 +78,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         cancelImagePressed.Rescale(12, 12)
         cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER, name=gid)
         cancelButton.SetBitmapSelected(wx.BitmapFromImage(cancelImagePressed))
-        cancelButton.Bind(wx.EVT_BUTTON,self.OnStopDownload)
+        cancelButton.Bind(wx.EVT_BUTTON, self.OnStopDownload)
 
         progressSizer.Add(gauge, 1, wx.RIGHT | wx.EXPAND, 10)
         progressSizer.Add(cancelButton, 0, wx.RIGHT | wx.LEFT | wx.TOP, 3)
@@ -114,7 +114,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
             count += 1
 
-    def OnStopDownload(self,event):
+    def OnStopDownload(self, event):
         button = event.GetEventObject()
         gid = button.GetName()
         delindex = -1
