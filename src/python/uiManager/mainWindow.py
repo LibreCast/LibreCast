@@ -265,20 +265,34 @@ class mainUI(wx.Frame):
         # Créer un sizer qui gère l'arbre et les boutons sous l'arbre
         verticalPanelSizer = wx.BoxSizer(wx.VERTICAL)
         # Ajouter l'arbre et le sizer horizontal (qui contient les boutons) au sizer vertical
-        verticalPanelSizer.Add(self.mainTree, 1, wx.EXPAND | wx.ALL, 0)
+        verticalPanelSizer.Add(self.mainTree, 1, wx.EXPAND)
         verticalPanelSizer.Add(horizontalButtonSizer, 0, wx.EXPAND | wx.ALL, 5)
         # Ajouter ce sizer au panel
         self.panel.SetSizer(verticalPanelSizer)
 
     def CreateVideoList(self, videoList):
         self.videoList = None
-        # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+        if videoList:
+            # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
+            self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+        else:
+            panel = wx.Panel(self.split, wx.ID_ANY, size=(200, 200), style=wx.ALIGN_CENTER)
+            panel.SetBackgroundColour('#F0F0F0')
+
+            innerBox = wx.BoxSizer(wx.VERTICAL)
+
+            font = wx.Font(18, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+            text = wx.StaticText(panel, id=wx.ID_ANY, label="Aucun élément", style=wx.ALIGN_CENTER)
+            text.SetFont(font)
+            innerBox.Add(text, 0, wx.CENTER | wx.TOP, border=100)
+            panel.SetSizer(innerBox)
+
+            self.videoList = panel
 
     def CreateSplitter(self):
         # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
         # Note : SP_NOSASH enpêche de redimensionner le spliter
-        self.split = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_LIVE_UPDATE | wx.SP_NOBORDER)
+        self.split = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_LIVE_UPDATE | wx.SP_NOBORDER | wx.SP_3DSASH)
         # Limiter la taille des deux parties de l'arbre à 150, pour des raison estétiques et pratiques
         self.split.SetMinimumPaneSize(150)
         self.CreateTree()
