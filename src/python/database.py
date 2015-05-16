@@ -186,6 +186,8 @@ class Database(object):
     def removeAllVideos(self):
         cursor = self.base.cursor()
 
+        cursor.execute('DELETE FROM videos')
+
         self.base.commit()
 
     def close(self):

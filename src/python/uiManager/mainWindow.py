@@ -272,9 +272,10 @@ class mainUI(wx.Frame):
 
     def CreateVideoList(self, videoList):
         self.videoList = None
+
         if videoList:
             # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-            self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+            self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
         else:
             panel = wx.Panel(self.split, wx.ID_ANY, size=(200, 200), style=wx.ALIGN_CENTER)
             panel.SetBackgroundColour('#F0F0F0')
@@ -312,7 +313,7 @@ class mainUI(wx.Frame):
         self.Bind(wx.EVT_TOOL, self.OnRefresh, refreshTool)
 
         # Ajouter un séparateur
-        toolbar.AddSeparator()
+        #toolbar.AddSeparator()
         # AddStrechableSpace()
 
         # Créer une barre de recherche
@@ -322,14 +323,14 @@ class mainUI(wx.Frame):
         # Afficher 'Search online content' par défaut dans la barre de recherche
         self.searchbar.SetDescriptiveText('Search online content')
         # Ajouter la barre de recherche
-        searchbarctrl = toolbar.AddControl(self.searchbar)
+        #searchbarctrl = toolbar.AddControl(self.searchbar)
         # Ajouter un évenement lorsque le texte change
-        self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
+        #self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
         # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
-        self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
+        #self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
 
         # Ajouter un séparateur
-        toolbar.AddSeparator()
+        #toolbar.AddSeparator()
 
         # Créer une variable qui contient l'image downloads.png dans le dossier resources
         downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'downloads.png'))
@@ -399,6 +400,7 @@ class mainUI(wx.Frame):
 
     def refreshFlux(self):
         feeds = self.database.getFeeds()
+        self.database.removeAllVideos()
 
         for feed in feeds:
             url = feed[1]
@@ -419,7 +421,8 @@ class mainUI(wx.Frame):
                     video['pubdate'],
                     feed[0]
                 )
-        print self.database.getAllVideos()
+
+        self.OnSelChanged(None)
 
     def OnClickAddButton(self, event):
         # Creation du dialogue
@@ -437,6 +440,7 @@ class mainUI(wx.Frame):
             else:
                 if self.database.getFeedIDFromURL(addurl.selectUrl.GetValue()) == -1:
                     self.database.insertFeed(addurl.selectUrl.GetValue())
+                self.OnRefresh(None)
 
             self.RebuildTree()
 
@@ -476,7 +480,10 @@ class mainUI(wx.Frame):
 
     def OnShowDownloadWindow(self, event):
         self.downloadManager.Show(True)
-        self.downloadManager.AddDownload('http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_h264.mov', 'big_buck_bunny_720p_h264.mov')
+
+    def downloadVideo(self, url, title):
+        self.downloadManager.AddDownload(url, title)
+        self.OnShowDownloadWindow(None)
 
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique

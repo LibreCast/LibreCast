@@ -27,10 +27,11 @@ URL = 'http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p
 
 
 class pyList(wx.ListCtrl):
-    def __init__(self, parent, id, videoList, onDnDStartMethod, style=''):
+    def __init__(self, parent, id, videoList, onDnDStartMethod, downloadVideo, style=''):
         wx.ListCtrl.__init__(self, parent, id)
 
         self.onDnDStartMethod = onDnDStartMethod
+        self.downloadVideo = downloadVideo
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style != '':
@@ -50,13 +51,16 @@ class pyList(wx.ListCtrl):
         self.InsertColumn(2, 'Date')
         self.InsertColumn(3, 'Length')
 
+        self.URLsByIndex = []
+
         # On décompose les données délivrées avec la liste, et on les affiche dans celle-ci
         # Note : À étudier en même temps que la variable 'data', puisque c'est de là qu'on extrait les données
         if isinstance(videoList, list):
             for video in videoList:
                 try:
-                    print type(video[1]), type(video[2]), type(video[3]), type(video[4])
                     self.AddLine(video[1], video[4], video[5], video[3])
+                    print video
+                    self.URLsByIndex.append((video[2], video[1]))
                 except Exception, e:
                     print e
 
@@ -68,6 +72,36 @@ class pyList(wx.ListCtrl):
         # Appeler la fonction PlayVideo lorsqu'une ligne est double cliquée, ou que l'utilisateur appuye sur entrée en ayant sélectionné une ligne
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.PlayVideo, self)
         self.Bind(wx.EVT_LIST_BEGIN_DRAG, self.startDrag)
+        self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.OnRightClicked)
+
+    def OnRightClicked(self, event):
+        #TODO: Comments
+        self.list_item_clicked = event.GetIndex()
+
+        menu_titles = ['Download']
+
+        menu = wx.Menu()
+        self.menu_title_by_id = {}
+        for title in menu_titles:
+            itemId = wx.NewId()
+            self.menu_title_by_id[itemId] = title
+            menu.Append(itemId, title)
+            wx.EVT_MENU(menu, itemId, self.OnMenuSelected)
+
+        self.PopupMenu(menu, event.GetPoint())
+        menu.Destroy()
+
+    def OnMenuSelected(self, event):
+        #TODO: Comments
+        operation = self.menu_title_by_id[event.GetId()]
+        index = self.list_item_clicked
+
+        if operation == 'Download':
+            wx.CallAfter(self.DownloadURLAtIndex, index)
+
+    def DownloadURLAtIndex(self, index):
+        if index >= 0:
+            self.downloadVideo(self.URLsByIndex[index][0], self.URLsByIndex[index][1])
 
     def startDrag(self, e):
         self.onDnDStartMethod()

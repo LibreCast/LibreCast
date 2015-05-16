@@ -79,14 +79,14 @@ class pyTree(wx.TreeCtrl):
     def OnPlaylistWillBeRenamed(self, e):
         #TODO: Comments
 
-        if self.GetItemText(self.GetItemParent(self.GetSelection())) != "Playlists":
+        if self.GetItemText(self.GetItemParent(self.GetSelection())) != 'Playlists':
             e.Veto()
 
     def OnRightClicked(self, event):
             #TODO: Comments
             self.list_item_clicked = event.GetItem()
 
-            menu_titles = ["Rename", "Delete"]
+            menu_titles = ['Rename', 'Delete']
 
             menu = wx.Menu()
             self.menu_title_by_id = {}
@@ -104,9 +104,9 @@ class pyTree(wx.TreeCtrl):
         operation = self.menu_title_by_id[event.GetId()]
         target = self.list_item_clicked
 
-        if operation == "Delete":
+        if operation == 'Delete':
             wx.CallAfter(self.OnClickRemoveButton, event)
-        elif operation == "Rename":
+        elif operation == 'Rename':
             self.EditLabel(target)
 
     def addData(self, tree, group, level=0):
@@ -130,7 +130,7 @@ class pyTree(wx.TreeCtrl):
         index, flags = self.HitTest((x, y))
 
         # Si l'élément existe, et que c'est bien une playlist
-        if index.IsOk() and self.GetSelection() and self.GetItemText(self.GetItemParent(self.GetSelection())) == "Playlists":
+        if index.IsOk() and self.GetSelection() and self.GetItemText(self.GetItemParent(self.GetSelection())) == 'Playlists':
             #TODO
             playlistID = self.database.getPlaylistIDFromName(self.GetItemText(index))
             videoID = self.database.getVideoIDFromName(title[0])
@@ -148,7 +148,7 @@ class ListDrop(wx.PyDropTarget):
         self.OnDnDEnteredTarget = OnDnDEnteredTarget
 
         # Dire quel type de données sont acceptées
-        self.data = wx.CustomDataObject("ListCtrlItems")
+        self.data = wx.CustomDataObject('ListCtrlItems')
         self.SetDataObject(self.data)
 
     def OnDragOver(self, x, y, d):
@@ -169,7 +169,7 @@ class ListDrop(wx.PyDropTarget):
 
                 try:
                     # Si l'élément n'a pas pour parent "Playlists"
-                    if self.source.GetItemText(self.source.GetItemParent(selectedItem)) != "Playlists":
+                    if self.source.GetItemText(self.source.GetItemParent(selectedItem)) != 'Playlists':
                         # Le désélectionner
                         self.source.UnselectAll()
                 except wx.PyAssertionError:
