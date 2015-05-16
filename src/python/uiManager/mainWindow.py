@@ -384,7 +384,10 @@ class mainUI(wx.Frame):
         if not self.isDnD:
             item = self.mainTree.GetSelection()
 
-            if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Playlists':
+            if not item.IsOk() or not self.mainTree.GetItemParent(item).IsOk():
+                self.videosList = []
+                self.RebuildList()
+            elif self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Playlists':
                 playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
                 self.videosList = self.database.getVideosFromPlaylist(playlistID)
                 self.RebuildList()
@@ -409,19 +412,22 @@ class mainUI(wx.Frame):
 
             # URL invalide
             if not xmlContent[1]:
-                pass
+                break
 
-            parsedCast = PyXMLCast(xmlContent[0])
-            videos = parsedCast.getAllVideos()
-            for video in videos:
-                self.database.insertVideo(
-                    video['title'],
-                    video['url'],
-                    video['length'],
-                    video['author'],
-                    video['pubdate'],
-                    feed[0]
-                )
+            try:
+                parsedCast = PyXMLCast(xmlContent[0])
+                videos = parsedCast.getAllVideos()
+                for video in videos:
+                    self.database.insertVideo(
+                        video['title'],
+                        video['url'],
+                        video['length'],
+                        video['author'],
+                        video['pubdate'],
+                        feed[0]
+                    )
+            except:
+                pass
 
         self.OnSelChanged(None)
 
@@ -435,13 +441,13 @@ class mainUI(wx.Frame):
         if modal == wx.ID_OK and addurl.selectUrl.GetValue():
             # Si le bouton radio des playlist est sélectionné
             if addurl.radioPlaylist.GetValue() and re.match('^https?://(\S)+$', addurl.selectUrl.GetValue()) is not None:
-                   print('L\'URL est valide.')
-                   
+                print('L\'URL est valide.')
+
                 # Si une playlist ne porte pas déjà ce nom
                 if self.database.getPlaylistIDFromName(addurl.selectUrl.GetValue()) == -1:
                     self.database.createPlaylist(addurl.selectUrl.GetValue())
             else:
-                   print('L\'URL n\'est pas valide.')
+                print('L\'URL n\'est pas valide.')
                 if self.database.getFeedIDFromURL(addurl.selectUrl.GetValue()) == -1:
                     self.database.insertFeed(addurl.selectUrl.GetValue())
                 self.OnRefresh(None)
