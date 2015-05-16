@@ -52,7 +52,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
                 size = self.aria2.getSize(download['gid'])
                 eta = self.aria2.getETA(download['gid'])
                 downloadSpeed = self.aria2.getDownloadSpeed(download['gid'])
-                download['infoLabel'].SetLabel('%s of %s (%s/sec) - %s' % (converter.ConvertSize(size[1]), converter.ConvertSize(size[0]), converter.ConvertSize(downloadSpeed), converter.ConvertTime(downloadSpeed)))
+                download['infoLabel'].SetLabel('%s sur %s (%s/sec) - %s' % (converter.ConvertSize(size[1]), converter.ConvertSize(size[0]), converter.ConvertSize(downloadSpeed), converter.ConvertTime(eta)))
 
         self.ticks += 1
         if self.ticks > 5:
@@ -137,7 +137,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
 class DownloaderFrame(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, None, title="Downloader", size=(800, 400))
+        wx.Frame.__init__(self, None, title='Téléchargements', size=(800, 400))
 
         self.SetMinSize((330, 83))
         self.downloadPanel = DownloadPanel(self)
