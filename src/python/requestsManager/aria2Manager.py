@@ -3,52 +3,53 @@
 import xmlrpclib
 import math
 
+
 class Aria2Manager(object):
-	def __init__(self):
-		self.rpc = xmlrpclib.ServerProxy('http://localhost:6800/rpc')
+    def __init__(self):
+        self.rpc = xmlrpclib.ServerProxy('http://localhost:6800/rpc')
 
-	def addDownload(self,url):
-		return self.rpc.aria2.addUri([url])
+    def addDownload(self, url):
+        return self.rpc.aria2.addUri([url])
 
-	def removeDownload(self,gid):
-		self.rpc.aria2.remove(gid)
+    def removeDownload(self, gid):
+        self.rpc.aria2.remove(gid)
 
-	def pause(self):
-		self.rpc.aria2.pauseAll()
+    def pause(self):
+        self.rpc.aria2.pauseAll()
 
-	def getInfos(self,gid):
-		return self.rpc.aria2.tellStatus(gid)
+    def getInfos(self, gid):
+        return self.rpc.aria2.tellStatus(gid)
 
-	def getProgress(self,gid):
-		infos = self.getInfos(gid)
-		
-		current = infos['completedLength']
-		total = infos['totalLength']
+    def getProgress(self, gid):
+        infos = self.getInfos(gid)
 
-		if (int(total) == 0):
-			return 0
-		
-		return math.trunc((float(current)/float(total)) * 1000)
+        current = infos['completedLength']
+        total = infos['totalLength']
 
-	def getDownloadSpeed(self,gid):
-		infos = self.getInfos(gid)
+        if (int(total) == 0):
+            return 0
 
-		return int(infos['downloadSpeed'])
+        return math.trunc((float(current)/float(total)) * 1000)
 
-	def remove(self,gid):
-		self.rpc.aria2.remove(gid)
+    def getDownloadSpeed(self, gid):
+        infos = self.getInfos(gid)
 
-	def getSize(self,gid):
-		infos = self.getInfos(gid)
+        return int(infos['downloadSpeed'])
 
-		return int(infos['totalLength']), int(infos['completedLength'])
+    def remove(self, gid):
+        self.rpc.aria2.remove(gid)
 
-	def getETA(self,gid):
-		infos = self.getInfos(gid)
+    def getSize(self, gid):
+        infos = self.getInfos(gid)
 
-		remainingSize = int(infos['totalLength']) - int(infos['completedLength'])
+        return int(infos['totalLength']), int(infos['completedLength'])
 
-		if int(infos['downloadSpeed']) == 0:
-			return -1
+    def getETA(self, gid):
+        infos = self.getInfos(gid)
 
-		return math.trunc(float(remainingSize)/float(infos['downloadSpeed']))
+        remainingSize = int(infos['totalLength']) - int(infos['completedLength'])
+
+        if int(infos['downloadSpeed']) == 0:
+            return -1
+
+        return math.trunc(float(remainingSize)/float(infos['downloadSpeed']))
