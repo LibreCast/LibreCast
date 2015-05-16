@@ -152,15 +152,15 @@ class mainUI(wx.Frame):
         menubar.Append(editMenu, '&Edit')
 
         # On lui ajoute une option refresh avec raccourci
-        refreshItem = editMenu.Append(wx.ID_ANY, 'Refresh\tCtrl+R', 'Refresh feeds')
+        refreshItem = editMenu.Append(wx.ID_ANY, 'Refresh\tCtrl+R', 'Rafraîchir les flux')
         self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
 
         # On ajoute un raccourci pour ajouter une playlist ou une URL
-        addItem = editMenu.Append(wx.ID_ANY, 'Add new...\tCtrl+=', 'Add playlist or URL')
+        addItem = editMenu.Append(wx.ID_ANY, 'Add new...\tCtrl+=', 'Ajouter une playlist ou une URL')
         self.Bind(wx.EVT_MENU, self.OnClickAddButton, addItem)
 
         # On ajoute un raccourci pour ajouter une playlist ou une URL
-        removeItem = editMenu.Append(wx.ID_ANY, 'Remove\tCtrl+-', 'Remove selected item')
+        removeItem = editMenu.Append(wx.ID_ANY, 'Remove\tCtrl+-', 'Supprimer l\'élément sélectionné')
         self.Bind(wx.EVT_MENU, self.OnClickRemoveButton, removeItem)
 
         self.SetMenuBar(menubar)
@@ -309,7 +309,7 @@ class mainUI(wx.Frame):
         # Créer une variable qui contient l'image refresh.png dans le dossier resources
         refreshImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'refresh.png'))
         # Ajouter un bouton avec l'image refresh
-        refreshTool = toolbar.AddLabelTool(wx.ID_ANY, 'Refresh', wx.BitmapFromImage(refreshImage), shortHelp='Refresh feeds')
+        refreshTool = toolbar.AddLabelTool(wx.ID_ANY, 'Rafraîchir', wx.BitmapFromImage(refreshImage), shortHelp='Rafraîchir les flux')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
         self.Bind(wx.EVT_TOOL, self.OnRefresh, refreshTool)
 
@@ -322,7 +322,7 @@ class mainUI(wx.Frame):
         # Afficher le bouton annuler dans la barre de recherche
         self.searchbar.ShowCancelButton(True)
         # Afficher 'Search online content' par défaut dans la barre de recherche
-        self.searchbar.SetDescriptiveText('Search online content')
+        self.searchbar.SetDescriptiveText('Rechercher')
         # Ajouter la barre de recherche
         #searchbarctrl = toolbar.AddControl(self.searchbar)
         # Ajouter un évenement lorsque le texte change
@@ -336,7 +336,7 @@ class mainUI(wx.Frame):
         # Créer une variable qui contient l'image downloads.png dans le dossier resources
         downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'downloads.png'))
         # Ajouter un bouton avec l'image download
-        downloadTool = toolbar.AddLabelTool(wx.ID_ANY, 'Downloads', wx.BitmapFromImage(downloadImage), shortHelp='Downloads window')
+        downloadTool = toolbar.AddLabelTool(wx.ID_ANY, 'Téléchargements', wx.BitmapFromImage(downloadImage), shortHelp='Afficher la fenêtre de téléchargements')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction downloadTool est appellée)
         self.Bind(wx.EVT_TOOL, self.OnShowDownloadWindow, downloadTool)
 
