@@ -64,7 +64,12 @@ class DownloadPanel(scrolled.ScrolledPanel):
                     font = wx.Font(10, wx.DEFAULT, wx.ITALIC, wx.NORMAL)
                     doneLabel = wx.StaticText(download['panel'], label='Téléchargement terminé')
                     doneLabel.SetFont(font)
-                    doneLabel.SetForegroundColour((109, 109, 109))
+
+                    if download['panel'].GetBackgroundColour() == wx.Colour(11, 80, 208):
+                        doneLabel.SetForegroundColour((255, 255, 255))
+                    else:
+                        doneLabel.SetForegroundColour((109, 109, 109))
+                    
                     sizer.Replace(download['gauge'], doneLabel, True)
                     download['gauge'].Destroy()
                     download['gauge'] = None
@@ -131,6 +136,9 @@ class DownloadPanel(scrolled.ScrolledPanel):
                 download['panel'].SetBackgroundColour(wx.Colour(255, 255, 255))
             else:
                 download['panel'].SetBackgroundColour(wx.Colour(239, 245, 255))
+            
+            for child in download['panel'].GetChildren():
+                child.SetForegroundColour((0, 0, 0))
 
             count += 1
 
@@ -156,12 +164,15 @@ class DownloadPanel(scrolled.ScrolledPanel):
         self.alternateColors()
 
     def OnPanelClick(self,event):
-        print "EVENT"
         self.alternateColors()
 
         panel = event.GetEventObject()
-        panel.SetBackgroundColour(wx.Colour(81, 116, 212))
+        panel.SetBackgroundColour(wx.Colour(11, 80, 208))
 
+        for child in panel.GetChildren():
+            child.SetForegroundColour((255, 255, 255))
+
+        self.Refresh()
 
 class DownloaderFrame(wx.Frame):
     def __init__(self):
