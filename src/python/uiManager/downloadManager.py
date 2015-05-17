@@ -77,7 +77,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
                     download['gauge'] = None
                     self.Layout()
 
-                    videoFileURL = self.aria2.getDownloadedPath(download['gid'])
+                    videoFileURL = 'file://' + self.aria2.getDownloadedPath(download['gid'])
                     videoManager.videoWindow(self, wx.ID_ANY, videoFileURL)
 
         self.ticks += 1
