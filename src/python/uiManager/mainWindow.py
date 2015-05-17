@@ -217,16 +217,12 @@ class mainUI(wx.Frame):
 
         for i in playlists:
             playlist = playlists_tree.add()
-        # Vérifier l'encodage du nom des playlists (utf-8)
+            # Vérifier l'encodage du nom des playlists (utf-8)
             playlist.name = i[0].encode('utf-8')
 
         for i in feeds:
             feed = channels_tree.add()
             feed.name = i[1].encode('utf-8')
-
-        #for i in channelsContent:
-        #    channel = channels.add()
-        #    channel.name = i
 
         # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
         self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
