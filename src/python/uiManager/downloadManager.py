@@ -77,9 +77,6 @@ class DownloadPanel(scrolled.ScrolledPanel):
                     download['gauge'] = None
                     self.Layout()
 
-                    videoFileURL = 'file://' + self.aria2.getDownloadedPath(download['gid'])
-                    videoManager.videoWindow(self, wx.ID_ANY, videoFileURL)
-
         self.ticks += 1
         if self.ticks > 5:
             self.ticks = 0
@@ -130,6 +127,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         }]
 
         panel.Bind(wx.EVT_LEFT_DOWN, self.OnPanelClick)
+        panel.Bind(wx.EVT_LEFT_DCLICK, self.OnPanelDClick)
 
         self.alternateColors()
 
@@ -181,6 +179,16 @@ class DownloadPanel(scrolled.ScrolledPanel):
             child.SetForegroundColour((255, 255, 255))
 
         self.Refresh()
+
+    def OnPanelDClick(self,event):
+        self.OnPanelClick(event)
+        panel = event.GetEventObject()
+
+        for download in self.downloads:
+            if (panel == download['panel'] and download['done']):
+                videoFileURL = 'file://' + self.aria2.getDownloadedPath(download['gid'])
+                videoManager.videoWindow(self, wx.ID_ANY, videoFileURL)
+
 
     def OnMainPanelClick(self,event):
         self.alternateColors()
