@@ -487,6 +487,7 @@ class mainUI(wx.Frame):
             print('Aucune recherche')
 
     def OnShowDownloadWindow(self, event):
+        self.downloadManager.Show(False)
         self.downloadManager.Show(True)
 
     def downloadVideo(self, url, title):
