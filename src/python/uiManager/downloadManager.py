@@ -71,7 +71,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
                         download['doneLabel'].SetForegroundColour((255, 255, 255))
                     else:
                         download['doneLabel'].SetForegroundColour((109, 109, 109))
-                    
+
                     sizer.Replace(download['gauge'], download['doneLabel'], True)
                     download['gauge'].Destroy()
                     download['gauge'] = None
@@ -139,7 +139,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
                 download['panel'].SetBackgroundColour(wx.Colour(255, 255, 255))
             else:
                 download['panel'].SetBackgroundColour(wx.Colour(239, 245, 255))
-            
+
             for child in download['panel'].GetChildren():
                 child.SetForegroundColour((0, 0, 0))
 
@@ -169,7 +169,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         self.alternateColors()
 
-    def OnPanelClick(self,event):
+    def OnPanelClick(self, event):
         self.alternateColors()
 
         panel = event.GetEventObject()
@@ -180,7 +180,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         self.Refresh()
 
-    def OnPanelDClick(self,event):
+    def OnPanelDClick(self, event):
         self.OnPanelClick(event)
         panel = event.GetEventObject()
 
@@ -189,10 +189,10 @@ class DownloadPanel(scrolled.ScrolledPanel):
                 videoFileURL = 'file://' + self.aria2.getDownloadedPath(download['gid'])
                 videoManager.videoWindow(self, wx.ID_ANY, videoFileURL)
 
-
-    def OnMainPanelClick(self,event):
+    def OnMainPanelClick(self, event):
         self.alternateColors()
         self.Refresh()
+
 
 class DownloaderFrame(wx.Frame):
     def __init__(self):

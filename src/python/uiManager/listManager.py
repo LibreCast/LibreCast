@@ -4,6 +4,7 @@ import wx
 import os
 import sys
 import cPickle
+from threading import Thread
 from cStringIO import StringIO
 from uiManager import videoManager
 from requestsManager import httpRequestManager
@@ -18,22 +19,22 @@ TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
        ...
 """
 
+# Set root path
+try:
+    approot = os.path.dirname(os.path.abspath(__file__))
+except NameError:  # We are the main py2exe script, not a module
+    approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+if('.exe' in approot):
+    approot = approot.replace('LibreCast.exe', '')
+
+if('uiManager' in approot):
+    approot = approot.replace('/uiManager', '')
+
 
 class pyList(wx.ListCtrl):
     def __init__(self, parent, id, videoList, onDnDStartMethod, downloadVideo, style=''):
         wx.ListCtrl.__init__(self, parent, id)
-
-        # Set root path
-        try:
-            approot = os.path.dirname(os.path.abspath(__file__))
-        except NameError:  # We are the main py2exe script, not a module
-            approot = os.path.dirname(os.path.abspath(sys.argv[0]))
-
-        if('.exe' in approot):
-            approot = approot.replace('LibreCast.exe', '')
-
-        if('uiManager' in approot):
-            approot = approot.replace('/uiManager', '')
 
         self.onDnDStartMethod = onDnDStartMethod
         self.downloadVideo = downloadVideo
@@ -66,12 +67,7 @@ class pyList(wx.ListCtrl):
         if isinstance(videoList, list):
             for video in videoList:
                 try:
-                    data = httpRequestManager.OpenUrl(video[6])[0].read()
-                    bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()
-                except Exception, e:
-                    print e
                     bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
-                try:
                     dateFR = datetime.fromtimestamp(time.mktime(parsedate(video[5]))).strftime("%d/%m/%Y")
                     self.AddLine(bmp, video[1], video[4], dateFR, video[3])
                     self.URLsByIndex.append((video[2], video[1]))
@@ -88,6 +84,28 @@ class pyList(wx.ListCtrl):
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.PlayVideo, self)
         self.Bind(wx.EVT_LIST_BEGIN_DRAG, self.startDrag)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.OnRightClicked)
+
+        self.thread = Thread(target=self.loadImages, args=[videoList, 0])
+        self.thread.setDaemon(False)
+        wx.CallLater(100, self.thread.start)
+
+    def loadImages(self, videoList, index):
+        if index < len(videoList):
+            try:
+                data = httpRequestManager.OpenUrl(videoList[index][6])[0].read()
+                bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()
+            except:
+                bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
+
+            try:
+                self.DisplayImage(bmp, index)
+                self.loadImages(videoList, index + 1)
+            except:
+                return
+
+    def DisplayImage(self, image, index):
+        imgId = self.imageList.Add(image)
+        self.SetItemImage(index, imgId)
 
     def OnRightClicked(self, event):
         #TODO: Comments
