@@ -5,7 +5,7 @@ import sys
 import wx
 import wx.lib.scrolledpanel as scrolled
 from converter import Converter
-
+from uiManager import videoManager
 from requestsManager import aria2Manager
 
 try:
@@ -76,6 +76,9 @@ class DownloadPanel(scrolled.ScrolledPanel):
                     download['gauge'].Destroy()
                     download['gauge'] = None
                     self.Layout()
+
+                    videoFileURL = self.aria2.getDownloadedPath(download['gid'])
+                    videoManager.videoWindow(self, wx.ID_ANY, videoFileURL)
 
         self.ticks += 1
         if self.ticks > 5:

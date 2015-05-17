@@ -53,3 +53,8 @@ class Aria2Manager(object):
             return -1
 
         return math.trunc(float(remainingSize)/float(infos['downloadSpeed']))
+
+    def getDownloadedPath(self,gid):
+        infos = self.getInfos(gid)
+
+        return infos['files'][0]['path']
