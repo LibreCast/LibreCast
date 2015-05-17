@@ -132,6 +132,7 @@ class pyTree(wx.TreeCtrl):
         self.SetDropTarget(ListDrop(self, self.onDnDEndMethod, self.onDnDLeftTargetMethod, self.OnDnDEnteredTarget))
 
         imageList = wx.ImageList(16, 16)
+        self.AssignImageList(imageList)
 
         # Pour chaque enfant de l'arbre
         for child in tree.children:
@@ -147,9 +148,6 @@ class pyTree(wx.TreeCtrl):
                 newItem = self.AppendItem(group, child.name.decode('utf-8'))
                 if self.GetItemText(group) == 'Abonnements':
                     image = imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
-
-                    self.AssignImageList(imageList)
-                    self.SetPyData(newItem, None)
                     self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
 
     def insert(self, title, x, y):
