@@ -134,10 +134,10 @@ class pyList(wx.ListCtrl):
     def AddLine(self, title, author, date, length):
         # Ajouter le contenu dans chaque colone, en le décodant en utf-8 afin d'éviter les problèmes d'accents etc.
         # Note : self.index correspond à l'index après lequel la ligne est ajoutée
-        self.InsertStringItem(self.index, title.decode('utf-8'))
-        self.SetStringItem(self.index, 1, author.decode('utf-8'))
-        self.SetStringItem(self.index, 2, date.decode('utf-8'))
-        self.SetStringItem(self.index, 3, length.decode('utf-8'))
+        self.InsertStringItem(self.index, title)
+        self.SetStringItem(self.index, 1, author)
+        self.SetStringItem(self.index, 2, date)
+        self.SetStringItem(self.index, 3, length)
 
         # L'index de la dernière ligne doit être incrémenté
         self.index += 1
