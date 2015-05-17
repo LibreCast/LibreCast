@@ -42,6 +42,8 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         self.aria2 = aria2Manager.Aria2Manager()
 
+        self.Bind(wx.EVT_LEFT_DOWN, self.OnMainPanelClick)
+
     def OnTimer(self, event):
         converter = Converter()
 
@@ -175,6 +177,10 @@ class DownloadPanel(scrolled.ScrolledPanel):
         for child in panel.GetChildren():
             child.SetForegroundColour((255, 255, 255))
 
+        self.Refresh()
+
+    def OnMainPanelClick(self,event):
+        self.alternateColors()
         self.Refresh()
 
 class DownloaderFrame(wx.Frame):
