@@ -450,7 +450,9 @@ class mainUI(wx.Frame):
                 else:
                     print('L\'URL n\'est pas valide.')
 
-            self.RebuildTree()
+            wx.CallAfter(self.RebuildTree)
+
+        addurl.Destroy()
 
     def OnClickRemoveButton(self, event):
         # Fonction de suppression d'items/feeds de l'arbre sélectionnés
