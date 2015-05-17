@@ -113,10 +113,13 @@ class DownloadPanel(scrolled.ScrolledPanel):
         self.downloads += [{
             'panel': panel,
             'infoLabel': infoLabel,
+            'titleLabel': titleLabel,
             'gauge': gauge,
             'gid': gid,
             'done': False
         }]
+
+        panel.Bind(wx.EVT_LEFT_DOWN, self.OnPanelClick)
 
         self.alternateColors()
 
@@ -151,6 +154,13 @@ class DownloadPanel(scrolled.ScrolledPanel):
         self.SetupScrolling()
 
         self.alternateColors()
+
+    def OnPanelClick(self,event):
+        print "EVENT"
+        self.alternateColors()
+
+        panel = event.GetEventObject()
+        panel.SetBackgroundColour(wx.Colour(81, 116, 212))
 
 
 class DownloaderFrame(wx.Frame):
