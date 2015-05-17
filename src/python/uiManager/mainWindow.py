@@ -17,6 +17,9 @@ TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
        ...
 """
 
+# Encoding de wx ≠ encoding de python...
+wx.SetDefaultPyEncoding('utf-8')
+
 # Set root path
 try:
     approot = os.path.dirname(os.path.abspath(__file__))
