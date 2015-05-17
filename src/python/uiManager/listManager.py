@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import wx
+import os
+import sys
 import cPickle
 from uiManager import videoManager
 from email.utils import parsedate
@@ -19,6 +21,18 @@ class pyList(wx.ListCtrl):
     def __init__(self, parent, id, videoList, onDnDStartMethod, downloadVideo, style=''):
         wx.ListCtrl.__init__(self, parent, id)
 
+        # Set root path
+        try:
+            approot = os.path.dirname(os.path.abspath(__file__))
+        except NameError:  # We are the main py2exe script, not a module
+            approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+        if('.exe' in approot):
+            approot = approot.replace('LibreCast.exe', '')
+
+        if('uiManager' in approot):
+            approot = approot.replace('/uiManager', '')
+
         self.onDnDStartMethod = onDnDStartMethod
         self.downloadVideo = downloadVideo
 
@@ -34,11 +48,14 @@ class pyList(wx.ListCtrl):
         # Variable stockant l'index du dernier élément de la liste, pour pouvoir ajouter une ligne à la fin de la liste
         self.index = 0
 
-        # Ajouter 4 colonnes : Le titre, le créateur de la vidéo, la date et la durée de la vidéo
+        # Ajouter 5 colonnes : une image, le titre, le créateur de la vidéo, la date et la durée de la vidéo
         self.InsertColumn(0, 'Titre')
         self.InsertColumn(1, 'Auteur')
         self.InsertColumn(2, 'Date')
         self.InsertColumn(3, 'Durée')
+
+        self.imageList = wx.ImageList(72, 48)
+        self.SetImageList(self.imageList, wx.IMAGE_LIST_SMALL)
 
         self.URLsByIndex = []
 
@@ -47,14 +64,16 @@ class pyList(wx.ListCtrl):
         if isinstance(videoList, list):
             for video in videoList:
                 try:
+                    bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
                     dateFR = datetime.fromtimestamp(time.mktime(parsedate(video[5]))).strftime("%d/%m/%Y")
-                    self.AddLine(video[1], video[4], dateFR, video[3])
+                    self.AddLine(bmp, video[1], video[4], dateFR, video[3])
                     self.URLsByIndex.append((video[2], video[1]))
                 except Exception, e:
                     print e
 
         # Modifier la largeur des 4 colonnes afin que le contenu de chacune soit entièrement affiché
         self.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+        self.SetColumnWidth(0, self.GetColumnWidth(0) + 80)
         self.SetColumnWidth(1, wx.LIST_AUTOSIZE)
         self.SetColumnWidth(2, wx.LIST_AUTOSIZE)
 
@@ -131,10 +150,12 @@ class pyList(wx.ListCtrl):
         # Commencer le drag and drop
         self.dropSource.DoDragDrop()
 
-    def AddLine(self, title, author, date, length):
-        # Ajouter le contenu dans chaque colone, en le décodant en utf-8 afin d'éviter les problèmes d'accents etc.
+    def AddLine(self, bitmap, title, author, date, length):
+        # Ajouter le contenu dans chaque colone
         # Note : self.index correspond à l'index après lequel la ligne est ajoutée
+        imgId = self.imageList.Add(bitmap)
         self.InsertStringItem(self.index, title)
+        self.SetItemImage(self.index, imgId)
         self.SetStringItem(self.index, 1, author)
         self.SetStringItem(self.index, 2, date)
         self.SetStringItem(self.index, 3, length)
