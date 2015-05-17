@@ -424,8 +424,8 @@ class mainUI(wx.Frame):
                         video['pubdate'],
                         feed[0]
                     )
-            except:
-                pass
+            except Exception, e:
+                print e
 
         self.OnSelChanged(None)
 
