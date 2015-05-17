@@ -3,6 +3,9 @@
 import wx
 import cPickle
 from uiManager import videoManager
+from email.utils import parsedate
+import time
+from datetime import datetime
 
 """
 TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
@@ -32,10 +35,10 @@ class pyList(wx.ListCtrl):
         self.index = 0
 
         # Ajouter 4 colonnes : Le titre, le créateur de la vidéo, la date et la durée de la vidéo
-        self.InsertColumn(0, 'Title')
-        self.InsertColumn(1, 'Author')
+        self.InsertColumn(0, 'Titre')
+        self.InsertColumn(1, 'Auteur')
         self.InsertColumn(2, 'Date')
-        self.InsertColumn(3, 'Length')
+        self.InsertColumn(3, 'Durée')
 
         self.URLsByIndex = []
 
@@ -44,7 +47,8 @@ class pyList(wx.ListCtrl):
         if isinstance(videoList, list):
             for video in videoList:
                 try:
-                    self.AddLine(video[1], video[4], video[5], video[3])
+                    dateFR = datetime.fromtimestamp(time.mktime(parsedate(video[5]))).strftime("%d/%m/%Y")
+                    self.AddLine(video[1], video[4], dateFR, video[3])
                     self.URLsByIndex.append((video[2], video[1]))
                 except Exception, e:
                     print e
