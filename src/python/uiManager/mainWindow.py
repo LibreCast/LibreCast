@@ -421,6 +421,7 @@ class mainUI(wx.Frame):
                         video['length'],
                         video['author'],
                         video['pubdate'],
+                        video['image'],
                         feed[0]
                     )
             except Exception, e:

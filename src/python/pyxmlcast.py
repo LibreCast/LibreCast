@@ -32,7 +32,10 @@ class PyXMLCast(object):
                 'author': item.find('itunes:author', namespaces={
                     'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
                 }).text,
-                'pubdate': item.find('pubDate').text
+                'pubdate': item.find('pubDate').text,
+                'image': item.find('itunes:image', namespaces={
+                    'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
+                }).attrib['href']
             }
 
             if item.find('magnet') is not None:

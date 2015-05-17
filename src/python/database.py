@@ -26,6 +26,7 @@ class Database(object):
             length text,\
             publisher text,\
             pubdate text,\
+            image BLOB,\
             fluxid int\
         )')
 
@@ -157,16 +158,17 @@ class Database(object):
 
         return cursor.fetchall()
 
-    def insertVideo(self, name, urls, length, author, pubdate, fluxId):
+    def insertVideo(self, name, urls, length, author, pubdate, image, fluxId):
         cursor = self.base.cursor()
 
-        cursor.execute('INSERT INTO videos (name,urls,length,publisher,pubdate,fluxid) VALUES (:name,:urls,:length,:publisher,:pubdate,:fluxid)', {
+        cursor.execute('INSERT INTO videos (name,urls,length,publisher,pubdate,image,fluxid) VALUES (:name,:urls,:length,:publisher,:pubdate,:image,:fluxid)', {
                 "urls": urls,
                 "name": name,
                 "length": length,
                 "publisher": author,
                 "pubdate": pubdate,
-                "fluxid": fluxId
+                "image": image,
+                "fluxid": fluxId,
             })
 
         self.base.commit()
