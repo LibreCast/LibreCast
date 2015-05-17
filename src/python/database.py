@@ -98,6 +98,9 @@ class Database(object):
 
         self.base.commit()
 
+    def renamePlaylist(self, playlistID, newPlaylistName):
+        print "Rename playlist with ID ", playlistID, " into ", newPlaylistName
+
     def getFeeds(self):
         cursor = self.base.cursor()
 

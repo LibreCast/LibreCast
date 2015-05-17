@@ -77,7 +77,8 @@ class pyTree(wx.TreeCtrl):
     def OnPlaylistRenamed(self, event):
         #TODO: Save changes in database
         if event.GetLabel() != '':
-            print "Renamed ", event.GetOldItem(), " into ", event.GetLabel()
+            playlistID = self.database.getPlaylistIDFromName(self.GetItemText(event.GetItem()))
+            self.database.renamePlaylist(playlistID, event.GetLabel())
 
     def OnPlaylistWillBeRenamed(self, event):
         #TODO: Comments

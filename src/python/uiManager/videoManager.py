@@ -316,7 +316,6 @@ class videoWindow(wx.Frame):
         if not r:
             print 'Failed to load video'
         else:
-            print 'Loading video'
             try:
                 # Modifier la taille maximale du slider afin qu'elle vaille le temps de la vidéo (en ms)
                 self.timeSlider.SetRange(0, self.mc.Length())

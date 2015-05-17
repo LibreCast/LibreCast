@@ -212,10 +212,8 @@ class mainUI(wx.Frame):
 
         # Afficher les playlists de la base de données
         playlists = self.database.getPlaylists()
-        print playlists
 
         feeds = self.database.getFeeds()
-        print feeds
 
         for i in playlists:
             playlist = playlists_tree.add()
