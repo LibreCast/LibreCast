@@ -99,7 +99,14 @@ class Database(object):
         self.base.commit()
 
     def renamePlaylist(self, playlistID, newPlaylistName):
-        print "Rename playlist with ID ", playlistID, " into ", newPlaylistName
+        cursor = self.base.cursor()
+
+        cursor.execute('UPDATE playlists SET name = :newName WHERE id = :playlistId',{
+            'playlistId': playlistID,
+            'newName': newPlaylistName
+        })
+
+        self.base.commit()
 
     def getFeeds(self):
         cursor = self.base.cursor()
