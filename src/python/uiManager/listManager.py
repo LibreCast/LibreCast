@@ -4,7 +4,9 @@ import wx
 import os
 import sys
 import cPickle
+from cStringIO import StringIO
 from uiManager import videoManager
+from requestsManager import httpRequestManager
 from email.utils import parsedate
 import time
 from datetime import datetime
@@ -64,7 +66,12 @@ class pyList(wx.ListCtrl):
         if isinstance(videoList, list):
             for video in videoList:
                 try:
+                    data = httpRequestManager.OpenUrl(video[6])[0].read()
+                    bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()
+                except Exception, e:
+                    print e
                     bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
+                try:
                     dateFR = datetime.fromtimestamp(time.mktime(parsedate(video[5]))).strftime("%d/%m/%Y")
                     self.AddLine(bmp, video[1], video[4], dateFR, video[3])
                     self.URLsByIndex.append((video[2], video[1]))
