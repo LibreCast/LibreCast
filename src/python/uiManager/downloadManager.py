@@ -62,15 +62,15 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
                     sizer = download['panel'].GetSizer()
                     font = wx.Font(10, wx.DEFAULT, wx.ITALIC, wx.NORMAL)
-                    doneLabel = wx.StaticText(download['panel'], label='Téléchargement terminé')
-                    doneLabel.SetFont(font)
+                    download['doneLabel'] = wx.StaticText(download['panel'], label='Téléchargement terminé')
+                    download['doneLabel'].SetFont(font)
 
                     if download['panel'].GetBackgroundColour() == wx.Colour(11, 80, 208):
-                        doneLabel.SetForegroundColour((255, 255, 255))
+                        download['doneLabel'].SetForegroundColour((255, 255, 255))
                     else:
-                        doneLabel.SetForegroundColour((109, 109, 109))
+                        download['doneLabel'].SetForegroundColour((109, 109, 109))
                     
-                    sizer.Replace(download['gauge'], doneLabel, True)
+                    sizer.Replace(download['gauge'], download['doneLabel'], True)
                     download['gauge'].Destroy()
                     download['gauge'] = None
                     self.Layout()
@@ -139,6 +139,9 @@ class DownloadPanel(scrolled.ScrolledPanel):
             
             for child in download['panel'].GetChildren():
                 child.SetForegroundColour((0, 0, 0))
+
+            if download['done'] == True:
+                download['doneLabel'].SetForegroundColour((109, 109, 109))
 
             count += 1
 
