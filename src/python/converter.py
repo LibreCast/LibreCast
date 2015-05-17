@@ -35,7 +35,5 @@ class Converter():
             return '%d minute restante' % (m)
         elif s > 1:
             return '%d secondes restantes' % s
-        elif m > 1:
-            return '%d secondes restante' % s
         else:
-            return '0 seconde restante'
+            return '1 seconde restante'
