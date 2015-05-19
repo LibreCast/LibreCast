@@ -15,7 +15,8 @@ class Database(object):
         # Création de la table des flux
         cursor.execute('CREATE TABLE IF NOT EXISTS feeds (\
             id INTEGER PRIMARY KEY AUTOINCREMENT,\
-            url text\
+            url text,\
+            icon text\
         )')
 
         # Création de la table des vidéos
@@ -49,7 +50,17 @@ class Database(object):
         cursor = self.base.cursor()
 
         # Insertion du flux dans la table feeds
-        cursor.execute('INSERT INTO feeds (url) VALUES (:url)', {"url": url})
+        cursor.execute('INSERT INTO feeds (url, icon) VALUES (:url, :icon)', {'url': url, 'icon': ''})
+
+        self.base.commit()
+
+    def insertIconInFeed(self, feedID, icon):
+        cursor = self.base.cursor()
+
+        cursor.execute('UPDATE feeds SET icon = :icon WHERE id = :feedID', {
+            'feedID': feedID,
+            'icon': icon
+        })
 
         self.base.commit()
 
@@ -101,7 +112,7 @@ class Database(object):
     def renamePlaylist(self, playlistID, newPlaylistName):
         cursor = self.base.cursor()
 
-        cursor.execute('UPDATE playlists SET name = :newName WHERE id = :playlistId',{
+        cursor.execute('UPDATE playlists SET name = :newName WHERE id = :playlistId', {
             'playlistId': playlistID,
             'newName': newPlaylistName
         })

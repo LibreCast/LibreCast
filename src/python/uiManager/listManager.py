@@ -87,20 +87,24 @@ class pyList(wx.ListCtrl):
 
         self.thread = Thread(target=self.loadImages, args=[videoList, 0])
         self.thread.setDaemon(False)
-        wx.CallLater(100, self.thread.start)
+        wx.CallLater(10, self.thread.start)
 
     def loadImages(self, videoList, index):
         if index < len(videoList):
+            print 'loading image...'
+
             try:
                 data = httpRequestManager.OpenUrl(videoList[index][6])[0].read()
                 bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()
             except:
+                print 'except: download failed'
                 bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
 
             try:
                 self.DisplayImage(bmp, index)
                 self.loadImages(videoList, index + 1)
             except:
+                print 'except: self doesn\'t exist'
                 return
 
     def DisplayImage(self, image, index):

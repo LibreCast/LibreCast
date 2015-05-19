@@ -399,6 +399,10 @@ class mainUI(wx.Frame):
         thread = Thread(target=self.refreshFlux, args=[])
         wx.CallAfter(thread.run)
 
+    def OnEndRefresh(self):
+        self.RebuildTree()
+        self.OnSelChanged(None)
+
     def refreshFlux(self):
         feeds = self.database.getFeeds()
         self.database.removeAllVideos()
@@ -413,6 +417,11 @@ class mainUI(wx.Frame):
 
             try:
                 parsedCast = PyXMLCast(xmlContent[0])
+                channelIcon = parsedCast.getChannelIcon()
+                if channelIcon != '':
+                    feedID = self.database.getFeedIDFromURL(url)
+                    self.database.insertIconInFeed(feedID, channelIcon)
+
                 videos = parsedCast.getAllVideos()
                 for video in videos:
                     self.database.insertVideo(
@@ -427,7 +436,7 @@ class mainUI(wx.Frame):
             except Exception, e:
                 print e
 
-        self.OnSelChanged(None)
+        self.OnEndRefresh()
 
     def OnClickAddButton(self, event):
         # Creation du dialogue
