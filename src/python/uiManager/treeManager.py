@@ -4,6 +4,9 @@ import wx
 import os
 import sys
 import cPickle
+from threading import Thread
+from cStringIO import StringIO
+from requestsManager import httpRequestManager
 
 """
 TODO : Sauvegarder le fait qu'une playlist est renommée
@@ -40,6 +43,18 @@ class Tree(object):
         node1.parent = self
         return node1
 
+# Set root path
+try:
+    approot = os.path.dirname(os.path.abspath(__file__))
+except NameError:  # We are the main py2exe script, not a module
+    approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+if('.exe' in approot):
+    approot = approot.replace('LibreCast.exe', '')
+
+if('uiManager' in approot):
+    approot = approot.replace('/uiManager', '')
+
 
 class pyTree(wx.TreeCtrl):
 
@@ -65,14 +80,29 @@ class pyTree(wx.TreeCtrl):
         # contenu (cf. styles)
         self.root = self.AddRoot('Data')
 
+        self.feeds = []
+        self.imageList = wx.ImageList(16, 16)
+        self.AssignImageList(self.imageList)
+
         # On décompose les données délivrées avec l'arbre, et on les affiche dans ce dernier
         # Note : À étudier en même temps que la variable 'data', puisque c'est
         # de là qu'on extrait les données
         self.addData(tree, self.root)
 
+        wx.CallAfter(self.startThread)
+
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnPlaylistRenamed)
         self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self.OnPlaylistWillBeRenamed)
         self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.OnRightClicked)
+
+    def startThread(self):
+        feedsList = []
+        for feed in self.database.getFeeds():
+            feedsList.append(feed[2])
+
+        self.thread = Thread(target=self.loadImages, args=[feedsList, self.feeds, 0])
+        self.thread.setDaemon(False)
+        wx.CallLater(100, self.thread.start)
 
     def OnPlaylistRenamed(self, event):
         #TODO: Save changes in database
@@ -117,22 +147,7 @@ class pyTree(wx.TreeCtrl):
             self.EditLabel(target)
 
     def addData(self, tree, group, level=0):
-        # Set root path
-        try:
-            approot = os.path.dirname(os.path.abspath(__file__))
-        except NameError:  # We are the main py2exe script, not a module
-            approot = os.path.dirname(os.path.abspath(sys.argv[0]))
-
-        if('.exe' in approot):
-            approot = approot.replace('LibreCast.exe', '')
-
-        if('uiManager' in approot):
-            approot = approot.replace('/uiManager', '')
-
         self.SetDropTarget(ListDrop(self, self.onDnDEndMethod, self.onDnDLeftTargetMethod, self.OnDnDEnteredTarget))
-
-        imageList = wx.ImageList(16, 16)
-        self.AssignImageList(imageList)
 
         # Pour chaque enfant de l'arbre
         for child in tree.children:
@@ -147,8 +162,26 @@ class pyTree(wx.TreeCtrl):
                 # L'ajouter au groupe actuel
                 newItem = self.AppendItem(group, child.name.decode('utf-8'))
                 if self.GetItemText(group) == 'Abonnements':
-                    image = imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
+                    self.feeds.append(newItem)
+                    image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
                     self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
+
+    def loadImages(self, feedUrls, feeds, index):
+        if index < len(feedUrls):
+            print 'loading icon...'
+
+            try:
+                data = httpRequestManager.OpenUrl(feedUrls[index])[0].read()
+                bmp = self.imageList.Add(wx.ImageFromStream(StringIO(data)).Scale(16, 16).ConvertToBitmap())
+            except:
+                print 'except: download failed'
+
+            try:
+                self.SetItemImage(feeds[index], bmp, wx.TreeItemIcon_Normal)
+                self.loadImages(feedUrls, feeds, index + 1)
+            except:
+                print 'self does not exist'
+                return
 
     def insert(self, title, x, y):
         # Récuppérer l'élément dans lequel il faut ajouter la vidéo

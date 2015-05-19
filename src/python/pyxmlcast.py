@@ -16,6 +16,11 @@ class PyXMLCast(object):
     def getChannelURL(self):
         return self.channel.find('link').text
 
+    def getChannelIcon(self):
+        return self.channel.find('itunes:image', namespaces={
+                    'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
+                }).attrib['href']
+
     def getAllVideos(self):
         items = self.channel.findall('item')
         videos = []

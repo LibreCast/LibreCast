@@ -8,6 +8,18 @@ class Aria2Manager(object):
     def __init__(self):
         self.rpc = xmlrpclib.ServerProxy('http://localhost:6800/rpc')
 
+    def setSystemProxy(self):
+        import urllib2
+        proxies = urllib2.getproxies()
+
+        for proxy in proxies:
+            if proxy == 'http':
+                print "aria2c --http-proxy='%s'" % proxies[proxy]
+            elif proxy == 'https':
+                print "aria2c --https-proxy='%s'" % proxies[proxy]
+            elif proxy == 'ftp':
+                print "aria2c --http-proxy='%s'" % proxies[proxy]
+
     def addDownload(self, url):
         return self.rpc.aria2.addUri([url])
 
@@ -54,7 +66,7 @@ class Aria2Manager(object):
 
         return math.trunc(float(remainingSize)/float(infos['downloadSpeed']))
 
-    def getDownloadedPath(self,gid):
+    def getDownloadedPath(self, gid):
         infos = self.getInfos(gid)
 
         return infos['files'][0]['path']
