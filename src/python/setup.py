@@ -10,7 +10,8 @@ from setuptools import setup
 
 APP = ['main.py']
 
-DATA_FILES = [('', ['pyxmlcast.py']),
+DATA_FILES = [('', ['aria2c']),
+              ('', ['pyxmlcast.py']),
               ('', ['database.py']),
               ('', ['converter.py']),
 
