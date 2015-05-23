@@ -5,6 +5,7 @@
 import os
 import sys
 import database
+import subprocess
 
 # Importer nos modules personnels
 from uiManager import mainWindow
@@ -14,11 +15,8 @@ from requestsManager import xmlManager
 # Set root path
 try:
     approot = os.path.dirname(os.path.abspath(__file__))
-except NameError:  # We are the main py2exe script, not a module
+except NameError:
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
-
-if('.exe' in approot):
-    approot = approot.replace('LibreCast.exe', '')
 
 
 def callHttpManager(urlList):
@@ -49,6 +47,20 @@ def callHttpManager(urlList):
 
 
 def main():
+    # Chemin où sont stockés les téléchargements
+    downloadDirectory = os.path.join(os.path.dirname(approot), 'Downloads')
+    print downloadDirectory
+    # Si ce dossier n'existe pas
+    if not os.path.exists(downloadDirectory):
+        # Le créer
+        os.makedirs(downloadDirectory)
+
+    # Créer un subprocess avec aria2 en mode silencieux, avec un logfile
+    proc = subprocess.Popen(
+        ['./aria2c', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=aria2logs.log'],
+        cwd=os.path.dirname(__file__),
+    )
+
     # Connexion à la base de donnée
     database_instance = database.Database(os.path.join(os.environ.get('RESOURCEPATH', approot), 'database.db'))
     database_instance.initDB()
@@ -59,6 +71,11 @@ def main():
 
     # Fermeture de la base de donnée
     database_instance.close()
+
+    # Fermer le subprocess
+    proc.terminate()
+    # Attendre que ce soit terminé
+    proc.wait()
 
 """
 Condition pour vérifier que le fichier est directement executé

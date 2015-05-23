@@ -91,8 +91,6 @@ class pyList(wx.ListCtrl):
 
     def loadImages(self, videoList, index):
         if index < len(videoList):
-            print 'loading image...'
-
             try:
                 data = httpRequestManager.OpenUrl(videoList[index][6])[0].read()
                 bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()

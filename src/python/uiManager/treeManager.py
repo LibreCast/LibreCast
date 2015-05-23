@@ -168,8 +168,6 @@ class pyTree(wx.TreeCtrl):
 
     def loadImages(self, feedUrls, feeds, index):
         if index < len(feedUrls):
-            print 'loading icon...'
-
             try:
                 data = httpRequestManager.OpenUrl(feedUrls[index])[0].read()
                 bmp = self.imageList.Add(wx.ImageFromStream(StringIO(data)).Scale(16, 16).ConvertToBitmap())
