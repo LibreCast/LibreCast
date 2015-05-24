@@ -26,12 +26,6 @@ try:
 except NameError:  # We are the main py2exe script, not a module
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-if('.exe' in approot):
-    approot = approot.replace('LibreCast.exe', '')
-
-if('uiManager' in approot):
-    approot = approot.replace('/uiManager', '')
-
 
 class AddAnUrl(wx.Dialog):
 
@@ -227,16 +221,21 @@ class mainUI(wx.Frame):
             feed = channels_tree.add()
             feed.name = i[1].encode('utf-8')
 
-        # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-        self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
+        if sys.platform == 'win32':
+            # Créer l'arbre (grâce au module treeManager) avec le root, sinon windows n'est pas content
+            self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
+        else:
+            # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
+            self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
+
         self.mainTree.ExpandAll()
 
         # Lorsqu'on élément de l'abre est sélectionné, on appelle la fonction
         self.mainTree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, self.mainTree)
 
         # Créer les images pour les boutons
-        plusImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'add.png'))
-        removeImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'remove.png'))
+        plusImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'add.png'))
+        removeImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'remove.png'))
         # Modifier la taille des images
         plusImage.Rescale(12, 12)
         removeImage.Rescale(12, 12)
@@ -302,7 +301,7 @@ class mainUI(wx.Frame):
         toolbar = self.CreateToolBar()
 
         # Créer une variable qui contient l'image refresh.png dans le dossier resources
-        refreshImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'refresh.png'))
+        refreshImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'refresh.png'))
         # Ajouter un bouton avec l'image refresh
         refreshTool = toolbar.AddLabelTool(wx.ID_ANY, 'Rafraîchir', wx.BitmapFromImage(refreshImage), shortHelp='Rafraîchir les flux')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
@@ -331,17 +330,17 @@ class mainUI(wx.Frame):
         """
 
         # Créer une variable qui contient l'image downloads.png dans le dossier resources
-        downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'downloads.png'))
+        downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads.png')).Scale(32, 32)
         # Ajouter un bouton avec l'image download
         downloadTool = toolbar.AddLabelTool(wx.ID_ANY, 'Téléchargements', wx.BitmapFromImage(downloadImage), shortHelp='Afficher la fenêtre de téléchargements')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction downloadTool est appellée)
         self.Bind(wx.EVT_TOOL, self.OnShowDownloadWindow, downloadTool)
 
-        # Afficher tous les éléments ajoutés ci-dessus
-        toolbar.Realize()
-
         # Modifier la taille des icones de la barre d'outils
         toolbar.SetToolBitmapSize((32, 32))
+
+        # Afficher tous les éléments ajoutés ci-dessus
+        toolbar.Realize()
 
     def RebuildTree(self):
         # Sauvegarde et suppression de l'ancien panel; remplacement par le nouvel panel
@@ -434,7 +433,7 @@ class mainUI(wx.Frame):
                         feed[0]
                     )
             except Exception, e:
-                print e
+                print(e)
 
         self.OnEndRefresh()
 

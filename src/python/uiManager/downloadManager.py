@@ -13,12 +13,6 @@ try:
 except NameError:
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-if('.exe' in approot):
-    approot = approot.replace('LibreCast.exe', '')
-
-if('uiManager' in approot):
-    approot = approot.replace('/uiManager', '')
-
 
 class DownloadPanel(scrolled.ScrolledPanel):
     def __init__(self, parent):
@@ -95,9 +89,9 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         progressSizer = wx.BoxSizer(wx.HORIZONTAL)
         gauge = wx.Gauge(panel, wx.ID_ANY, 1000, style=wx.GA_HORIZONTAL | wx.GA_SMOOTH)
-        cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel.png'))
+        cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'cancel.png'))
         cancelImage.Rescale(12, 12)
-        cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'cancel_pressed.png'))
+        cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'cancel_pressed.png'))
         cancelImagePressed.Rescale(12, 12)
         cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER, name=gid)
         cancelButton.SetBitmapSelected(wx.BitmapFromImage(cancelImagePressed))
