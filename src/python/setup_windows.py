@@ -4,7 +4,7 @@
 Usage:
     python setup.py py2exe
 
-Imports nécessaires :
+py2exe is necessary, or it won't run
 """
 from distutils.core import setup
 import py2exe
@@ -33,11 +33,10 @@ OPTIONS = {'includes': ['lxml', 'lxml._elementpath'],
            'optimize': 2,
            'skip_archive': True}
 
-setup(name="LibreCast",
-      version="1.0",
-      author="LibreCast",
+setup(name='LibreCast',
+      version='0.8.2',
+      author='LibreCast',
       data_files=DATA_FILES,
-      options={"py2exe": OPTIONS},
-      scripts=["main.py"],
-      windows=[{"script": "main.py",
-                "icon_resources": [(0, 'uiManager/resources/icon.ico')]}])
+      options={'py2exe': OPTIONS},
+      windows=[{'script': 'main.pyw',
+                'icon_resources': [(0, 'uiManager/resources/icon.ico')]}])
