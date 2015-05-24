@@ -42,7 +42,9 @@ DATA_FILES = [('', ['aria2c']),
               ('resources', ['uiManager/resources/refresh.png']),
               ('resources', ['uiManager/resources/remove.png']),
               ('resources', ['uiManager/resources/windowed.png']),
-              ('resources', ['uiManager/resources/windowedSelected.png'])]
+              ('resources', ['uiManager/resources/windowedSelected.png']),
+              ('resources', ['uiManager/resources/playlists.png']),
+              ('resources', ['uiManager/resources/feeds.png'])]
 
 OPTIONS = {'argv_emulation': False,
            'excludes': ['setup.py', 'setup_windows.py'],
