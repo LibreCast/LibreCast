@@ -126,6 +126,9 @@ class mainUI(wx.Frame):
 
         self.SetSize((800, 500))
 
+        # Dire à wx que l'interface est en français
+        self.__locale = wx.Locale(wx.LANGUAGE_FRENCH)
+
         # Créer toute l'interface utilisateur
         self.InitUI()
 
@@ -475,17 +478,23 @@ class mainUI(wx.Frame):
         if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
             print('Cannot remove this item')
         else:
-            if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Playlists':
-                playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
-                self.database.removePlaylist(playlistID)
-            else:
-                feedID = self.database.getFeedIDFromURL(self.mainTree.GetItemText(item))
-                self.database.removeFeed(feedID)
-        # Rafraichir la liste
-        self.mainTree.ToggleItemSelection(self.mainTree.GetSelection())
-        self.RebuildList()
-        # Application des changements à l'arbre
-        self.RebuildTree()
+            dialog = wx.MessageDialog(None, 'Voulez-vous vraiment supprimer cet élément ?', 'Suppression', wx.YES_NO | wx.ICON_QUESTION)
+            modal = dialog.ShowModal()
+
+            if (modal == wx.ID_YES):
+                if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Playlists':
+                    playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
+                    self.database.removePlaylist(playlistID)
+                else:
+                    feedID = self.database.getFeedIDFromURL(self.mainTree.GetItemText(item))
+                    self.database.removeFeed(feedID)
+                # Rafraichir la liste
+                self.mainTree.ToggleItemSelection(self.mainTree.GetSelection())
+                self.RebuildList()
+                # Application des changements à l'arbre
+                self.RebuildTree()
+
+            dialog.Destroy()
 
     def OnSearch(self, event):
         # Fonction de la barre de recherche
