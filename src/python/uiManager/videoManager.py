@@ -10,6 +10,7 @@ from threading import Thread
 # Permet de remplacer '2' dans le programme par une variable ayant du sens
 # Le '2' correspond à l'état du media player qui est en train de jouer
 MEDIASTATE_PLAYING = 2
+USE_CUSTOM_PLAYER = False
 
 
 class ProgressBar(wx.Panel):
@@ -101,21 +102,15 @@ class videoWindow(wx.Frame):
         except NameError:  # We are the main py2exe script, not a module
             approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-        if('.exe' in approot):
-            approot = approot.replace('LibreCast.exe', '')
-
-        if('uiManager' in approot):
-            approot = approot.replace('/uiManager', '')
-
         # Créer les images pour les boutons
-        self.pauseImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'pause.png'))
-        self.playImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'play.png'))
-        self.fullScreenImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'fullScreen.png'))
-        self.windowedImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'windowed.png'))
-        self.selectedPauseImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'pauseSelected.png'))
-        self.selectedPlayImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'playSelected.png'))
-        self.selectedFullScreenImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'fullScreenSelected.png'))
-        self.selectedWindowedImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'windowedSelected.png'))
+        self.pauseImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'pause.png'))
+        self.playImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'play.png'))
+        self.fullScreenImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'fullScreen.png'))
+        self.windowedImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'windowed.png'))
+        self.selectedPauseImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'pauseSelected.png'))
+        self.selectedPlayImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'playSelected.png'))
+        self.selectedFullScreenImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'fullScreenSelected.png'))
+        self.selectedWindowedImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'windowedSelected.png'))
 
         # Modifier la taille des images
         self.pauseImage.Rescale(22, 22)
@@ -155,8 +150,7 @@ class videoWindow(wx.Frame):
 
         # Si l'OS ne permet pas d'afficher des controles par défaut
         # Note : Pour l'instant, on affiche toujours nos controles
-        #if not self.mc.ShowPlayerControls():
-        if True:
+        if not self.mc.ShowPlayerControls() or USE_CUSTOM_PLAYER:
             # Initaliser les images
             self.initImages()
             # Créer les boutons
@@ -243,8 +237,10 @@ class videoWindow(wx.Frame):
             # Ajouter ce sizer
             self.SetSizer(verticalSizer)
 
-        # Appeler la méthode OnSize lorsque l'utilisateur change la taille de la fenêtre
-        self.Bind(wx.EVT_SIZE, self.OnSize)
+        if USE_CUSTOM_PLAYER:
+            # Appeler la méthode OnSize lorsque l'utilisateur change la taille de la fenêtre
+            self.Bind(wx.EVT_SIZE, self.OnSize)
+
         # Appeler la méthode OnMediaLoaded lorsque la vidéo a fini de charger
         self.Bind(wx.media.EVT_MEDIA_LOADED, self.OnMediaLoaded, self.mc)
 
@@ -314,7 +310,7 @@ class videoWindow(wx.Frame):
         r = self.mc.LoadURI(url)
         # Si la vidéo n'est pas trouvée ou n'est pas lisible (mauvaise extension par exemple)
         if not r:
-            print 'Failed to load video'
+            print('Failed to load video')
         else:
             try:
                 # Modifier la taille maximale du slider afin qu'elle vaille le temps de la vidéo (en ms)

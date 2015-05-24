@@ -26,23 +26,23 @@ DATA_FILES = [('', ['aria2c']),
               ('uiManager', ['uiManager/treeManager.py']),
               ('uiManager', ['uiManager/videoManager.py']),
 
-              ('uiManager/resources', ['uiManager/resources/add.png']),
-              ('uiManager/resources', ['uiManager/resources/cancel.png']),
-              ('uiManager/resources', ['uiManager/resources/cancel_pressed.png']),
-              ('uiManager/resources', ['uiManager/resources/defaultChannelIcon.png']),
-              ('uiManager/resources', ['uiManager/resources/defaultVideoImage.png']),
-              ('uiManager/resources', ['uiManager/resources/Dnd.png']),
-              ('uiManager/resources', ['uiManager/resources/downloads.png']),
-              ('uiManager/resources', ['uiManager/resources/fullScreen.png']),
-              ('uiManager/resources', ['uiManager/resources/fullScreenSelected.png']),
-              ('uiManager/resources', ['uiManager/resources/pause.png']),
-              ('uiManager/resources', ['uiManager/resources/pauseSelected.png']),
-              ('uiManager/resources', ['uiManager/resources/play.png']),
-              ('uiManager/resources', ['uiManager/resources/playSelected.png']),
-              ('uiManager/resources', ['uiManager/resources/refresh.png']),
-              ('uiManager/resources', ['uiManager/resources/remove.png']),
-              ('uiManager/resources', ['uiManager/resources/windowed.png']),
-              ('uiManager/resources', ['uiManager/resources/windowedSelected.png'])]
+              ('resources', ['uiManager/resources/add.png']),
+              ('resources', ['uiManager/resources/cancel.png']),
+              ('resources', ['uiManager/resources/cancel_pressed.png']),
+              ('resources', ['uiManager/resources/defaultChannelIcon.png']),
+              ('resources', ['uiManager/resources/defaultVideoImage.png']),
+              ('resources', ['uiManager/resources/Dnd.png']),
+              ('resources', ['uiManager/resources/downloads.png']),
+              ('resources', ['uiManager/resources/fullScreen.png']),
+              ('resources', ['uiManager/resources/fullScreenSelected.png']),
+              ('resources', ['uiManager/resources/pause.png']),
+              ('resources', ['uiManager/resources/pauseSelected.png']),
+              ('resources', ['uiManager/resources/play.png']),
+              ('resources', ['uiManager/resources/playSelected.png']),
+              ('resources', ['uiManager/resources/refresh.png']),
+              ('resources', ['uiManager/resources/remove.png']),
+              ('resources', ['uiManager/resources/windowed.png']),
+              ('resources', ['uiManager/resources/windowedSelected.png'])]
 """
 OPTIONS = {'argv_emulation': False,
            'iconfile': 'uiManager/resources/icon.icns',
@@ -60,6 +60,7 @@ OPTIONS = {'argv_emulation': False,
 """
 
 OPTIONS = {'argv_emulation': False,
+           'excludes': ['setup.py', 'setup_windows.py'],
            'iconfile': 'uiManager/resources/icon.icns'}
 
 setup(

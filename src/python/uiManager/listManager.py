@@ -25,12 +25,6 @@ try:
 except NameError:  # We are the main py2exe script, not a module
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-if('.exe' in approot):
-    approot = approot.replace('LibreCast.exe', '')
-
-if('uiManager' in approot):
-    approot = approot.replace('/uiManager', '')
-
 
 class pyList(wx.ListCtrl):
     def __init__(self, parent, id, videoList, onDnDStartMethod, downloadVideo, style=''):
@@ -67,12 +61,12 @@ class pyList(wx.ListCtrl):
         if isinstance(videoList, list):
             for video in videoList:
                 try:
-                    bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
+                    bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
                     dateFR = datetime.fromtimestamp(time.mktime(parsedate(video[5]))).strftime("%d/%m/%Y")
                     self.AddLine(bmp, video[1], video[4], dateFR, video[3])
                     self.URLsByIndex.append((video[2], video[1]))
                 except Exception, e:
-                    print e
+                    print(e)
 
         # Modifier la largeur des 4 colonnes afin que le contenu de chacune soit entièrement affiché
         self.SetColumnWidth(0, wx.LIST_AUTOSIZE)
@@ -95,14 +89,14 @@ class pyList(wx.ListCtrl):
                 data = httpRequestManager.OpenUrl(videoList[index][6])[0].read()
                 bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()
             except:
-                print 'except: download failed'
-                bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
+                print('except: download failed')
+                bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
 
             try:
                 self.DisplayImage(bmp, index)
                 self.loadImages(videoList, index + 1)
             except:
-                print 'except: self doesn\'t exist'
+                print('except: self doesn\'t exist')
                 return
 
     def DisplayImage(self, image, index):

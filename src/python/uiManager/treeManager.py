@@ -49,12 +49,6 @@ try:
 except NameError:  # We are the main py2exe script, not a module
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-if('.exe' in approot):
-    approot = approot.replace('LibreCast.exe', '')
-
-if('uiManager' in approot):
-    approot = approot.replace('/uiManager', '')
-
 
 class pyTree(wx.TreeCtrl):
 
@@ -97,12 +91,15 @@ class pyTree(wx.TreeCtrl):
 
     def startThread(self):
         feedsList = []
-        for feed in self.database.getFeeds():
-            feedsList.append(feed[2])
+        try:
+            for feed in self.database.getFeeds():
+                feedsList.append(feed[2])
 
-        self.thread = Thread(target=self.loadImages, args=[feedsList, self.feeds, 0])
-        self.thread.setDaemon(False)
-        wx.CallLater(100, self.thread.start)
+            self.thread = Thread(target=self.loadImages, args=[feedsList, self.feeds, 0])
+            self.thread.setDaemon(False)
+            wx.CallLater(100, self.thread.start)
+        except:
+            pass
 
     def OnPlaylistRenamed(self, event):
         #TODO: Save changes in database
@@ -163,7 +160,7 @@ class pyTree(wx.TreeCtrl):
                 newItem = self.AppendItem(group, child.name.decode('utf-8'))
                 if self.GetItemText(group) == 'Abonnements':
                     self.feeds.append(newItem)
-                    image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'uiManager', 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
+                    image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
                     self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
 
     def loadImages(self, feedUrls, feeds, index):
@@ -172,13 +169,13 @@ class pyTree(wx.TreeCtrl):
                 data = httpRequestManager.OpenUrl(feedUrls[index])[0].read()
                 bmp = self.imageList.Add(wx.ImageFromStream(StringIO(data)).Scale(16, 16).ConvertToBitmap())
             except:
-                print 'except: download failed'
+                print('except: download failed')
 
             try:
                 self.SetItemImage(feeds[index], bmp, wx.TreeItemIcon_Normal)
                 self.loadImages(feedUrls, feeds, index + 1)
             except:
-                print 'self does not exist'
+                print('self does not exist')
                 return
 
     def insert(self, title, x, y):

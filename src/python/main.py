@@ -33,7 +33,7 @@ def callHttpManager(urlList):
 
             # Si le "parsage" du xml n'a pas donné d'erreur
             if titre != '':
-                print titre
+                print(titre)
             # Si le "parsage" du xml a donné une erreur
             else:
                 pass
@@ -49,17 +49,29 @@ def callHttpManager(urlList):
 def main():
     # Chemin où sont stockés les téléchargements
     downloadDirectory = os.path.join(os.path.dirname(approot), 'Downloads')
-    print downloadDirectory
+
     # Si ce dossier n'existe pas
     if not os.path.exists(downloadDirectory):
         # Le créer
         os.makedirs(downloadDirectory)
 
-    # Créer un subprocess avec aria2 en mode silencieux, avec un logfile
-    proc = subprocess.Popen(
-        ['./aria2c', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=aria2logs.log'],
-        cwd=os.path.dirname(__file__),
-    )
+    try:
+        cwd = os.path.dirname(__file__)
+    except:
+        cwd = os.path.dirname(sys.argv[0])
+
+    if sys.platform == 'win32':
+        # Créer un subprocess avec aria2c.exe en mode silencieux, avec un logfile
+        proc = subprocess.Popen(
+            ['./aria2c.exe', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=aria2logs.log'],
+            cwd=cwd,
+        )
+    else:
+        # Créer un subprocess avec aria2c en mode silencieux, avec un logfile
+        proc = subprocess.Popen(
+            ['./aria2c', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=aria2logs.log'],
+            cwd=cwd,
+        )
 
     # Connexion à la base de donnée
     database_instance = database.Database(os.path.join(os.environ.get('RESOURCEPATH', approot), 'database.db'))
