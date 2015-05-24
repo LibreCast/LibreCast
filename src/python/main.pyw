@@ -60,11 +60,17 @@ def main():
     except:
         cwd = os.path.dirname(sys.argv[0])
 
+    # Si windows
     if sys.platform == 'win32':
+        # Faire en sorte que la console soit cachée
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
         # Créer un subprocess avec aria2c.exe en mode silencieux, avec un logfile
         proc = subprocess.Popen(
             ['./aria2c.exe', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=aria2logs.log'],
             cwd=cwd,
+            startupinfo=startupinfo,
         )
     else:
         # Créer un subprocess avec aria2c en mode silencieux, avec un logfile

@@ -8,7 +8,7 @@ Usage:
 from setuptools import setup
 
 
-APP = ['main.py']
+APP = ['main.pyw']
 
 DATA_FILES = [('', ['aria2c']),
               ('', ['pyxmlcast.py']),
@@ -43,21 +43,6 @@ DATA_FILES = [('', ['aria2c']),
               ('resources', ['uiManager/resources/remove.png']),
               ('resources', ['uiManager/resources/windowed.png']),
               ('resources', ['uiManager/resources/windowedSelected.png'])]
-"""
-OPTIONS = {'argv_emulation': False,
-           'iconfile': 'uiManager/resources/icon.icns',
-           'includes': ['wx',
-                        'wx.media',
-                        'cPickle', 'threading.Thread',
-                        '__future__.division',
-                        'email.utils',
-                        'datetime',
-                        'time',
-                        're',
-                        'math',
-                        'lxml',
-                        'sqlite3']}
-"""
 
 OPTIONS = {'argv_emulation': False,
            'excludes': ['setup.py', 'setup_windows.py'],
@@ -65,6 +50,8 @@ OPTIONS = {'argv_emulation': False,
 
 setup(
     name='LibreCast',
+    version='0.8.2',
+    author='LibreCast',
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
