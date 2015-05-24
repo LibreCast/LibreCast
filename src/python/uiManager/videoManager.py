@@ -139,6 +139,7 @@ class videoWindow(wx.Frame):
             backend = wx.media.MEDIABACKEND_GSTREAMER
         elif sys.platform == 'darwin':
             backend = wx.media.MEDIABACKEND_QUICKTIME
+            USE_CUSTOM_PLAYER = True
         elif sys.platform == 'win32':
             backend = wx.media.MEDIABACKEND_DIRECTSHOW
         if backend is not None:
@@ -151,6 +152,7 @@ class videoWindow(wx.Frame):
         # Si l'OS ne permet pas d'afficher des controles par défaut
         # Note : Pour l'instant, on affiche toujours nos controles
         if not self.mc.ShowPlayerControls() or USE_CUSTOM_PLAYER:
+            self.mc.ShowPlayerControls(False)
             # Initaliser les images
             self.initImages()
             # Créer les boutons
