@@ -6,7 +6,6 @@ import sys
 import cPickle
 from threading import Thread
 from cStringIO import StringIO
-from uiManager import videoManager
 from requestsManager import httpRequestManager
 from email.utils import parsedate
 import time
@@ -26,11 +25,12 @@ except NameError:  # We are the main py2exe script, not a module
 
 
 class pyList(wx.ListCtrl):
-    def __init__(self, parent, id, videoList, onDnDStartMethod, downloadVideo, style=''):
+    def __init__(self, parent, id, videoList, onDnDStartMethod, downloadVideo, streamVideo, style=''):
         wx.ListCtrl.__init__(self, parent, id)
 
         self.onDnDStartMethod = onDnDStartMethod
         self.downloadVideo = downloadVideo
+        self.streamVideo = streamVideo
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style != '':
@@ -184,5 +184,4 @@ class pyList(wx.ListCtrl):
         self.index += 1
 
     def PlayVideo(self, event):
-        # Afficher une fenêtre avec la vidéo située à l'URL donnée
-        videoManager.videoWindow(self, wx.ID_ANY, self.URLsByIndex[event.GetIndex()][0])
+        self.streamVideo(self.URLsByIndex[event.GetIndex()][0])

@@ -10,6 +10,7 @@ from pyxmlcast import *
 from threading import Thread
 from requestsManager import httpRequestManager
 from uiManager import downloadManager
+from uiManager import videoManager
 
 """
 TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
@@ -271,7 +272,7 @@ class mainUI(wx.Frame):
 
         if videoList:
             # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-            self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+            self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
         else:
             panel = wx.Panel(self.split, wx.ID_ANY, size=(200, 200), style=wx.ALIGN_CENTER)
             panel.SetBackgroundColour('#F0F0F0')
@@ -342,6 +343,10 @@ class mainUI(wx.Frame):
 
         # Afficher tous les éléments ajoutés ci-dessus
         toolbar.Realize()
+
+    def streamVideo(self, uri):
+        # Afficher une fenêtre avec la vidéo située à l'URL donnée
+        videoManager.videoWindow(self, wx.ID_ANY, uri)
 
     def RebuildTree(self):
         # Sauvegarde et suppression de l'ancien panel; remplacement par le nouvel panel
