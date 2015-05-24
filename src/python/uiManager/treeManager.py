@@ -8,11 +8,6 @@ from threading import Thread
 from cStringIO import StringIO
 from requestsManager import httpRequestManager
 
-"""
-TODO : Sauvegarder le fait qu'une playlist est renommée
-       ...
-"""
-
 
 class Tree(object):
 
@@ -78,6 +73,8 @@ class pyTree(wx.TreeCtrl):
         self.imageList = wx.ImageList(16, 16)
         self.AssignImageList(self.imageList)
 
+        self.SetDropTarget(ListDrop(self, self.onDnDEndMethod, self.onDnDLeftTargetMethod, self.OnDnDEnteredTarget))
+
         # On décompose les données délivrées avec l'arbre, et on les affiche dans ce dernier
         # Note : À étudier en même temps que la variable 'data', puisque c'est
         # de là qu'on extrait les données
@@ -114,38 +111,36 @@ class pyTree(wx.TreeCtrl):
             event.Veto()
 
     def OnRightClicked(self, event):
-            #TODO: Comments
-            self.list_item_clicked = event.GetItem()
+        #TODO: Comments
+        self.list_item_clicked = event.GetItem()
 
-            if self.GetItemText(self.GetItemParent(self.GetSelection())) == 'Playlists':
-                menu_titles = ['Rename', 'Delete']
-            elif self.GetItemParent(self.GetSelection()) != self.GetRootItem():
-                menu_titles = ['Delete']
+        if self.GetItemText(self.GetItemParent(self.GetSelection())) == 'Playlists':
+            menu_titles = ['Renommer', 'Supprimer']
+        elif self.GetItemParent(self.GetSelection()) != self.GetRootItem():
+            menu_titles = ['Supprimer']
 
-            menu = wx.Menu()
-            self.menu_title_by_id = {}
-            for title in menu_titles:
-                itemId = wx.NewId()
-                self.menu_title_by_id[itemId] = title
-                menu.Append(itemId, title)
-                wx.EVT_MENU(menu, itemId, self.OnMenuSelected)
+        menu = wx.Menu()
+        self.menu_title_by_id = {}
+        for title in menu_titles:
+            itemId = wx.NewId()
+            self.menu_title_by_id[itemId] = title
+            menu.Append(itemId, title)
+            wx.EVT_MENU(menu, itemId, self.OnMenuSelected)
 
-            self.PopupMenu(menu, event.GetPoint())
-            menu.Destroy()
+        self.PopupMenu(menu, event.GetPoint())
+        menu.Destroy()
 
     def OnMenuSelected(self, event):
         #TODO: Comments
         operation = self.menu_title_by_id[event.GetId()]
         target = self.list_item_clicked
 
-        if operation == 'Delete':
+        if operation == 'Supprimer':
             wx.CallAfter(self.OnClickRemoveButton, event)
-        elif operation == 'Rename':
+        elif operation == 'Renommer':
             self.EditLabel(target)
 
     def addData(self, tree, group, level=0):
-        self.SetDropTarget(ListDrop(self, self.onDnDEndMethod, self.onDnDLeftTargetMethod, self.OnDnDEnteredTarget))
-
         # Pour chaque enfant de l'arbre
         for child in tree.children:
             # Si cet enfant à lui même des enfants

@@ -83,6 +83,7 @@ class AddAnUrl(wx.Dialog):
         # Créer les boutons Ok et Cancel, et un sizer les contenant
         endButtonsSizer = wx.BoxSizer(wx.HORIZONTAL)
         okButton = wx.Button(self, label='Ok')
+        okButton.SetDefault()
         closeButton = wx.Button(self, label='Annuler')
         endButtonsSizer.Add(okButton)
         endButtonsSizer.Add(closeButton, flag=wx.LEFT, border=5)
@@ -121,6 +122,8 @@ class mainUI(wx.Frame):
         wx.Frame.__init__(self, parent, id)
 
         self.setDatabase(database)
+
+        self.SetSize((800, 500))
 
         # Créer toute l'interface utilisateur
         self.InitUI()
@@ -168,10 +171,8 @@ class mainUI(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
-        # Récupérer la taille de l'écran
-        displaySize = wx.DisplaySize()
-        # Modifier la taille de la fenêtre pour qu'elle fasse 4/5 de l'écran
-        self.SetSize((9*displaySize[0]/10, 9*displaySize[1]/10))
+        # Maximize window
+        self.Maximize(True)
         # Modifier la taille minimale de la fenêtre, pour éviter que tout devienne trop moche par manque de place...
         self.SetMinSize((500, 500))
         # Modifier le titre de la fenêtre

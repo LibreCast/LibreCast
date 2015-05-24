@@ -15,7 +15,6 @@ from datetime import datetime
 """
 TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
        Modifier l'icone de DnD, avec l'image "DnD.png"
-       Possibilité de renommer les playlists
        ...
 """
 
