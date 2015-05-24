@@ -481,8 +481,11 @@ class mainUI(wx.Frame):
             else:
                 feedID = self.database.getFeedIDFromURL(self.mainTree.GetItemText(item))
                 self.database.removeFeed(feedID)
+        # Rafraichir la liste
+        self.mainTree.ToggleItemSelection(self.mainTree.GetSelection())
+        self.RebuildList()
         # Application des changements à l'arbre
-            self.RebuildTree()
+        self.RebuildTree()
 
     def OnSearch(self, event):
         # Fonction de la barre de recherche
