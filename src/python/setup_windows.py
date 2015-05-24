@@ -26,7 +26,9 @@ DATA_FILES = [('', ['aria2c.exe']),
               ('uiManager/resources', ['uiManager/resources/refresh.png']),
               ('uiManager/resources', ['uiManager/resources/remove.png']),
               ('uiManager/resources', ['uiManager/resources/windowed.png']),
-              ('uiManager/resources', ['uiManager/resources/windowedSelected.png'])]
+              ('uiManager/resources', ['uiManager/resources/windowedSelected.png']),
+              ('resources', ['uiManager/resources/playlists.png']),
+              ('resources', ['uiManager/resources/feeds.png'])]
 
 OPTIONS = {'includes': ['lxml', 'lxml._elementpath'],
            'dll_excludes': ['w9xpopen.exe', 'MSVCP90.dll', 'mswsock.dll', 'powrprof.dll', 'MPR.dll', 'MSVCR100.dll', 'mfc90.dll'],

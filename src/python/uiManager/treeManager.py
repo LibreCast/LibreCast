@@ -145,9 +145,9 @@ class pyTree(wx.TreeCtrl):
         for child in tree.children:
             # Si cet enfant à lui même des enfants
             if len(child.children) > 0:
-                # Créer un nouveau groupe, et appeler cette même fonction avec un nouveau père
-                newSubGroup = self.AppendItem(group, child.name.decode('utf-8'))
-                self.addData(child, newSubGroup, level + 1)
+                # Créer un nouveau groupe, et appeler cette même fonction avec un nouveau parent
+                newItem = self.AppendItem(group, child.name.decode('utf-8'))
+                self.addData(child, newItem, level + 1)
 
             # Si cet enfant n'a pas d'enfants
             else:
@@ -157,6 +157,18 @@ class pyTree(wx.TreeCtrl):
                     self.feeds.append(newItem)
                     image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
                     self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
+
+            # Si l'OS est windows
+            # Note : Ajout d'image car, de toute façon, windows met des espaces blanc même sans image. Donc autant les remplir...
+            if sys.platform == 'win32':
+                if self.GetItemParent(newItem) == self.GetRootItem():
+                    # Ajouter une image
+                    if child.name.decode('utf-8') == 'Playlists':
+                        image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'playlists.png')).Scale(16, 16).ConvertToBitmap())
+                        self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
+                    elif child.name.decode('utf-8') == 'Abonnements':
+                        image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'feeds.png')).Scale(16, 16).ConvertToBitmap())
+                        self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
 
     def loadImages(self, feedUrls, feeds, index):
         if index < len(feedUrls):
