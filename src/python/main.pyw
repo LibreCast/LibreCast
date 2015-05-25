@@ -49,9 +49,9 @@ def callHttpManager(urlList):
 def main():
     # Chemins utilisés par LibreCast
     userDirectory = os.path.expanduser('~')
-    librecastDirectory = userDirectory + '/.librecast'
-    databaseFile = librecastDirectory + '/database.db'
-    downloadDirectory = librecastDirectory + '/downloads'
+    librecastDirectory = os.path.join(userDirectory, 'LibreCast')
+    databaseFile = os.path.join(librecastDirectory, 'database.db')
+    downloadDirectory = os.path.join(librecastDirectory, 'Downloads')
 
     # Si ce dossier n'existe pas
     if not os.path.exists(downloadDirectory):

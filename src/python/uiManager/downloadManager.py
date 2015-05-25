@@ -2,6 +2,7 @@
 
 import os
 import sys
+import subprocess
 import wx
 import wx.lib.scrolledpanel as scrolled
 from converter import Converter
@@ -89,15 +90,25 @@ class DownloadPanel(scrolled.ScrolledPanel):
 
         progressSizer = wx.BoxSizer(wx.HORIZONTAL)
         gauge = wx.Gauge(panel, wx.ID_ANY, 1000, style=wx.GA_HORIZONTAL | wx.GA_SMOOTH)
+
         cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'cancel.png'))
         cancelImage.Rescale(12, 12)
-        cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'cancel_pressed.png'))
+        cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'cancelPressed.png'))
         cancelImagePressed.Rescale(12, 12)
         cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER, name=gid)
         cancelButton.SetBitmapSelected(wx.BitmapFromImage(cancelImagePressed))
         cancelButton.Bind(wx.EVT_BUTTON, self.OnStopDownload)
 
+        findImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'reveal.png'))
+        findImage.Rescale(12, 12)
+        findImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'revealPressed.png'))
+        findImagePressed.Rescale(12, 12)
+        findButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(findImage), style=wx.NO_BORDER, name=gid)
+        findButton.SetBitmapSelected(wx.BitmapFromImage(findImagePressed))
+        findButton.Bind(wx.EVT_BUTTON, self.OnFindDownloadFolder)
+
         progressSizer.Add(gauge, 1, wx.RIGHT | wx.EXPAND, 10)
+        progressSizer.Add(findButton, 0, wx.RIGHT | wx.LEFT | wx.TOP, 3)
         progressSizer.Add(cancelButton, 0, wx.RIGHT | wx.LEFT | wx.TOP, 3)
 
         sizer.Add(titleLabel, 0, wx.TOP | wx.RIGHT | wx.LEFT, 5)
@@ -162,6 +173,17 @@ class DownloadPanel(scrolled.ScrolledPanel):
         self.SetupScrolling()
 
         self.alternateColors()
+
+    def OnFindDownloadFolder(self, event):
+        # Chemins utilisés par LibreCast
+        downloadDirectory = os.path.join(os.path.expanduser('~'), 'LibreCast', 'Downloads')
+
+        if sys.platform == 'darwin':
+            subprocess.check_call(['open', '--', downloadDirectory])
+        elif sys.platform == 'linux2':
+            subprocess.check_call(['gnome-open', '--', downloadDirectory])
+        elif sys.platform == 'win32':
+            subprocess.check_call(['explorer', downloadDirectory])
 
     def OnPanelClick(self, event):
         self.alternateColors()
