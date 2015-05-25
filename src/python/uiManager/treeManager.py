@@ -117,7 +117,7 @@ class pyTree(wx.TreeCtrl):
         if self.GetItemText(self.GetItemParent(self.GetSelection())) == 'Playlists':
             menu_titles = ['Renommer', 'Supprimer']
         elif self.GetItemParent(self.GetSelection()) != self.GetRootItem():
-            menu_titles = ['Supprimer']
+            menu_titles = ['Copier l\'adresse du flux', 'Supprimer']
 
         menu = wx.Menu()
         self.menu_title_by_id = {}
@@ -139,6 +139,16 @@ class pyTree(wx.TreeCtrl):
             wx.CallAfter(self.OnClickRemoveButton, event)
         elif operation == 'Renommer':
             self.EditLabel(target)
+        elif operation == 'Copier l\'adresse du flux':
+            url = self.GetPyData(self.GetSelection())
+            
+            # Copier l'URL au presse-papier
+            if not wx.TheClipboard.IsOpened():
+                wx.TheClipboard.Open()
+            clipdata = wx.TextDataObject()
+            clipdata.SetText(url)
+            wx.TheClipboard.SetData(clipdata)
+            wx.TheClipboard.Close()
 
     def addData(self, tree, group, level=0):
         # Pour chaque enfant de l'arbre
@@ -157,6 +167,7 @@ class pyTree(wx.TreeCtrl):
                     self.feeds.append(newItem)
                     image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
                     self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
+                    self.SetPyData(newItem,child.url)
 
             # Si l'OS est windows
             # Note : Ajout d'image car, de toute façon, windows met des espaces blanc même sans image. Donc autant les remplir...
