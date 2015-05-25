@@ -63,8 +63,6 @@ def main():
     except:
         cwd = os.path.dirname(sys.argv[0])
 
-    print cwd
-
     # Si windows
     if sys.platform == 'win32':
         # Faire en sorte que la console soit cachée
