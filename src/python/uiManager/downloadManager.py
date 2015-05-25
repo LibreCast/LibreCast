@@ -183,7 +183,7 @@ class DownloadPanel(scrolled.ScrolledPanel):
         elif sys.platform == 'linux2':
             subprocess.check_call(['gnome-open', '--', downloadDirectory])
         elif sys.platform == 'win32':
-            subprocess.check_call(['explorer', downloadDirectory])
+            subprocess.Popen('explorer %s' % downloadDirectory)
 
     def OnPanelClick(self, event):
         self.alternateColors()
