@@ -398,7 +398,8 @@ class mainUI(wx.Frame):
                 self.videosList = self.database.getVideosFromPlaylist(playlistID)
                 self.RebuildList()
             elif self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
-                fluxID = self.database.getFeedIDFromURL(self.mainTree.GetItemText(item))
+                url = self.mainTree.GetPyData(self.mainTree.GetSelection())
+                fluxID = self.database.getFeedIDFromURL(url)
                 self.videosList = self.database.getVideosFromFeed(fluxID)
                 self.RebuildList()
 
