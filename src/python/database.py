@@ -41,8 +41,13 @@ class Database(object):
         # Création de la table des vidéos
         cursor.execute('CREATE TABLE IF NOT EXISTS playlistsVideos (\
             id INTEGER PRIMARY KEY AUTOINCREMENT,\
-            videoId int,\
-            playlistId int\
+            name text,\
+            urls text,\
+            length text,\
+            publisher text,\
+            pubdate text,\
+            image BLOB,\
+            playlistid int\
         )')
 
         self.base.commit()
@@ -102,7 +107,7 @@ class Database(object):
     def insertVideoInPlaylist(self, videoId, playlistId):
         cursor = self.base.cursor()
 
-        cursor.execute('INSERT INTO playlistsVideos (playlistId,videoId) VALUES (:playlistId,:videoId)', {
+        cursor.execute('INSERT INTO playlistsVideos (name, urls, length, publisher, pubdate, image, playlistid) SELECT name, urls, length, publisher, pubdate, image, :playlistId AS "playlistid" FROM videos WHERE videos.id = :videoId;', {
             'playlistId': playlistId,
             'videoId': videoId
         })
@@ -113,7 +118,7 @@ class Database(object):
         cursor = self.base.cursor()
 
         # Délétion de la playlist dans la table playlists
-        cursor.execute('DELETE FROM playlistsVideos WHERE playlistId = :playlistId AND videoId = :videoId', {
+        cursor.execute('DELETE FROM playlistsVideos WHERE playlistid = :playlistId AND id = :videoId', {
             'playlistId': playlistId,
             'videoId': videoId
         })
@@ -183,7 +188,7 @@ class Database(object):
         cursor = self.base.cursor()
 
         # On séléctionne toutes les playlists
-        cursor.execute('SELECT * FROM playlistsVideos WHERE playlistId = :id', {'id': playlistId})
+        cursor.execute('SELECT * FROM playlistsVideos WHERE playlistid = :id', {'id': playlistId})
 
         return cursor.fetchall()
 
