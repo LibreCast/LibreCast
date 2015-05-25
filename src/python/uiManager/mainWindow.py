@@ -11,6 +11,7 @@ from threading import Thread
 from requestsManager import httpRequestManager
 from uiManager import downloadManager
 from uiManager import videoManager
+from uiManager.bigMessagePanel import BigMessagePanel
 
 """
 TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
@@ -278,18 +279,7 @@ class mainUI(wx.Frame):
             # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
             self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
         else:
-            panel = wx.Panel(self.split, wx.ID_ANY, size=(200, 200), style=wx.ALIGN_CENTER)
-            panel.SetBackgroundColour('#F0F0F0')
-
-            innerBox = wx.BoxSizer(wx.VERTICAL)
-
-            font = wx.Font(18, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
-            text = wx.StaticText(panel, id=wx.ID_ANY, label="Aucun élément", style=wx.ALIGN_CENTER)
-            text.SetFont(font)
-            innerBox.Add(text, 0, wx.CENTER | wx.TOP, border=100)
-            panel.SetSizer(innerBox)
-
-            self.videoList = panel
+            self.videoList = BigMessagePanel(self.split,"Aucun élément")
 
     def CreateSplitter(self):
         # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
