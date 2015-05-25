@@ -141,7 +141,7 @@ class pyTree(wx.TreeCtrl):
             self.EditLabel(target)
         elif operation == 'Copier l\'adresse du flux':
             url = self.GetPyData(self.GetSelection())
-            
+
             # Copier l'URL au presse-papier
             if not wx.TheClipboard.IsOpened():
                 wx.TheClipboard.Open()
@@ -167,7 +167,7 @@ class pyTree(wx.TreeCtrl):
                     self.feeds.append(newItem)
                     image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
                     self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
-                    self.SetPyData(newItem,child.url)
+                    self.SetPyData(newItem, child.url)
 
             # Si l'OS est windows
             # Note : Ajout d'image car, de toute façon, windows met des espaces blanc même sans image. Donc autant les remplir...

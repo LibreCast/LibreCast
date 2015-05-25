@@ -9,9 +9,10 @@ from converter import Converter
 from uiManager import videoManager
 from requestsManager import aria2Manager
 
+# Set root path
 try:
     approot = os.path.dirname(os.path.abspath(__file__))
-except NameError:
+except NameError:  # We are the main py2exe script, not a module
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 

@@ -59,9 +59,12 @@ def main():
         os.makedirs(downloadDirectory)
 
     try:
-        cwd = os.path.dirname(os.path.realpath(__file__))
-    except:
-        cwd = os.path.dirname(sys.argv[0])
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = approot
+
+    cwd = base_path
 
     # Si windows
     if sys.platform == 'win32':
