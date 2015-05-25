@@ -95,8 +95,8 @@ def main():
 
     # Fermer le subprocess
     proc.terminate()
-    # Attendre que ce soit terminé
-    proc.wait()
+    # Et là, on a perdu la patience
+    os.kill(proc.pid, signal.SIGINT)
 
 """
 Condition pour vérifier que le fichier est directement executé
