@@ -225,6 +225,7 @@ class mainUI(wx.Frame):
         for i in feeds:
             feed = channels_tree.add()
             feed.name = i[3].encode('utf-8')
+            feed.url = i[1]
 
         if sys.platform == 'win32':
             # Créer l'arbre (grâce au module treeManager) avec le root, sinon windows n'est pas content
