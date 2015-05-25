@@ -382,7 +382,6 @@ class mainUI(wx.Frame):
 
     def OnDragAndDropEnd(self):
         self.isDnD = False
-        print "lol"
 
     def OnSelChanged(self, e):
         if not hasattr(self, 'isDnD'):
