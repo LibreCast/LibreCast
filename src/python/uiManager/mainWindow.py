@@ -154,15 +154,15 @@ class mainUI(wx.Frame):
         menubar.Append(editMenu, '&Edit')
 
         # On lui ajoute une option refresh avec raccourci
-        refreshItem = editMenu.Append(wx.ID_ANY, 'Refresh\tCtrl+R', 'Rafraîchir les flux')
+        refreshItem = editMenu.Append(wx.ID_REFRESH, 'Rafraîchir\tCtrl+R', 'Rafraîchir les flux')
         self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
 
         # On ajoute un raccourci pour ajouter une playlist ou une URL
-        addItem = editMenu.Append(wx.ID_ANY, 'Add new...\tCtrl+=', 'Ajouter une playlist ou une URL')
+        addItem = editMenu.Append(wx.ID_ANY, 'Ajouter un nouveau...\tCtrl++', 'Ajouter une playlist ou une URL')
         self.Bind(wx.EVT_MENU, self.OnClickAddButton, addItem)
 
-        # On ajoute un raccourci pour ajouter une playlist ou une URL
-        removeItem = editMenu.Append(wx.ID_ANY, 'Remove\tCtrl+-', 'Supprimer l\'élément sélectionné')
+        # On ajoute un raccourci pour enlever une playlist ou une URL
+        removeItem = editMenu.Append(wx.ID_ANY, 'Supprimer cet élément\tCtrl+-', 'Supprimer l\'élément sélectionné')
         self.Bind(wx.EVT_MENU, self.OnClickRemoveButton, removeItem)
 
         self.SetMenuBar(menubar)
@@ -303,49 +303,49 @@ class mainUI(wx.Frame):
 
     def CreateToolbar(self):
         # Créer la barre d'outils avec refresh et search (noter le 'B' majuscule dans 'Bar')
-        toolbar = self.CreateToolBar()
+        self.toolbar = self.CreateToolBar()
 
         # Créer une variable qui contient l'image refresh.png dans le dossier resources
         refreshImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'refresh.png'))
         # Ajouter un bouton avec l'image refresh
-        refreshTool = toolbar.AddLabelTool(wx.ID_ANY, 'Rafraîchir', wx.BitmapFromImage(refreshImage), shortHelp='Rafraîchir les flux')
+        refreshTool = self.toolbar.AddLabelTool(wx.ID_ANY, 'Rafraîchir', wx.BitmapFromImage(refreshImage), shortHelp='Rafraîchir les flux')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
         self.Bind(wx.EVT_TOOL, self.OnRefresh, refreshTool)
 
         """
         # Ajouter un séparateur
-        toolbar.AddSeparator()
+        self.toolbar.AddSeparator()
         # AddStrechableSpace()
 
         # Créer une barre de recherche
-        self.searchbar = wx.SearchCtrl(toolbar, wx.ID_ANY, size=(200, -1), style=wx.TE_PROCESS_ENTER)
+        self.searchbar = wx.SearchCtrl(self.toolbar, wx.ID_ANY, size=(200, -1), style=wx.TE_PROCESS_ENTER)
         # Afficher le bouton annuler dans la barre de recherche
         self.searchbar.ShowCancelButton(True)
         # Afficher 'Search online content' par défaut dans la barre de recherche
         self.searchbar.SetDescriptiveText('Rechercher')
         # Ajouter la barre de recherche
-        searchbarctrl = toolbar.AddControl(self.searchbar)
+        searchbarctrl = self.toolbar.AddControl(self.searchbar)
         # Ajouter un évenement lorsque le texte change
         self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
         # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
         self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
 
         # Ajouter un séparateur
-        #toolbar.AddSeparator()
+        #self.toolbar.AddSeparator()
         """
 
         # Créer une variable qui contient l'image downloads.png dans le dossier resources
         downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads.png')).Scale(32, 32)
         # Ajouter un bouton avec l'image download
-        downloadTool = toolbar.AddLabelTool(wx.ID_ANY, 'Téléchargements', wx.BitmapFromImage(downloadImage), shortHelp='Afficher la fenêtre de téléchargements')
+        downloadTool = self.toolbar.AddLabelTool(2001, 'Téléchargements', wx.BitmapFromImage(downloadImage), shortHelp='Afficher la fenêtre de téléchargements')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction downloadTool est appellée)
         self.Bind(wx.EVT_TOOL, self.OnShowDownloadWindow, downloadTool)
 
         # Modifier la taille des icones de la barre d'outils
-        toolbar.SetToolBitmapSize((32, 32))
+        self.toolbar.SetToolBitmapSize((32, 32))
 
         # Afficher tous les éléments ajoutés ci-dessus
-        toolbar.Realize()
+        self.toolbar.Realize()
 
     def streamVideo(self, uri):
         # Afficher une fenêtre avec la vidéo située à l'URL donnée
@@ -516,13 +516,34 @@ class mainUI(wx.Frame):
         else:
             print('Aucune recherche')
 
+    def OnDownloadAnimationTimer(self, toolbar, count, mult):
+        if count == 9:
+            mult *= -1
+            downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads - %s.png' % count)).Scale(32, 32)
+            toolbar.SetToolNormalBitmap(id=2001, bitmap=wx.BitmapFromImage(downloadImage))
+            count += 1*mult
+            wx.CallLater(120, self.OnDownloadAnimationTimer, toolbar, count, mult)
+            return
+
+        if count == 0:
+            downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads.png')).Scale(32, 32)
+            toolbar.SetToolNormalBitmap(id=2001, bitmap=wx.BitmapFromImage(downloadImage))
+            return
+
+        downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads - %s.png' % count)).Scale(32, 32)
+        toolbar.SetToolNormalBitmap(id=2001, bitmap=wx.BitmapFromImage(downloadImage))
+
+        if count > 1 or (count >= 1 and mult == 1):
+            count += 1*mult
+            wx.CallLater(20, self.OnDownloadAnimationTimer, toolbar, count, mult)
+
     def OnShowDownloadWindow(self, event):
         self.downloadManager.Show(False)
         self.downloadManager.Show(True)
 
     def downloadVideo(self, url, title):
         self.downloadManager.AddDownload(url, title)
-        self.OnShowDownloadWindow(None)
+        self.OnDownloadAnimationTimer(self.toolbar, 1, 1)
 
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique
