@@ -313,28 +313,6 @@ class mainUI(wx.Frame):
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
         self.Bind(wx.EVT_TOOL, self.OnRefresh, refreshTool)
 
-        """
-        # Ajouter un séparateur
-        self.toolbar.AddSeparator()
-        # AddStrechableSpace()
-
-        # Créer une barre de recherche
-        self.searchbar = wx.SearchCtrl(self.toolbar, wx.ID_ANY, size=(200, -1), style=wx.TE_PROCESS_ENTER)
-        # Afficher le bouton annuler dans la barre de recherche
-        self.searchbar.ShowCancelButton(True)
-        # Afficher 'Search online content' par défaut dans la barre de recherche
-        self.searchbar.SetDescriptiveText('Rechercher')
-        # Ajouter la barre de recherche
-        searchbarctrl = self.toolbar.AddControl(self.searchbar)
-        # Ajouter un évenement lorsque le texte change
-        self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
-        # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
-        self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
-
-        # Ajouter un séparateur
-        #self.toolbar.AddSeparator()
-        """
-
         # Créer une variable qui contient l'image downloads.png dans le dossier resources
         downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads.png')).Scale(32, 32)
         # Ajouter un bouton avec l'image download
@@ -500,24 +478,6 @@ class mainUI(wx.Frame):
                 self.RebuildTree()
 
             dialog.Destroy()
-
-    def OnSearch(self, event):
-        # Fonction de la barre de recherche
-        texte = self.searchbar.GetValue()
-
-        if texte != '':
-            print('Rechercher : ' + texte)
-        else:
-            print('Ne pas rechercher')
-
-    def OnSearchTextChanged(self, event):
-        # Si le texte recherché n'est pas vide, récupérer la valeur de la recherche
-        texte = self.searchbar.GetValue()
-
-        if texte != '':
-            print('Nouvelle recherche : ' + texte)
-        else:
-            print('Aucune recherche')
 
     def OnDownloadAnimationTimer(self, toolbar, count, mult):
         if count == 9:
