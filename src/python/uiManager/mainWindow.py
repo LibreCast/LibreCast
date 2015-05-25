@@ -489,7 +489,8 @@ class mainUI(wx.Frame):
                     playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
                     self.database.removePlaylist(playlistID)
                 else:
-                    feedID = self.database.getFeedIDFromURL(self.mainTree.GetItemText(item))
+                    url = self.mainTree.GetPyData(self.mainTree.GetSelection())
+                    feedID = self.database.getFeedIDFromURL(url)
                     self.database.removeFeed(feedID)
                 # Rafraichir la liste
                 self.mainTree.ToggleItemSelection(self.mainTree.GetSelection())
