@@ -18,34 +18,6 @@ try:
 except NameError:
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-
-def callHttpManager(urlList):
-    # On affiche le fichier situé à chaque URL
-    for resultat in urlList:
-
-        # Initialiser la variable
-        resultat_de_la_requete, tryNewPath = httpRequestManager.OpenUrl(resultat[1])
-
-        # Si le téléchargement n'a pas donné d'erreur
-        if resultat_de_la_requete != '':
-            # Lire ce fichier
-            titre = xmlManager.ParseXml(resultat_de_la_requete.read())
-
-            # Si le "parsage" du xml n'a pas donné d'erreur
-            if titre != '':
-                print(titre)
-            # Si le "parsage" du xml a donné une erreur
-            else:
-                pass
-
-        # Si le téléchargement a donné une erreur
-        elif tryNewPath:
-            # Si l'url ne se termine pas par .xml
-            if not resultat[1].endswith('.xml') and not resultat[1].endswith('.rss'):
-                urlList.append(['0', str(resultat[1] + '/flux.xml')])
-                urlList.append(['0', str(resultat[1] + '/feed.rss')])
-
-
 def main():
     # Chemins utilisés par LibreCast
     userDirectory = os.path.expanduser('~')
