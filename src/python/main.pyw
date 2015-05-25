@@ -47,8 +47,11 @@ def callHttpManager(urlList):
 
 
 def main():
-    # Chemin où sont stockés les téléchargements
-    downloadDirectory = os.path.join(os.path.dirname(approot), 'Downloads')
+    # Chemins utilisés par LibreCast
+    userDirectory = os.path.expanduser('~')
+    librecastDirectory = userDirectory + '/.librecast'
+    databaseFile = librecastDirectory + '/database.db'
+    downloadDirectory = librecastDirectory + '/downloads'
 
     # Si ce dossier n'existe pas
     if not os.path.exists(downloadDirectory):
@@ -56,9 +59,11 @@ def main():
         os.makedirs(downloadDirectory)
 
     try:
-        cwd = os.path.dirname(__file__)
+        cwd = os.path.dirname(os.path.realpath(__file__))
     except:
         cwd = os.path.dirname(sys.argv[0])
+
+    print cwd
 
     # Si windows
     if sys.platform == 'win32':
