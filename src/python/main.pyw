@@ -85,7 +85,7 @@ def main():
         )
 
     # Connexion à la base de donnée
-    database_instance = database.Database(os.path.join(os.environ.get('RESOURCEPATH', approot), 'database.db'))
+    database_instance = database.Database(databaseFile)
     database_instance.initDB()
 
     # Appeler la classe créant l'interface.
