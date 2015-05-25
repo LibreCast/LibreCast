@@ -224,7 +224,7 @@ class mainUI(wx.Frame):
 
         for i in feeds:
             feed = channels_tree.add()
-            feed.name = i[1].encode('utf-8')
+            feed.name = i[3].encode('utf-8')
 
         if sys.platform == 'win32':
             # Créer l'arbre (grâce au module treeManager) avec le root, sinon windows n'est pas content
@@ -428,7 +428,9 @@ class mainUI(wx.Frame):
                 channelIcon = parsedCast.getChannelIcon()
                 if channelIcon != '':
                     feedID = self.database.getFeedIDFromURL(url)
-                    self.database.insertIconInFeed(feedID, channelIcon)
+                    self.database.updateIconInFeed(feedID, channelIcon)
+                channelName = parsedCast.getChannelName()
+                self.database.updateNameInFeed(feedID, channelName)
 
                 videos = parsedCast.getAllVideos()
                 for video in videos:

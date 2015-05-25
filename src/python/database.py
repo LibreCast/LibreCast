@@ -16,7 +16,8 @@ class Database(object):
         cursor.execute('CREATE TABLE IF NOT EXISTS feeds (\
             id INTEGER PRIMARY KEY AUTOINCREMENT,\
             url text,\
-            icon text\
+            icon text,\
+            name text\
         )')
 
         # Création de la table des vidéos
@@ -50,16 +51,26 @@ class Database(object):
         cursor = self.base.cursor()
 
         # Insertion du flux dans la table feeds
-        cursor.execute('INSERT INTO feeds (url, icon) VALUES (:url, :icon)', {'url': url, 'icon': ''})
+        cursor.execute('INSERT INTO feeds (url, icon, name) VALUES (:url, :icon, :name)', {'url': url, 'icon': '', 'name':'No name'})
 
         self.base.commit()
 
-    def insertIconInFeed(self, feedID, icon):
+    def updateIconInFeed(self, feedID, icon):
         cursor = self.base.cursor()
 
         cursor.execute('UPDATE feeds SET icon = :icon WHERE id = :feedID', {
             'feedID': feedID,
             'icon': icon
+        })
+
+        self.base.commit()
+
+    def updateNameInFeed(self, feedID, name):
+        cursor = self.base.cursor()
+
+        cursor.execute('UPDATE feeds SET name = :name WHERE id = :feedID', {
+            'feedID': feedID,
+            'name': name
         })
 
         self.base.commit()
