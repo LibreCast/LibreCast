@@ -13,12 +13,6 @@ from uiManager import downloadManager
 from uiManager import videoManager
 from uiManager.bigMessagePanel import BigMessagePanel
 
-"""
-TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
-       Regarder les TODO en commentaire
-       ...
-"""
-
 # Encoding de wx ≠ encoding de python...
 wx.SetDefaultPyEncoding('utf-8')
 
@@ -380,6 +374,7 @@ class mainUI(wx.Frame):
 
     def OnDragAndDropEnd(self):
         self.isDnD = False
+        wx.CallLater(100, self.OnSelChanged, None)
 
     def OnSelChanged(self, e):
         if not hasattr(self, 'isDnD'):
