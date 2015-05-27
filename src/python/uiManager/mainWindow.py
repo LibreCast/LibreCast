@@ -12,6 +12,7 @@ from requestsManager import httpRequestManager
 from uiManager import downloadManager
 from uiManager import videoManager
 from uiManager.bigMessagePanel import BigMessagePanel
+from uiManager.channelHeader import ChannelHeader
 
 # Encoding de wx ≠ encoding de python...
 wx.SetDefaultPyEncoding('utf-8')
@@ -287,7 +288,7 @@ class mainUI(wx.Frame):
                 channelURL = ''
 
             # Créer le panel montrant les informations sur la chaîne
-            panel = listManager.channelPanel(self.videoList, wx.ID_ANY, channelDescription, channelName, channelURL, style='')
+            panel = ChannelHeader(self.videoList, wx.ID_ANY, channelDescription, channelName, channelURL, style='')
 
             # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
             videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
