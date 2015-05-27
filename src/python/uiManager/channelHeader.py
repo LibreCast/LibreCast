@@ -33,6 +33,22 @@ class ChannelHeader(wx.Panel):
         else:
             self.CreateCompletePanel(description, name, imageURL)
 
+    def OnEraseBackground(self, evt):
+        """
+        Add a picture to the background
+        """
+
+        # yanked from ColourDB.py
+        dc = evt.GetDC()
+
+        if not dc:
+            dc = wx.ClientDC(self)
+            rect = self.GetUpdateRegion().GetBox()
+            dc.SetClippingRect(rect)
+        dc.Clear()
+        bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelBackground.png')).Scale(2000, 150).ConvertToBitmap()
+        dc.DrawBitmap(bmp, 0, 0)
+
     def CreateSimplePanel(self, name):
         font = wx.Font(15, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         channelName = wx.StaticText(self, wx.ID_ANY, name, pos=(10, 7))
@@ -52,6 +68,7 @@ class ChannelHeader(wx.Panel):
         font = wx.Font(15, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         channelName = wx.StaticText(self, wx.ID_ANY, name)
         channelName.SetFont(font)
+        #channelName.SetForegroundColour((255, 255, 255))
 
         iconSizer.Add(self.channelIcon, 0, wx.ALL, 5)
         iconSizer.Add(channelName, 1, wx.TOP, 20)
@@ -64,6 +81,8 @@ class ChannelHeader(wx.Panel):
         panelSizer.Add(channelDescription, 1, wx.EXPAND | wx.BOTTOM | wx.RIGHT | wx.LEFT, 5)
         self.SetMinSize((150, 150))
         self.SetSizer(panelSizer)
+
+        self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 
         self.thread = Thread(target=self.loadImage, args=[imageURL])
         self.thread.setDaemon(False)
@@ -80,4 +99,3 @@ class ChannelHeader(wx.Panel):
             self.channelIcon.SetBitmap(bmp)
         except:
             print('self does not exist')
-            return
