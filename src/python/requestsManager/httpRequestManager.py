@@ -24,4 +24,7 @@ def OpenUrl(url):
         print '***  ERROR END  ***\n'
         success = False
 
+    except:
+        pass
+
     return output, success
