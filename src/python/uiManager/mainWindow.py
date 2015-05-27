@@ -275,8 +275,35 @@ class mainUI(wx.Frame):
         self.videoList = None
 
         if videoList:
+            # Créer un panel qui contient l'arbre et les bouttons ajouter/effacer
+            self.videoList = wx.Panel(self.split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
+            # Modifier la couleur d'arrière plan du panel en gris clair
+            self.videoList.SetBackgroundColour('#F0F0F0')
+
+            item = self.mainTree.GetSelection()
+
+            if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
+                channelDescription = 'Description. This one is pretty long, and it should be displayed on multiple lines.\nMoreover, I added some "\\n"s to show more lines.\n\nPretty sweet, right?'
+                channelName = 'No name'
+                channelURL = 'http://i.computer-bild.de/imgs/5/9/6/3/8/2/5/Icon-Vevo-Schau-kostenlos-Musikvideos-48x48-6e323bf5801aab79.png'
+            else:
+                channelDescription = ''
+                channelName = self.mainTree.GetItemText(item)
+                channelURL = ''
+
+            # Créer le panel montrant les informations sur la chaîne
+            panel = listManager.channelPanel(self.videoList, wx.ID_ANY, channelDescription, channelName, channelURL, style='')
+
             # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-            self.videoList = listManager.pyList(self.split, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES | wx.SUNKEN_BORDER)
+            videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
+
+            # Créer un sizer qui gère la liste et le panel
+            verticalPanelSizer = wx.BoxSizer(wx.VERTICAL)
+            # Ajouter l'arbre et le sizer horizontal (qui contient les boutons) au sizer vertical
+            verticalPanelSizer.Add(panel, 0, wx.EXPAND)
+            verticalPanelSizer.Add(videos, 1, wx.EXPAND)
+            # Ajouter ce sizer au panel
+            self.videoList.SetSizerAndFit(verticalPanelSizer)
         else:
             panel = wx.Panel(self.split, wx.ID_ANY, size=(200, 200), style=wx.ALIGN_CENTER)
             panel.SetBackgroundColour('#F0F0F0')
@@ -366,6 +393,9 @@ class mainUI(wx.Frame):
         self.CreateVideoList(self.videosList)
         self.split.ReplaceWindow(oldList, self.videoList)
         wx.CallAfter(oldList.Destroy)
+
+        for child in self.split.GetChildren():
+            child.SetMinSize((-1, -1))
 
     def OnDragAndDropStart(self):
         # Fonction appelée lorsque l'utilisateur commence un glisser-déposer
