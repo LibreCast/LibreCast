@@ -102,6 +102,8 @@ class pyTree(wx.TreeCtrl):
         if event.GetLabel() != '' and self.database.getPlaylistIDFromName(event.GetLabel()) == -1:
             playlistID = self.database.getPlaylistIDFromName(self.GetItemText(event.GetItem()))
             self.database.renamePlaylist(playlistID, event.GetLabel())
+        else:
+            event.Veto()
 
     def OnPlaylistWillBeRenamed(self, event):
         #TODO: Comments
