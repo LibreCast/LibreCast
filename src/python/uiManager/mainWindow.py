@@ -281,13 +281,14 @@ class mainUI(wx.Frame):
             item = self.mainTree.GetSelection()
 
             if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
-                channelDescription = 'Description. This one is pretty long, and it should be displayed on multiple lines.\nMoreover, I added some "\\n"s to show more lines.\n\nPretty sweet, right?'
-                channelName = 'No name'
-                channelURL = 'http://i.computer-bild.de/imgs/5/9/6/3/8/2/5/Icon-Vevo-Schau-kostenlos-Musikvideos-48x48-6e323bf5801aab79.png'
+                url = self.mainTree.GetPyData(self.mainTree.GetSelection())
+                fluxID = self.database.getFeedIDFromURL(url)
+                channelName, channelDescription, channelCover, channelIcon = self.database.getInfosFromFeed(fluxID)                
             else:
                 channelDescription = ''
                 channelName = self.mainTree.GetItemText(item)
-                channelURL = ''
+                channelCover = ''
+                channelIcon = ''
 
             # Créer le panel montrant les informations sur la chaîne
             panel = ChannelHeader(self.videoList, wx.ID_ANY, channelDescription, channelName, channelURL, style='')

@@ -250,6 +250,15 @@ class Database(object):
 
         self.base.commit()
 
+    def getInfosFromFeed(self, feedID):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT name, description, cover FROM feeds WHERE id = :feedID',{
+            'feedID':feedID
+        })
+
+        return cursor.fetchall()[0]
+
     def close(self):
         cursor = self.base.cursor()
         self.base.close()
