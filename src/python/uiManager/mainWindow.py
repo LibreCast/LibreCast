@@ -272,13 +272,13 @@ class mainUI(wx.Frame):
     def CreateVideoList(self, videoList):
         self.videoList = None
 
-        if videoList:
+        item = self.mainTree.GetSelection()
+
+        if self.mainTree.GetItemParent(item).IsOk():
             # Créer un panel qui contient l'arbre et les bouttons ajouter/effacer
             self.videoList = wx.Panel(self.split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
             # Modifier la couleur d'arrière plan du panel en gris clair
             self.videoList.SetBackgroundColour('#F0F0F0')
-
-            item = self.mainTree.GetSelection()
 
             if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
                 channelDescription = 'Description. This one is pretty long, and it should be displayed on multiple lines.\nMoreover, I added some "\\n"s to show more lines.\n\nPretty sweet, right?'
@@ -292,8 +292,11 @@ class mainUI(wx.Frame):
             # Créer le panel montrant les informations sur la chaîne
             panel = ChannelHeader(self.videoList, wx.ID_ANY, channelDescription, channelName, channelURL, style='')
 
-            # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-            videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
+            if videoList:
+                # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
+                videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
+            else:
+                videos = BigMessagePanel(self.videoList, 'Aucun élément')
 
             # Créer un sizer qui gère la liste et le panel
             verticalPanelSizer = wx.BoxSizer(wx.VERTICAL)
@@ -303,7 +306,7 @@ class mainUI(wx.Frame):
             # Ajouter ce sizer au panel
             self.videoList.SetSizerAndFit(verticalPanelSizer)
         else:
-            self.videoList = BigMessagePanel(self.split,"Aucun élément")
+            self.videoList = BigMessagePanel(self.split, 'Aucun élément')
 
     def CreateSplitter(self):
         # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)

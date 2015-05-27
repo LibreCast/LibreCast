@@ -52,7 +52,6 @@ class ChannelHeader(wx.Panel):
     def CreateSimplePanel(self, name):
         font = wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         channelName = wx.StaticText(self, wx.ID_ANY, name, pos=(10, 7))
-        channelName.SetForegroundColour((255,255,255))
         channelName.SetFont(font)
 
         self.SetMinSize((150, 30))
@@ -69,13 +68,13 @@ class ChannelHeader(wx.Panel):
         font = wx.Font(15, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         channelName = wx.StaticText(self, wx.ID_ANY, name)
         channelName.SetFont(font)
-        channelName.SetForegroundColour((255,255,255))
+        channelName.SetForegroundColour((255, 255, 255))
 
         iconSizer.Add(self.channelIcon, 0, wx.ALL, 5)
         iconSizer.Add(channelName, 1, wx.TOP, 20)
 
         channelDescription = wx.StaticText(self, wx.ID_ANY, description, style=wx.TE_MULTILINE)
-        channelDescription.SetForegroundColour((255,255,255))
+        channelDescription.SetForegroundColour((255, 255, 255))
 
         panelSizer.Add(iconSizer, 0, wx.EXPAND)
         panelSizer.Add(channelDescription, 1, wx.EXPAND | wx.BOTTOM | wx.RIGHT | wx.LEFT, 5)
