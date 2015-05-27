@@ -500,13 +500,13 @@ class mainUI(wx.Frame):
 
             dialog.Destroy()
 
-    def OnDownloadAnimationTimer(self, toolbar, count, mult):
+    def OnDownloadAnimationTimer(self, toolbar, count, mult, repeat, maxRepeats):
         if count == 9:
             mult *= -1
             downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads - %s.png' % count)).Scale(32, 32)
             toolbar.SetToolNormalBitmap(id=2001, bitmap=wx.BitmapFromImage(downloadImage))
             count += 1*mult
-            wx.CallLater(120, self.OnDownloadAnimationTimer, toolbar, count, mult)
+            wx.CallLater(120, self.OnDownloadAnimationTimer, toolbar, count, mult, repeat, maxRepeats)
             return
 
         if count == 0:
@@ -517,9 +517,13 @@ class mainUI(wx.Frame):
         downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads - %s.png' % count)).Scale(32, 32)
         toolbar.SetToolNormalBitmap(id=2001, bitmap=wx.BitmapFromImage(downloadImage))
 
+        print count
+
         if count > 1 or (count >= 1 and mult == 1):
             count += 1*mult
-            wx.CallLater(20, self.OnDownloadAnimationTimer, toolbar, count, mult)
+            wx.CallLater(20, self.OnDownloadAnimationTimer, toolbar, count, mult, repeat, maxRepeats)
+        elif count == 1 and repeat < maxRepeats:
+            wx.CallLater(120, self.OnDownloadAnimationTimer, toolbar, 1, 1, repeat + 1, maxRepeats)
 
     def OnShowDownloadWindow(self, event):
         self.downloadManager.Show(False)
@@ -527,7 +531,7 @@ class mainUI(wx.Frame):
 
     def downloadVideo(self, url, title):
         self.downloadManager.AddDownload(url, title)
-        self.OnDownloadAnimationTimer(self.toolbar, 1, 1)
+        self.OnDownloadAnimationTimer(self.toolbar, 1, 1, 1, 2)
 
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique
