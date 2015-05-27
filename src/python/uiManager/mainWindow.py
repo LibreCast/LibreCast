@@ -171,8 +171,10 @@ class mainUI(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
-        # Maximize window
-        self.Maximize(True)
+        # Récupérer la taille de l'écran
+        displaySize = wx.DisplaySize()
+        # Modifier la taille de la fenêtre pour qu'elle fasse 4/5 de l'écran
+        self.SetSize((9*displaySize[0]/10, 9*displaySize[1]/10))
         # Modifier la taille minimale de la fenêtre, pour éviter que tout devienne trop moche par manque de place...
         self.SetMinSize((500, 500))
         # Modifier le titre de la fenêtre

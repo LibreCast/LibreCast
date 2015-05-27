@@ -2,13 +2,17 @@
 
 import wx
 import os
+import sys
 from threading import Thread
+from requestsManager import httpRequestManager
+from cStringIO import StringIO
 
 # Set root path
 try:
     approot = os.path.dirname(os.path.abspath(__file__))
 except NameError:  # We are the main py2exe script, not a module
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
 
 class ChannelHeader(wx.Panel):
     def __init__(self, parent, id, description, name, imageURL, style=''):
