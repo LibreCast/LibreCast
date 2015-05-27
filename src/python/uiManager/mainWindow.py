@@ -11,6 +11,7 @@ from threading import Thread
 from requestsManager import httpRequestManager
 from uiManager import downloadManager
 from uiManager import videoManager
+from uiManager.bigMessagePanel import BigMessagePanel
 
 """
 TODO : Ajouter des vidéos aux Playlists avec le drag and drop (~ Done)
@@ -305,18 +306,7 @@ class mainUI(wx.Frame):
             # Ajouter ce sizer au panel
             self.videoList.SetSizerAndFit(verticalPanelSizer)
         else:
-            panel = wx.Panel(self.split, wx.ID_ANY, size=(200, 200), style=wx.ALIGN_CENTER)
-            panel.SetBackgroundColour('#F0F0F0')
-
-            innerBox = wx.BoxSizer(wx.VERTICAL)
-
-            font = wx.Font(18, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
-            text = wx.StaticText(panel, id=wx.ID_ANY, label="Aucun élément", style=wx.ALIGN_CENTER)
-            text.SetFont(font)
-            innerBox.Add(text, 0, wx.CENTER | wx.TOP, border=100)
-            panel.SetSizer(innerBox)
-
-            self.videoList = panel
+            self.videoList = BigMessagePanel(self.split,"Aucun élément")
 
     def CreateSplitter(self):
         # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
@@ -339,28 +329,6 @@ class mainUI(wx.Frame):
         refreshTool = self.toolbar.AddLabelTool(wx.ID_ANY, 'Rafraîchir', wx.BitmapFromImage(refreshImage), shortHelp='Rafraîchir les flux')
         # Ajouter un évenement lorsque le bouton est cliqué (la fonction OnRefresh est appellée)
         self.Bind(wx.EVT_TOOL, self.OnRefresh, refreshTool)
-
-        """
-        # Ajouter un séparateur
-        self.toolbar.AddSeparator()
-        # AddStrechableSpace()
-
-        # Créer une barre de recherche
-        self.searchbar = wx.SearchCtrl(self.toolbar, wx.ID_ANY, size=(200, -1), style=wx.TE_PROCESS_ENTER)
-        # Afficher le bouton annuler dans la barre de recherche
-        self.searchbar.ShowCancelButton(True)
-        # Afficher 'Search online content' par défaut dans la barre de recherche
-        self.searchbar.SetDescriptiveText('Rechercher')
-        # Ajouter la barre de recherche
-        searchbarctrl = self.toolbar.AddControl(self.searchbar)
-        # Ajouter un évenement lorsque le texte change
-        self.Bind(wx.EVT_TEXT, self.OnSearchTextChanged, searchbarctrl)
-        # Ajouter un évenement lorsque l'utilisateur appuye sur entrée (fonctionne pas sur OS X apparement...)
-        self.Bind(wx.EVT_TEXT_ENTER, self.OnSearchTextChanged, searchbarctrl)
-
-        # Ajouter un séparateur
-        #self.toolbar.AddSeparator()
-        """
 
         # Créer une variable qui contient l'image downloads.png dans le dossier resources
         downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads.png')).Scale(32, 32)
@@ -530,24 +498,6 @@ class mainUI(wx.Frame):
                 self.RebuildTree()
 
             dialog.Destroy()
-
-    def OnSearch(self, event):
-        # Fonction de la barre de recherche
-        texte = self.searchbar.GetValue()
-
-        if texte != '':
-            print('Rechercher : ' + texte)
-        else:
-            print('Ne pas rechercher')
-
-    def OnSearchTextChanged(self, event):
-        # Si le texte recherché n'est pas vide, récupérer la valeur de la recherche
-        texte = self.searchbar.GetValue()
-
-        if texte != '':
-            print('Nouvelle recherche : ' + texte)
-        else:
-            print('Aucune recherche')
 
     def OnDownloadAnimationTimer(self, toolbar, count, mult):
         if count == 9:
