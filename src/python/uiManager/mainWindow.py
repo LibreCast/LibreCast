@@ -272,13 +272,13 @@ class mainUI(wx.Frame):
     def CreateVideoList(self, videoList):
         self.videoList = None
 
-        if videoList:
+        item = self.mainTree.GetSelection()
+
+        if self.mainTree.GetItemParent(item).IsOk():
             # Créer un panel qui contient l'arbre et les bouttons ajouter/effacer
             self.videoList = wx.Panel(self.split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
             # Modifier la couleur d'arrière plan du panel en gris clair
             self.videoList.SetBackgroundColour('#F0F0F0')
-
-            item = self.mainTree.GetSelection()
 
             if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
                 url = self.mainTree.GetPyData(self.mainTree.GetSelection())
@@ -293,8 +293,11 @@ class mainUI(wx.Frame):
             # Créer le panel montrant les informations sur la chaîne
             panel = ChannelHeader(self.videoList, wx.ID_ANY, channelDescription, channelName, channelURL, style='')
 
-            # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-            videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
+            if videoList:
+                # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
+                videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
+            else:
+                videos = BigMessagePanel(self.videoList, 'Aucun élément')
 
             # Créer un sizer qui gère la liste et le panel
             verticalPanelSizer = wx.BoxSizer(wx.VERTICAL)
@@ -304,7 +307,7 @@ class mainUI(wx.Frame):
             # Ajouter ce sizer au panel
             self.videoList.SetSizerAndFit(verticalPanelSizer)
         else:
-            self.videoList = BigMessagePanel(self.split,"Aucun élément")
+            self.videoList = BigMessagePanel(self.split, 'Aucun élément')
 
     def CreateSplitter(self):
         # Créer un 'spliter' qui permet de couper l'écran en deux parties avec un style (la limite se déplace en temps réel)
@@ -502,13 +505,13 @@ class mainUI(wx.Frame):
 
             dialog.Destroy()
 
-    def OnDownloadAnimationTimer(self, toolbar, count, mult):
+    def OnDownloadAnimationTimer(self, toolbar, count, mult, repeat, maxRepeats):
         if count == 9:
             mult *= -1
             downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads - %s.png' % count)).Scale(32, 32)
             toolbar.SetToolNormalBitmap(id=2001, bitmap=wx.BitmapFromImage(downloadImage))
             count += 1*mult
-            wx.CallLater(120, self.OnDownloadAnimationTimer, toolbar, count, mult)
+            wx.CallLater(120, self.OnDownloadAnimationTimer, toolbar, count, mult, repeat, maxRepeats)
             return
 
         if count == 0:
@@ -521,7 +524,9 @@ class mainUI(wx.Frame):
 
         if count > 1 or (count >= 1 and mult == 1):
             count += 1*mult
-            wx.CallLater(20, self.OnDownloadAnimationTimer, toolbar, count, mult)
+            wx.CallLater(20, self.OnDownloadAnimationTimer, toolbar, count, mult, repeat, maxRepeats)
+        elif count == 1 and repeat < maxRepeats:
+            wx.CallLater(120, self.OnDownloadAnimationTimer, toolbar, 1, 1, repeat + 1, maxRepeats)
 
     def OnShowDownloadWindow(self, event):
         self.downloadManager.Show(False)
@@ -529,7 +534,7 @@ class mainUI(wx.Frame):
 
     def downloadVideo(self, url, title):
         self.downloadManager.AddDownload(url, title)
-        self.OnDownloadAnimationTimer(self.toolbar, 1, 1)
+        self.OnDownloadAnimationTimer(self.toolbar, 1, 1, 1, 2)
 
 
 # Méthode appelée depuis le fichier principal pour créer l'interface graphique

@@ -2,10 +2,11 @@
 
 import wx
 
+
 class BigMessagePanel(wx.Panel):
     def __init__(self, parent, message):
         wx.Panel.__init__(self, parent, wx.ID_ANY, size=(200, 200), style=wx.ALIGN_CENTER)
-        
+
         self.SetBackgroundColour('#F0F0F0')
 
         innerBox = wx.BoxSizer(wx.VERTICAL)
