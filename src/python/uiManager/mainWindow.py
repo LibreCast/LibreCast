@@ -291,7 +291,7 @@ class mainUI(wx.Frame):
                 channelIcon = ''
 
             # Créer le panel montrant les informations sur la chaîne
-            panel = ChannelHeader(self.videoList, wx.ID_ANY, channelDescription, channelName, channelURL, style='')
+            panel = ChannelHeader(self.videoList, wx.ID_ANY, channelDescription, channelName, channelCover, channelIcon, style='')
 
             if videoList:
                 # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)

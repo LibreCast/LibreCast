@@ -15,8 +15,10 @@ except NameError:  # We are the main py2exe script, not a module
 
 
 class ChannelHeader(wx.Panel):
-    def __init__(self, parent, id, description, name, imageURL, style=''):
+    def __init__(self, parent, id, description, name, coverURL, iconURL, style=''):
         wx.Panel.__init__(self, parent, id)
+
+        self.coverURL = coverURL
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style != '':
@@ -28,27 +30,29 @@ class ChannelHeader(wx.Panel):
         # Modifier la couleur d'arrière plan
         self.SetBackgroundColour('#F1F1F1')
 
-        if imageURL == '':
+        if iconURL == '':
             self.CreateSimplePanel(name)
         else:
-            self.CreateCompletePanel(description, name, imageURL)
+            self.CreateCompletePanel(description, name, iconURL)
 
     def OnEraseBackground(self, evt):
         """
         Add a picture to the background
         """
+        try:
+            data = httpRequestManager.OpenUrl(self.coverURL)[0].read()
+            bmp = wx.ImageFromStream(StringIO(data))
+            dc = evt.GetDC()
 
-        # yanked from ColourDB.py
-        dc = evt.GetDC()
-
-        if not dc:
-            dc = wx.ClientDC(self)
-            rect = self.GetUpdateRegion().GetBox()
-            dc.SetClippingRect(rect)
-
-        dc.Clear()
-        bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelBackground.png')).Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
-        dc.DrawBitmap(bmp, 0, 0)
+            if not dc:
+                dc = wx.ClientDC(self)
+                rect = self.GetUpdateRegion().GetBox()
+                dc.SetClippingRect(rect)
+            dc.Clear()
+            bmp = bmp.Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
+            dc.DrawBitmap(bmp, 0, 0)
+        except:
+            print('except: download failed')
 
     def CreateSimplePanel(self, name):
         font = wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
@@ -66,7 +70,7 @@ class ChannelHeader(wx.Panel):
 
         image = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(48, 48).ConvertToBitmap()
         self.channelIcon = wx.StaticBitmap(self, wx.ID_ANY, image, (10, 5), (48, 48))
-        font = wx.Font(15, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+        font = wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         channelName = wx.StaticText(self, wx.ID_ANY, name)
         channelName.SetFont(font)
         channelName.SetForegroundColour((255, 255, 255))

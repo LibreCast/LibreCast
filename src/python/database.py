@@ -253,7 +253,7 @@ class Database(object):
     def getInfosFromFeed(self, feedID):
         cursor = self.base.cursor()
 
-        cursor.execute('SELECT name, description, cover FROM feeds WHERE id = :feedID',{
+        cursor.execute('SELECT name, description, cover, icon FROM feeds WHERE id = :feedID',{
             'feedID':feedID
         })
 
