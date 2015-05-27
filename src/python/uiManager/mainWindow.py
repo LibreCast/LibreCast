@@ -517,8 +517,6 @@ class mainUI(wx.Frame):
         downloadImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'downloads - %s.png' % count)).Scale(32, 32)
         toolbar.SetToolNormalBitmap(id=2001, bitmap=wx.BitmapFromImage(downloadImage))
 
-        print count
-
         if count > 1 or (count >= 1 and mult == 1):
             count += 1*mult
             wx.CallLater(20, self.OnDownloadAnimationTimer, toolbar, count, mult, repeat, maxRepeats)
