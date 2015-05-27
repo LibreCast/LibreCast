@@ -17,7 +17,9 @@ class Database(object):
             id INTEGER PRIMARY KEY AUTOINCREMENT,\
             url text,\
             icon text,\
-            name text\
+            name text,\
+            cover text,\
+            description text\
         )')
 
         # Création de la table des vidéos
@@ -76,6 +78,26 @@ class Database(object):
         cursor.execute('UPDATE feeds SET name = :name WHERE id = :feedID', {
             'feedID': feedID,
             'name': name
+        })
+
+        self.base.commit()
+
+    def updateCoverInFeed(self, feedID, cover):
+        cursor = self.base.cursor()
+
+        cursor.execute('UPDATE feeds SET cover = :cover WHERE id = :feedID', {
+            'feedID': feedID,
+            'cover': cover
+        })
+
+        self.base.commit()
+
+    def updateDescriptionInFeed(self, feedID, description):
+        cursor = self.base.cursor()
+
+        cursor.execute('UPDATE feeds SET description = :description WHERE id = :feedID', {
+            'feedID': feedID,
+            'description': description
         })
 
         self.base.commit()

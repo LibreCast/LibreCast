@@ -429,6 +429,10 @@ class mainUI(wx.Frame):
                     self.database.updateIconInFeed(feedID, channelIcon)
                 channelName = parsedCast.getChannelName()
                 self.database.updateNameInFeed(feedID, channelName)
+                channelDescription = parsedCast.getChannelDescription()
+                self.database.updateDescriptionInFeed(feedID, channelDescription)
+                channelCover = parsedCast.getChannelCover()
+                self.database.updateCoverInFeed(feedID, channelCover)
 
                 videos = parsedCast.getAllVideos()
                 for video in videos:
