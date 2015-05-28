@@ -9,14 +9,13 @@ import subprocess
 
 # Importer nos modules personnels
 from uiManager import mainWindow
-from requestsManager import httpRequestManager
-from requestsManager import xmlManager
 
 # Set root path
 try:
     approot = os.path.dirname(os.path.abspath(__file__))
 except NameError:
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
+
 
 def main():
     # Chemins utilisés par LibreCast

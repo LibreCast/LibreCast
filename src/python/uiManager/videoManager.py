@@ -249,7 +249,7 @@ class videoWindow(wx.Frame):
         # Créer un thread pour tester si l'url est valide
         thread = Thread(target=self.TestUrl, args=[url])
         # Lancer le test de connection après 100 ms
-        wx.CallLater(100, thread.run)
+        wx.CallLater(100, thread.start)
 
         # Modifier la couleur d'arrière plan de la fenêtre en gris foncé
         self.SetBackgroundColour('#2D2D2D')

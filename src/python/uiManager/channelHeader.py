@@ -18,8 +18,6 @@ class ChannelHeader(wx.Panel):
     def __init__(self, parent, id, description, name, coverURL, iconURL, style=''):
         wx.Panel.__init__(self, parent, id)
 
-        self.coverURL = coverURL
-
         # Si au moins un style a été précisé dans la création de l'abre...
         if style != '':
             # ...on l'applique
@@ -33,26 +31,20 @@ class ChannelHeader(wx.Panel):
         if iconURL == '':
             self.CreateSimplePanel(name)
         else:
-            self.CreateCompletePanel(description, name, iconURL)
+            self.CreateCompletePanel(description, name, iconURL, coverURL)
 
-    def OnEraseBackground(self, evt):
-        """
-        Add a picture to the background
-        """
-        try:
-            data = httpRequestManager.OpenUrl(self.coverURL)[0].read()
-            bmp = wx.ImageFromStream(StringIO(data))
-            dc = evt.GetDC()
+    def OnEraseBackground(self, event):
+        dc = event.GetDC()
+        if not dc:
+            dc = wx.ClientDC(self)
+            rect = self.GetUpdateRegion().GetBox()
+            dc.SetClippingRect(rect)
 
-            if not dc:
-                dc = wx.ClientDC(self)
-                rect = self.GetUpdateRegion().GetBox()
-                dc.SetClippingRect(rect)
-            dc.Clear()
-            bmp = bmp.Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
-            dc.DrawBitmap(bmp, 0, 0)
-        except:
-            print('except: download failed')
+        dc.Clear()
+        dc.DrawBitmap(self.banner, 0, 0)
+
+    def downloadHeader(self, url):
+        pass
 
     def CreateSimplePanel(self, name):
         font = wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
@@ -61,7 +53,7 @@ class ChannelHeader(wx.Panel):
 
         self.SetMinSize((150, 30))
 
-    def CreateCompletePanel(self, description, name, imageURL):
+    def CreateCompletePanel(self, description, name, imageURL, coverURL):
         # Créer un sizer qui gère la tout le panel
         panelSizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -69,6 +61,7 @@ class ChannelHeader(wx.Panel):
         iconSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         image = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(48, 48).ConvertToBitmap()
+
         self.channelIcon = wx.StaticBitmap(self, wx.ID_ANY, image, (10, 5), (48, 48))
         font = wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         channelName = wx.StaticText(self, wx.ID_ANY, name)
@@ -86,20 +79,32 @@ class ChannelHeader(wx.Panel):
         self.SetMinSize((150, 150))
         self.SetSizer(panelSizer)
 
+        dc = wx.ClientDC(self)
+        rect = self.GetUpdateRegion().GetBox()
+        dc.SetClippingRect(rect)
+
+        dc.Clear()
+        self.banner = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultCoverImage.png')).Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
+        dc.DrawBitmap(self.banner, 0, 0)
+
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 
-        self.thread = Thread(target=self.loadImage, args=[imageURL])
+        self.thread = Thread(target=self.loadImage, args=[imageURL, coverURL])
         self.thread.setDaemon(False)
         wx.CallLater(100, self.thread.start)
 
-    def loadImage(self, url):
+    def loadImage(self, iconURL, bannerURL):
         try:
-            data = httpRequestManager.OpenUrl(url)[0].read()
+            data = httpRequestManager.OpenUrl(iconURL)[0].read()
             bmp = wx.ImageFromStream(StringIO(data)).Scale(48, 48).ConvertToBitmap()
+            self.channelIcon.SetBitmap(bmp)
         except:
             print('except: download failed')
 
         try:
-            self.channelIcon.SetBitmap(bmp)
+            data = httpRequestManager.OpenUrl(bannerURL)[0].read()
+            bmp = wx.ImageFromStream(StringIO(data)).Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
+            self.banner = bmp
+            self.Refresh()
         except:
-            print('self does not exist')
+            print('except: download failed')
