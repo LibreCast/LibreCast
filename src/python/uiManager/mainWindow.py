@@ -138,6 +138,9 @@ class mainUI(wx.Frame):
         fileMenu = wx.Menu()
         # Ajouter dans ce menu une option pour quitter. Sur Mac OSX, elle n'y sera pas car l'option est déjà présente par défaut dans un autre menu
         fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
+        # Ajouter une option pour recréer la base de donnée
+        resetItem = fileMenu.Append(wx.ID_ANY, 'Réinitialisation les données', 'Suppression de toutes les playlists et abonnements')
+        self.Bind(wx.EVT_MENU, self.OnResetDatabase, resetItem)
         # Ajouter le menu 'File' à la barre de menus
         menubar.Append(fileMenu, '&File')
         # Afficher la barre de menus dans l'application
@@ -186,6 +189,31 @@ class mainUI(wx.Frame):
         self.downloadManager.Show(False)
         # Afficher la fenêtre
         self.Show(True)
+
+    def OnResetDatabase(self, event):
+        dialog = wx.MessageDialog(None, 'Voulez-vous vraiment effacer définitivement tous vos abonnements et playlists ?\nCette action est irréversible.', 'Réinitialisation des données', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
+        modal = dialog.ShowModal()
+
+        if (modal == wx.ID_YES):
+            databaseFile = os.path.join(os.path.expanduser('~'), 'LibreCast', 'database.db')
+            os.remove(databaseFile)
+            os.wait()
+
+            # Application des changements à l'arbre
+            self.RebuildTree()
+            self.RebuildList()
+            # Fermer le dialogue
+            dialog.Destroy()
+
+            dialog = wx.MessageDialog(None, 'Les données ont été supprimées, LibreCast va maintenant être quitté.', 'Suppression réussie', wx.OK | wx.ICON_INFORMATION)
+            dialog.ShowModal()
+            dialog.Destroy()
+
+            # Relancer LibreCast
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        else:
+            # Fermer le dialogue
+            dialog.Destroy()
 
     def OnClose(self, event):
         self.DestroyChildren()

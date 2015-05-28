@@ -137,11 +137,13 @@ class videoWindow(wx.Frame):
         backend = None
         if sys.platform == 'linux2':
             backend = wx.media.MEDIABACKEND_GSTREAMER
+            USE_CUSTOM_PLAYER = False
         elif sys.platform == 'darwin':
             backend = wx.media.MEDIABACKEND_QUICKTIME
             USE_CUSTOM_PLAYER = True
         elif sys.platform == 'win32':
             backend = wx.media.MEDIABACKEND_DIRECTSHOW
+            USE_CUSTOM_PLAYER = False
         if backend is not None:
             # Créer le médiaCtrl qui gère la vidéo en utilisant le backend choisit
             self.mc = wx.media.MediaCtrl(self, wx.ID_ANY, szBackend=backend)

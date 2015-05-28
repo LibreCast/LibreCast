@@ -52,7 +52,7 @@ class ChannelHeader(wx.Panel):
         # Modifier la couleur d'arrière plan
         self.SetBackgroundColour('#F1F1F1')
 
-        if iconURL == '':
+        if iconURL == '' and coverURL == '':
             self.CreateSimplePanel(name)
         else:
             self.CreateCompletePanel(description, name, iconURL, coverURL)
@@ -68,11 +68,11 @@ class ChannelHeader(wx.Panel):
         dc.DrawBitmap(self.banner, 0, 0)
 
     def CreateSimplePanel(self, name):
-        font = wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+        font = wx.Font(18, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         channelName = wx.StaticText(self, wx.ID_ANY, name, pos=(10, 7))
         channelName.SetFont(font)
 
-        self.SetMinSize((150, 30))
+        self.SetMinSize((150, 35))
 
     def CreateCompletePanel(self, description, name, imageURL, coverURL):
         # Créer un sizer qui gère la tout le panel
