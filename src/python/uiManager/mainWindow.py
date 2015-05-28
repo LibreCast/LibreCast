@@ -274,7 +274,7 @@ class mainUI(wx.Frame):
 
         item = self.mainTree.GetSelection()
 
-        if self.mainTree.GetItemParent(item).IsOk():
+        if item.IsOk() and self.mainTree.GetItemParent(item).IsOk():
             # Créer un panel qui contient l'arbre et les bouttons ajouter/effacer
             self.videoList = wx.Panel(self.split, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, style=wx.SP_BORDER)
             # Modifier la couleur d'arrière plan du panel en gris clair
@@ -283,7 +283,7 @@ class mainUI(wx.Frame):
             if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
                 url = self.mainTree.GetPyData(self.mainTree.GetSelection())
                 fluxID = self.database.getFeedIDFromURL(url)
-                channelName, channelDescription, channelCover, channelIcon = self.database.getInfosFromFeed(fluxID)                
+                channelName, channelDescription, channelCover, channelIcon = self.database.getInfosFromFeed(fluxID)
             else:
                 channelDescription = ''
                 channelName = self.mainTree.GetItemText(item)
@@ -497,11 +497,10 @@ class mainUI(wx.Frame):
                     url = self.mainTree.GetPyData(self.mainTree.GetSelection())
                     feedID = self.database.getFeedIDFromURL(url)
                     self.database.removeFeed(feedID)
-                # Rafraichir la liste
-                self.mainTree.ToggleItemSelection(self.mainTree.GetSelection())
-                self.RebuildList()
+
                 # Application des changements à l'arbre
                 self.RebuildTree()
+                self.RebuildList()
 
             dialog.Destroy()
 
