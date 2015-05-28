@@ -467,13 +467,23 @@ class mainUI(wx.Frame):
                 # Si une playlist ne porte pas déjà ce nom
                 if self.database.getPlaylistIDFromName(addurl.selectUrl.GetValue()) == -1:
                     self.database.createPlaylist(addurl.selectUrl.GetValue())
+                else:
+                    dialog = wx.MessageDialog(None, 'Une playlist avec ce nom existe déjà.', 'Playlist déjà existante', wx.OK | wx.ICON_ERROR)
+                    dialog.ShowModal()
+                    dialog.Destroy()
             else:
                 if re.match('^https?://(\S)+$', addurl.selectUrl.GetValue()) is not None:
                     if self.database.getFeedIDFromURL(addurl.selectUrl.GetValue()) == -1:
                         self.database.insertFeed(addurl.selectUrl.GetValue())
+                    else:
+                        dialog = wx.MessageDialog(None, 'Vous êtes déjà abonné à cette chaîne.', 'URL déjà existante', wx.OK | wx.ICON_ERROR)
+                        dialog.ShowModal()
+                        dialog.Destroy()
                     self.OnRefresh(None)
                 else:
-                    print('L\'URL n\'est pas valide.')
+                    dialog = wx.MessageDialog(None, 'Cette URL n\'est pas valide, elle ne sera donc pas ajoutée.', 'Adresse invalide', wx.OK | wx.ICON_ERROR)
+                    dialog.ShowModal()
+                    dialog.Destroy()
 
             wx.CallAfter(self.RebuildTree)
 

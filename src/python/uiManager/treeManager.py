@@ -104,6 +104,9 @@ class pyTree(wx.TreeCtrl):
             self.database.renamePlaylist(playlistID, event.GetLabel())
         else:
             event.Veto()
+            dialog = wx.MessageDialog(None, 'Un élément avec ce nom existe déjà.', 'Impossible de renommer cet élément', wx.OK | wx.ICON_ERROR)
+            dialog.ShowModal()
+            dialog.Destroy()
 
     def OnPlaylistWillBeRenamed(self, event):
         #TODO: Comments
