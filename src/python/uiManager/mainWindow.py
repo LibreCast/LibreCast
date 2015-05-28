@@ -195,13 +195,10 @@ class mainUI(wx.Frame):
         modal = dialog.ShowModal()
 
         if (modal == wx.ID_YES):
+            self.database.close()
             databaseFile = os.path.join(os.path.expanduser('~'), 'LibreCast', 'database.db')
             os.remove(databaseFile)
-            os.wait()
 
-            # Application des changements à l'arbre
-            self.RebuildTree()
-            self.RebuildList()
             # Fermer le dialogue
             dialog.Destroy()
 
