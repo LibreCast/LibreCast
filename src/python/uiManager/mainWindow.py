@@ -602,3 +602,6 @@ class mainUI(wx.Frame):
     def downloadVideo(self, url, title):
         self.downloadManager.AddDownload(url, title)
         self.OnDownloadAnimationTimer(self.toolbar, 1, 1, 1, 2)
+
+    def getDownloadEngine(self):
+        return self.downloadManager.getEngine()

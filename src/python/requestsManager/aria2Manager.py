@@ -70,3 +70,6 @@ class Aria2Manager(object):
         infos = self.getInfos(gid)
 
         return infos['files'][0]['path']
+
+    def kill(self):
+        self.rpc.aria2.shutdown()

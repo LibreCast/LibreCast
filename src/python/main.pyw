@@ -65,17 +65,15 @@ def main():
     # Note : Lorsqu'on entre dans la boucle principale de l'interface, on ne peut plus intéragir avec la console via input()
     app = wx.App(0)
     app.SetAppName('LibreCast')
-    mainWindow.mainUI(None, wx.ID_ANY, database_instance)
+    main = mainWindow.mainUI(None, wx.ID_ANY, database_instance)
+    aria2Manager = main.getDownloadEngine()
     app.MainLoop()
 
     # Fermeture de la base de donnée
     database_instance.close()
 
-    # Fermer le subprocess
-    proc.terminate()
-
-    # Et là, on a perdu la patience
-    #os.kill(proc.pid, signal.SIGINT)
+    # Fermer aria2 (qui tourne en tâche de fond)
+    aria2Manager.kill()
 
 """
 Condition pour vérifier que le fichier est directement executé

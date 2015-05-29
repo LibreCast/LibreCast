@@ -225,3 +225,6 @@ class DownloaderFrame(wx.Frame):
 
     def AddDownload(self, url, title):
         self.downloadPanel.AddDownload(url, title)
+
+    def getEngine(self):
+        return self.downloadPanel.aria2
