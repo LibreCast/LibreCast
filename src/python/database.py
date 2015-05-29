@@ -30,7 +30,6 @@ class Database(object):
             length text,\
             publisher text,\
             pubdate text,\
-            image BLOB,\
             fluxid int\
         )')
 
@@ -48,7 +47,6 @@ class Database(object):
             length text,\
             publisher text,\
             pubdate text,\
-            image BLOB,\
             playlistid int\
         )')
 
@@ -58,7 +56,7 @@ class Database(object):
         cursor = self.base.cursor()
 
         # Insertion du flux dans la table feeds
-        cursor.execute('INSERT INTO feeds (url, icon, name) VALUES (:url, :icon, :name)', {'url': url, 'icon': '', 'name':'No name'})
+        cursor.execute('INSERT INTO feeds (url, icon, name) VALUES (:url, :icon, :name)', {'url': url, 'icon': '', 'name': 'No name'})
 
         self.base.commit()
 
@@ -187,6 +185,17 @@ class Database(object):
         else:
             return -1
 
+    def getVideoIDFromNameAndPlaylistID(self, name, playlistID):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT * FROM playlistsVideos WHERE playlistid = :playlistID AND name = :name', {"playlistID": playlistID, "name": name})
+        allRows = cursor.fetchall()
+
+        if allRows:
+            return allRows[0][0]
+        else:
+            return -1
+
     def getVideoIDFromName(self, name):
         cursor = self.base.cursor()
 
@@ -253,12 +262,12 @@ class Database(object):
     def getInfosFromFeed(self, feedID):
         cursor = self.base.cursor()
 
-        cursor.execute('SELECT name, description, cover, icon FROM feeds WHERE id = :feedID',{
-            'feedID':feedID
+        cursor.execute('SELECT name, description, cover, icon FROM feeds WHERE id = :feedID', {
+            'feedID': feedID
         })
 
         return cursor.fetchall()[0]
 
     def close(self):
-        cursor = self.base.cursor()
+        #cursor = self.base.cursor()
         self.base.close()

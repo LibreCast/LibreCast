@@ -137,11 +137,11 @@ class mainUI(wx.Frame):
         menubar = wx.MenuBar()
         # Créer un menu appelé 'File'
         fileMenu = wx.Menu()
-        # Ajouter dans ce menu une option pour quitter. Sur Mac OSX, elle n'y sera pas car l'option est déjà présente par défaut dans un autre menu
-        fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
         # Ajouter une option pour recréer la base de donnée
         resetItem = fileMenu.Append(wx.ID_ANY, 'Réinitialisation les données', 'Suppression de toutes les playlists et abonnements')
         self.Bind(wx.EVT_MENU, self.OnResetDatabase, resetItem)
+        # Ajouter dans ce menu une option pour quitter. Sur Mac OSX, elle n'y sera pas car l'option est déjà présente par défaut dans un autre menu
+        fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
         # Ajouter le menu 'File' à la barre de menus
         menubar.Append(fileMenu, '&File')
         # Afficher la barre de menus dans l'application
@@ -306,6 +306,8 @@ class mainUI(wx.Frame):
             # Modifier la couleur d'arrière plan du panel en gris clair
             self.videoList.SetBackgroundColour('#F0F0F0')
 
+            isPlaylist = False
+
             if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
                 url = self.mainTree.GetPyData(self.mainTree.GetSelection())
                 fluxID = self.database.getFeedIDFromURL(url)
@@ -321,13 +323,15 @@ class mainUI(wx.Frame):
                 channelName = self.mainTree.GetItemText(item)
                 channelCover = ''
                 channelIcon = ''
+                isPlaylist = True
 
             # Créer le panel montrant les informations sur la chaîne
             panel = ChannelHeader(self.videoList, wx.ID_ANY, channelDescription, channelName, channelCover, channelIcon, style='')
 
             if videoList:
+                itemID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
                 # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-                videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.OnDragAndDropStart, self.downloadVideo, self.streamVideo, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
+                videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.downloadVideo, self.streamVideo, self.RebuildList, isPlaylist, self.database, itemID, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
             else:
                 videos = BigMessagePanel(self.videoList, 'Aucun élément')
 
@@ -387,11 +391,11 @@ class mainUI(wx.Frame):
         self.split.ReplaceWindow(oldPanel, self.panel)
         oldPanel.Destroy()
 
-    def RebuildList(self):
+    def RebuildList(self, videosList):
         #TODO: Comments
         oldList = self.videoList
 
-        self.CreateVideoList(self.videosList)
+        self.CreateVideoList(videosList)
         self.split.ReplaceWindow(oldList, self.videoList)
         wx.CallAfter(oldList.Destroy)
 
@@ -403,11 +407,11 @@ class mainUI(wx.Frame):
         self.isDnD = True
         self.InstancesToDestroy = []
 
-        # Lorsque l'on sort de la zone de dépot du glisser-déposer
+    # Lorsque l'on sort de la zone de dépot du glisser-déposer
     def OnDragAndDropLeftTarget(self):
         self.isDnD = False
 
-        # Lorsque l'on entre dans la zone de dépot du glisser-déposer
+    # Lorsque l'on entre dans la zone de dépot du glisser-déposer
     def OnDragAndDropEnteredTarget(self):
         self.isDnD = True
 
@@ -424,16 +428,16 @@ class mainUI(wx.Frame):
 
             if not item.IsOk() or not self.mainTree.GetItemParent(item).IsOk():
                 self.videosList = []
-                self.RebuildList()
+                self.RebuildList(self.videosList)
             elif self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Playlists':
                 playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
                 self.videosList = self.database.getVideosFromPlaylist(playlistID)
-                self.RebuildList()
+                self.RebuildList(self.videosList)
             elif self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
                 url = self.mainTree.GetPyData(self.mainTree.GetSelection())
                 fluxID = self.database.getFeedIDFromURL(url)
                 self.videosList = self.database.getVideosFromFeed(fluxID)
-                self.RebuildList()
+                self.RebuildList(self.videosList)
 
     def OnRefresh(self, event):
         # Rafraîchissement de la fenêtre, dans une thread séparée
@@ -542,7 +546,7 @@ class mainUI(wx.Frame):
 
                 # Application des changements à l'arbre
                 self.RebuildTree()
-                self.RebuildList()
+                self.RebuildList(self.videosList)
 
             dialog.Destroy()
 

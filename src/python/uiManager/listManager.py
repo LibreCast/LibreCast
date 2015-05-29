@@ -23,13 +23,17 @@ try:
 except NameError:  # We are the main py2exe script, not a module
     approot = os.path.dirname(os.path.abspath(sys.argv[0]))
 
+
 class pyList(wx.ListCtrl):
-    def __init__(self, parent, id, videoList, onDnDStartMethod, downloadVideo, streamVideo, style=''):
+    def __init__(self, parent, id, videoList, downloadVideo, streamVideo, rebuildList, isPlaylist, database, itemID, style=''):
         wx.ListCtrl.__init__(self, parent, id)
 
-        self.onDnDStartMethod = onDnDStartMethod
         self.downloadVideo = downloadVideo
         self.streamVideo = streamVideo
+        self.rebuildList = rebuildList
+        self.isPlaylist = isPlaylist
+        self.database = database
+        self.itemID = itemID
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style != '':
@@ -106,7 +110,10 @@ class pyList(wx.ListCtrl):
         self.list_item_clicked = event.GetIndex()
 
         if self.list_item_clicked >= 0:
-            menu_titles = ['Télécharger la vidéo', 'Copier l\'adresse']
+            menu_titles = ['Télécharger la vidéo', 'Copier l\'adresse de la vidéo']
+
+            if self.isPlaylist:
+                menu_titles.append('Supprimer la vidéo')
 
             menu = wx.Menu()
             self.menu_title_by_id = {}
@@ -132,13 +139,16 @@ class pyList(wx.ListCtrl):
             wx.TheClipboard.Open()
             wx.TheClipboard.SetData(clipdata)
             wx.TheClipboard.Close()
+        elif operation == 'Supprimer la vidéo':
+            videoID = self.database.getVideoIDFromNameAndPlaylistID(self.URLsByIndex[index][1], self.itemID)
+            self.database.removeVideoInPlaylist(videoID, self.itemID)
+            videoList = self.database.getVideosFromPlaylist(self.itemID)
+            wx.CallAfter(self.rebuildList, videoList)
 
     def DownloadURLAtIndex(self, index):
         self.downloadVideo(self.URLsByIndex[index][0], self.URLsByIndex[index][1])
 
     def startDrag(self, e):
-        self.onDnDStartMethod()
-
         # Créer les données à transférer
         l = []
         idx = -1
