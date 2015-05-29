@@ -71,6 +71,17 @@ class ChannelHeader(wx.Panel):
         font = wx.Font(18, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         channelName = wx.StaticText(self, wx.ID_ANY, name, pos=(10, 7))
         channelName.SetFont(font)
+        channelName.SetForegroundColour((255, 255, 255))
+
+        dc = wx.ClientDC(self)
+        rect = self.GetUpdateRegion().GetBox()
+        dc.SetClippingRect(rect)
+
+        dc.Clear()
+        self.banner = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultCoverImage.png')).Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
+        dc.DrawBitmap(self.banner, 0, 0)
+
+        self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 
         self.SetMinSize((150, 35))
 

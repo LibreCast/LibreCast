@@ -310,7 +310,6 @@ class mainUI(wx.Frame):
                 url = self.mainTree.GetPyData(self.mainTree.GetSelection())
                 fluxID = self.database.getFeedIDFromURL(url)
                 channelName, channelDescription, channelCover, channelIcon = self.database.getInfosFromFeed(fluxID)
-                print channelName, channelDescription, channelCover, channelIcon
                 if not channelDescription:
                     channelDescription = 'No description'
                 if not channelCover:
