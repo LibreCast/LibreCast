@@ -30,6 +30,7 @@ class Database(object):
             length text,\
             publisher text,\
             pubdate text,\
+            image text,\
             fluxid int\
         )')
 
@@ -47,6 +48,7 @@ class Database(object):
             length text,\
             publisher text,\
             pubdate text,\
+            image text,\
             playlistid int\
         )')
 
@@ -196,7 +198,21 @@ class Database(object):
         else:
             return -1
 
+    def getVideoIDFromNameAndFeedID(self, name, feedID):
+        cursor = self.base.cursor()
+
+        cursor.execute('SELECT * FROM videos WHERE fluxid = :feedID AND name = :name', {"feedID": feedID, "name": name})
+        allRows = cursor.fetchall()
+
+        if allRows:
+            return allRows[0][0]
+        else:
+            return -1
+
     def getVideoIDFromName(self, name):
+        """
+        Deprecated
+        """
         cursor = self.base.cursor()
 
         cursor.execute('SELECT * FROM videos WHERE name=(:name)', {"name": name})

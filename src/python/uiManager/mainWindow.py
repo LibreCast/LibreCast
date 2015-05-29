@@ -310,7 +310,7 @@ class mainUI(wx.Frame):
 
             if self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
                 url = self.mainTree.GetPyData(self.mainTree.GetSelection())
-                fluxID = self.database.getFeedIDFromURL(url)
+                itemID = fluxID = self.database.getFeedIDFromURL(url)
                 channelName, channelDescription, channelCover, channelIcon = self.database.getInfosFromFeed(fluxID)
                 if not channelDescription:
                     channelDescription = 'No description'
@@ -318,20 +318,23 @@ class mainUI(wx.Frame):
                     channelCover = 'None'
                 if not channelIcon:
                     channelIcon = 'None'
+
+                source = 'Feed'
             else:
                 channelDescription = ''
                 channelName = self.mainTree.GetItemText(item)
                 channelCover = ''
                 channelIcon = ''
                 isPlaylist = True
+                itemID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
+                source = 'Playlist'
 
             # Créer le panel montrant les informations sur la chaîne
             panel = ChannelHeader(self.videoList, wx.ID_ANY, channelDescription, channelName, channelCover, channelIcon, style='')
 
             if videoList:
-                itemID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
                 # Créer la liste de vidéos (grâce au module listManager) avec un style (effacer le style pour commprendre les modifications apportées)
-                videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.downloadVideo, self.streamVideo, self.RebuildList, isPlaylist, self.database, itemID, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
+                videos = listManager.pyList(self.videoList, wx.ID_ANY, videoList, self.downloadVideo, self.streamVideo, self.RebuildList, isPlaylist, self.database, itemID, source, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_HRULES)
             else:
                 videos = BigMessagePanel(self.videoList, 'Aucun élément')
 

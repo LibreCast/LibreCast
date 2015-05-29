@@ -199,15 +199,24 @@ class pyTree(wx.TreeCtrl):
                 print('self does not exist')
                 return
 
-    def insert(self, title, x, y):
+    def insert(self, title, sourceID, sourceType, x, y):
         # Récuppérer l'élément dans lequel il faut ajouter la vidéo
         index, flags = self.HitTest((x, y))
 
         # Si l'élément existe, et que c'est bien une playlist
         if index.IsOk() and self.GetSelection() and self.GetItemText(self.GetItemParent(self.GetSelection())) == 'Playlists':
             playlistID = self.database.getPlaylistIDFromName(self.GetItemText(index))
-            videoID = self.database.getVideoIDFromName(title[0])
-            videoExists = self.database.getVideoIDFromNameAndPlaylistID(title[0], playlistID)
+
+            if sourceType == 'Playlist':
+                videoID = self.database.getVideoIDFromNameAndPlaylistID(title, sourceID)
+            elif sourceType == 'Feed':
+                videoID = self.database.getVideoIDFromNameAndFeedID(title, sourceID)
+            else:
+                videoID = -1
+
+            videoExists = self.database.getVideoIDFromNameAndPlaylistID(title, playlistID)
+            print videoExists
+            print playlistID, title
 
             # Si la playlist et la vidéo existent, et que la vidéo n'est pas déjà dans la playlist
             if playlistID != -1 and videoID != -1 and videoExists == -1:
@@ -279,7 +288,7 @@ class ListDrop(wx.PyDropTarget):
             l = cPickle.loads(ldata)
 
             # Dire à l'arbre qu'il faut insérer ces données dans une playlist
-            self.source.insert(l, x, y)
+            self.source.insert(l[0], l[1], l[2], x, y)
 
         wx.CallAfter(self.onDnDEndMethod)
 

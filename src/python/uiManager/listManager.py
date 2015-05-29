@@ -25,7 +25,7 @@ except NameError:  # We are the main py2exe script, not a module
 
 
 class pyList(wx.ListCtrl):
-    def __init__(self, parent, id, videoList, downloadVideo, streamVideo, rebuildList, isPlaylist, database, itemID, style=''):
+    def __init__(self, parent, id, videoList, downloadVideo, streamVideo, rebuildList, isPlaylist, database, itemID, source, style=''):
         wx.ListCtrl.__init__(self, parent, id)
 
         self.downloadVideo = downloadVideo
@@ -34,6 +34,7 @@ class pyList(wx.ListCtrl):
         self.isPlaylist = isPlaylist
         self.database = database
         self.itemID = itemID
+        self.sourceType = source
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style != '':
@@ -158,9 +159,14 @@ class pyList(wx.ListCtrl):
         # Si idx n'a pas d'erreur
         if idx != -1:
             item = self.GetItem(idx, 0).GetText()
+            source = self.itemID
 
             # Sinon, ajouter l'objet à nos données
             l.append(item)
+            l.append(source)
+            l.append(self.sourceType)
+
+        print l
 
         # Convertir la liste de données en octets
         itemdata = cPickle.dumps(l, 1)
