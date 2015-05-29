@@ -215,8 +215,6 @@ class pyTree(wx.TreeCtrl):
                 videoID = -1
 
             videoExists = self.database.getVideoIDFromNameAndPlaylistID(title, playlistID)
-            print videoExists
-            print playlistID, title
 
             # Si la playlist et la vidéo existent, et que la vidéo n'est pas déjà dans la playlist
             if playlistID != -1 and videoID != -1 and videoExists == -1:

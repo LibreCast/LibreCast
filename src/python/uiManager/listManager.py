@@ -166,8 +166,6 @@ class pyList(wx.ListCtrl):
             l.append(source)
             l.append(self.sourceType)
 
-        print l
-
         # Convertir la liste de données en octets
         itemdata = cPickle.dumps(l, 1)
 
