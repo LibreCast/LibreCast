@@ -69,9 +69,13 @@ class ChannelHeader(wx.Panel):
 
     def CreateSimplePanel(self, name):
         font = wx.Font(18, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
-        channelName = wx.StaticText(self, wx.ID_ANY, name, pos=(10, 7))
-        channelName.SetFont(font)
-        channelName.SetForegroundColour((255, 255, 255))
+        if sys.platform == 'win32':
+            playlistName = TransparentText(self, wx.ID_ANY, name, pos=(10, 7))
+        else:
+            playlistName = wx.StaticText(self, wx.ID_ANY, name, pos=(10, 7))
+
+        playlistName.SetFont(font)
+        playlistName.SetForegroundColour((255, 255, 255))
 
         dc = wx.ClientDC(self)
         rect = self.GetUpdateRegion().GetBox()
