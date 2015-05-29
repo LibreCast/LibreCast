@@ -137,6 +137,9 @@ class mainUI(wx.Frame):
         menubar = wx.MenuBar()
         # Créer un menu appelé 'File'
         fileMenu = wx.Menu()
+        # Ajouter une option pour naviguer au dossier de vidéos
+        downloadFolerItem = fileMenu.Append(wx.ID_ANY, 'Naviguer jusqu\'aux téléchargements', 'Afficher le contenu du dossier de téléchargements')
+        self.Bind(wx.EVT_MENU, self.displayDownloads, downloadFolerItem)
         # Ajouter une option pour recréer la base de donnée
         resetItem = fileMenu.Append(wx.ID_ANY, 'Réinitialisation les données', 'Suppression de toutes les playlists et abonnements')
         self.Bind(wx.EVT_MENU, self.OnResetDatabase, resetItem)
@@ -158,11 +161,11 @@ class mainUI(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
 
         # On ajoute un raccourci pour ajouter une playlist ou une URL
-        addItem = editMenu.Append(wx.ID_ANY, 'Ajouter un nouveau...\tCtrl++', 'Ajouter une playlist ou une URL')
+        addItem = editMenu.Append(wx.ID_ANY, 'S\'abonner ou créer une playlist\tCtrl++', 'Ajouter une playlist ou une URL')
         self.Bind(wx.EVT_MENU, self.OnClickAddButton, addItem)
 
         # On ajoute un raccourci pour enlever une playlist ou une URL
-        removeItem = editMenu.Append(wx.ID_ANY, 'Supprimer cet élément\tCtrl+-', 'Supprimer l\'élément sélectionné')
+        removeItem = editMenu.Append(wx.ID_ANY, 'Supprimer l\'élément sélectionné\tCtrl+-', 'Supprimer l\'élément sélectionné dans l\'arbre')
         self.Bind(wx.EVT_MENU, self.OnClickRemoveButton, removeItem)
 
         self.SetMenuBar(menubar)
@@ -190,6 +193,18 @@ class mainUI(wx.Frame):
         self.downloadManager.Show(False)
         # Afficher la fenêtre
         self.Show(True)
+
+    def displayDownloads(self, event):
+        import subprocess
+        # Chemins utilisés par LibreCast
+        downloadDirectory = os.path.join(os.path.expanduser('~'), 'LibreCast', 'Downloads')
+
+        if sys.platform == 'darwin':
+            subprocess.check_call(['open', '--', downloadDirectory])
+        elif sys.platform == 'linux2':
+            subprocess.check_call(['gnome-open', '--', downloadDirectory])
+        elif sys.platform == 'win32':
+            subprocess.Popen('explorer %s' % downloadDirectory)
 
     def OnResetDatabase(self, event):
         dialog = wx.MessageDialog(None, 'Voulez-vous vraiment effacer définitivement tous vos abonnements et playlists ?\nCette action est irréversible.', 'Réinitialisation des données', wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
