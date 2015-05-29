@@ -6,6 +6,7 @@ import os
 import sys
 import database
 import subprocess
+import wx
 
 # Importer nos modules personnels
 from uiManager import mainWindow
@@ -62,7 +63,10 @@ def main():
 
     # Appeler la classe créant l'interface.
     # Note : Lorsqu'on entre dans la boucle principale de l'interface, on ne peut plus intéragir avec la console via input()
-    mainWindow.main(database_instance)
+    app = wx.App(0)
+    app.SetAppName('LibreCast')
+    mainWindow.mainUI(None, wx.ID_ANY, database_instance)
+    app.MainLoop()
 
     # Fermeture de la base de donnée
     database_instance.close()

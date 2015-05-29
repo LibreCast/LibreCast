@@ -602,11 +602,3 @@ class mainUI(wx.Frame):
     def downloadVideo(self, url, title):
         self.downloadManager.AddDownload(url, title)
         self.OnDownloadAnimationTimer(self.toolbar, 1, 1, 1, 2)
-
-
-# Méthode appelée depuis le fichier principal pour créer l'interface graphique
-def main(database_instance):
-    app = wx.App(0)
-    app.SetAppName('LibreCast')
-    mainUI(None, wx.ID_ANY, database_instance)
-    app.MainLoop()
