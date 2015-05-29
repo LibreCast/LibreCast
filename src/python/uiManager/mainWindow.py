@@ -513,22 +513,26 @@ class mainUI(wx.Frame):
         addurl = AddAnUrl(None, title='Add an URL')
         # On affiche le dialogue
         modal = addurl.ShowModal()
+        url = addurl.selectUrl.GetValue()
 
         # Si le résultat est le bouton 'ok'
-        if modal == wx.ID_OK and addurl.selectUrl.GetValue():
+        if modal == wx.ID_OK and url:
             # Si le bouton radio des playlist est sélectionné
             if addurl.radioPlaylist.GetValue():
                 # Si une playlist ne porte pas déjà ce nom
-                if self.database.getPlaylistIDFromName(addurl.selectUrl.GetValue()) == -1:
-                    self.database.createPlaylist(addurl.selectUrl.GetValue())
+                if self.database.getPlaylistIDFromName(url) == -1:
+                    self.database.createPlaylist(url)
                 else:
                     dialog = wx.MessageDialog(None, 'Une playlist avec ce nom existe déjà.', 'Playlist déjà existante', wx.OK | wx.ICON_ERROR)
                     dialog.ShowModal()
                     dialog.Destroy()
             else:
-                if re.match('^https?://(\S)+$', addurl.selectUrl.GetValue()) is not None:
-                    if self.database.getFeedIDFromURL(addurl.selectUrl.GetValue()) == -1:
-                        self.database.insertFeed(addurl.selectUrl.GetValue())
+                if not url.startswith('http://') and not url.startswith('https://') and not url.startswith('ftp://') and not url.startswith('file://'):
+                    url = 'http://' + url
+
+                if re.match('^https?://(\S)+$', url) is not None:
+                    if self.database.getFeedIDFromURL(url) == -1:
+                        self.database.insertFeed(url)
                     else:
                         dialog = wx.MessageDialog(None, 'Vous êtes déjà abonné à cette chaîne.', 'URL déjà existante', wx.OK | wx.ICON_ERROR)
                         dialog.ShowModal()
