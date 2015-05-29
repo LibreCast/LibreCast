@@ -205,11 +205,17 @@ class pyTree(wx.TreeCtrl):
 
         # Si l'élément existe, et que c'est bien une playlist
         if index.IsOk() and self.GetSelection() and self.GetItemText(self.GetItemParent(self.GetSelection())) == 'Playlists':
-            #TODO
             playlistID = self.database.getPlaylistIDFromName(self.GetItemText(index))
             videoID = self.database.getVideoIDFromName(title[0])
-            if playlistID != -1 and videoID != -1:
+            videoExists = self.database.getVideoIDFromNameAndPlaylistID(title[0], playlistID)
+
+            # Si la playlist et la vidéo existent, et que la vidéo n'est pas déjà dans la playlist
+            if playlistID != -1 and videoID != -1 and videoExists == -1:
                 self.database.insertVideoInPlaylist(videoID, playlistID)
+            elif videoExists != -1:
+                dialog = wx.MessageDialog(None, 'Cette vidéo existe déjà dans la playlist.', 'Ajout de la vidéo impossible', wx.OK | wx.ICON_ERROR)
+                dialog.ShowModal()
+                dialog.Destroy()
 
 
 class ListDrop(wx.PyDropTarget):
@@ -265,8 +271,6 @@ class ListDrop(wx.PyDropTarget):
         self.OnDnDEnteredTarget()
 
     def OnData(self, x, y, d):
-        self.onDnDEndMethod()
-
         # Si le Drag and Drop contient des données
         if self.GetData():
             # Réccupérer ces données, et les convertir d'octets en une liste
@@ -276,5 +280,7 @@ class ListDrop(wx.PyDropTarget):
 
             # Dire à l'arbre qu'il faut insérer ces données dans une playlist
             self.source.insert(l, x, y)
+
+        wx.CallAfter(self.onDnDEndMethod)
 
         return d
