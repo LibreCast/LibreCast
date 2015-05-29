@@ -38,6 +38,7 @@ class AddAnUrl(wx.Dialog):
         # Initialisation du dialogue d'ajout
         self.InitUI()
         self.SetSize((300, 165))
+        self.Center()
         self.SetTitle('Ajouter un élément')
 
     def InitUI(self):
@@ -309,6 +310,13 @@ class mainUI(wx.Frame):
                 url = self.mainTree.GetPyData(self.mainTree.GetSelection())
                 fluxID = self.database.getFeedIDFromURL(url)
                 channelName, channelDescription, channelCover, channelIcon = self.database.getInfosFromFeed(fluxID)
+                print channelName, channelDescription, channelCover, channelIcon
+                if not channelDescription:
+                    channelDescription = 'No description'
+                if not channelCover:
+                    channelCover = 'None'
+                if not channelIcon:
+                    channelIcon = 'None'
             else:
                 channelDescription = ''
                 channelName = self.mainTree.GetItemText(item)
