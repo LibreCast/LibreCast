@@ -47,7 +47,7 @@ except NameError:  # We are the main py2exe script, not a module
 
 class pyTree(wx.TreeCtrl):
 
-    def __init__(self, tree, parent, database, id, onDnDEndMethod, onDnDLeftTargetMethod, OnDnDEnteredTarget, RemoveMethod, style=''):
+    def __init__(self, tree, parent, database, id, onDnDEndMethod, onDnDLeftTargetMethod, OnDnDEnteredTarget, RemoveMethod, refreshListMethod, style=''):
         """
         Initialize function
         """
@@ -58,6 +58,7 @@ class pyTree(wx.TreeCtrl):
         self.onDnDLeftTargetMethod = onDnDLeftTargetMethod
         self.OnDnDEnteredTarget = OnDnDEnteredTarget
         self.OnClickRemoveButton = RemoveMethod
+        self.OnRefreshList = refreshListMethod
 
         # Si au moins un style a été précisé dans la création de l'abre...
         if style:
@@ -102,11 +103,14 @@ class pyTree(wx.TreeCtrl):
         if event.GetLabel() != '' and self.database.getPlaylistIDFromName(event.GetLabel()) == -1:
             playlistID = self.database.getPlaylistIDFromName(self.GetItemText(event.GetItem()))
             self.database.renamePlaylist(playlistID, event.GetLabel())
-        else:
+            wx.CallAfter(self.OnRefreshList)
+        elif event.GetLabel() != '':
             event.Veto()
             dialog = wx.MessageDialog(None, 'Un élément avec ce nom existe déjà.', 'Impossible de renommer cet élément', wx.OK | wx.ICON_ERROR)
             dialog.ShowModal()
             dialog.Destroy()
+        else:
+            event.Veto()
 
     def OnPlaylistWillBeRenamed(self, event):
         #TODO: Comments

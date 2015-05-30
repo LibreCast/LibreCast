@@ -268,10 +268,10 @@ class mainUI(wx.Frame):
 
         if sys.platform == 'win32':
             # Créer l'arbre (grâce au module treeManager) avec le root, sinon windows n'est pas content
-            self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
+            self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, self.RebuildList, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
         else:
             # Créer l'arbre (grâce au module treeManager) avec un style (effacer le style pour commprendre les modifications apportées)
-            self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
+            self.mainTree = treeManager.pyTree(sidebar_tree, self.panel, self.database, wx.ID_ANY, self.OnDragAndDropEnd, self.OnDragAndDropLeftTarget, self.OnDragAndDropEnteredTarget, self.OnClickRemoveButton, self.RebuildList, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_NO_LINES | wx.TR_EDIT_LABELS)
 
         self.mainTree.ExpandAll()
 
@@ -409,9 +409,12 @@ class mainUI(wx.Frame):
         self.split.ReplaceWindow(oldPanel, self.panel)
         oldPanel.Destroy()
 
-    def RebuildList(self, videosList):
+    def RebuildList(self, videosList=None):
         #TODO: Comments
         oldList = self.videoList
+
+        if videosList is None:
+            videosList = self.videosList
 
         self.CreateVideoList(videosList)
         self.split.ReplaceWindow(oldList, self.videoList)
@@ -446,16 +449,16 @@ class mainUI(wx.Frame):
 
             if not item.IsOk() or not self.mainTree.GetItemParent(item).IsOk():
                 self.videosList = []
-                self.RebuildList(self.videosList)
+                self.RebuildList()
             elif self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Playlists':
                 playlistID = self.database.getPlaylistIDFromName(self.mainTree.GetItemText(item))
                 self.videosList = self.database.getVideosFromPlaylist(playlistID)
-                self.RebuildList(self.videosList)
+                self.RebuildList()
             elif self.mainTree.GetItemText(self.mainTree.GetItemParent(item)) == 'Abonnements':
                 url = self.mainTree.GetPyData(self.mainTree.GetSelection())
                 fluxID = self.database.getFeedIDFromURL(url)
                 self.videosList = self.database.getVideosFromFeed(fluxID)
-                self.RebuildList(self.videosList)
+                self.RebuildList()
 
     def OnRefresh(self, event):
         # Rafraîchissement de la fenêtre, dans une thread séparée
@@ -568,7 +571,7 @@ class mainUI(wx.Frame):
 
                 # Application des changements à l'arbre
                 self.RebuildTree()
-                self.RebuildList(self.videosList)
+                self.RebuildList()
 
             dialog.Destroy()
 

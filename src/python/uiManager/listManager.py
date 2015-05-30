@@ -144,7 +144,7 @@ class pyList(wx.ListCtrl):
             videoID = self.database.getVideoIDFromNameAndPlaylistID(self.URLsByIndex[index][1], self.itemID)
             self.database.removeVideoInPlaylist(videoID, self.itemID)
             videoList = self.database.getVideosFromPlaylist(self.itemID)
-            wx.CallAfter(self.rebuildList, videoList)
+            wx.CallLater(100, self.rebuildList, videoList)
 
     def DownloadURLAtIndex(self, index):
         self.downloadVideo(self.URLsByIndex[index][0], self.URLsByIndex[index][1])
