@@ -24,6 +24,8 @@ def main():
     librecastDirectory = os.path.join(userDirectory, 'LibreCast')
     databaseFile = os.path.join(librecastDirectory, 'database.db')
     downloadDirectory = os.path.join(librecastDirectory, 'Downloads')
+    logFile = os.path.join(librecastDirectory, 'LibreCastlogs.log')
+    aria2LogFile = os.path.join(librecastDirectory, 'aria2logs.log')
 
     # Si ce dossier n'existe pas
     if not os.path.exists(downloadDirectory):
@@ -46,14 +48,14 @@ def main():
 
         # Créer un subprocess avec aria2c.exe en mode silencieux, avec un logfile
         proc = subprocess.Popen(
-            ['./aria2c.exe', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=aria2logs.log'],
+            ['./aria2c.exe', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=%s' % aria2LogFile],
             cwd=cwd,
             startupinfo=startupinfo,
         )
     else:
         # Créer un subprocess avec aria2c en mode silencieux, avec un logfile
         proc = subprocess.Popen(
-            ['./aria2c', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=aria2logs.log'],
+            ['./aria2c', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=%s' % aria2LogFile],
             cwd=cwd,
         )
 
@@ -63,7 +65,7 @@ def main():
 
     # Appeler la classe créant l'interface.
     # Note : Lorsqu'on entre dans la boucle principale de l'interface, on ne peut plus intéragir avec la console via input()
-    app = wx.App(0)
+    app = wx.App(redirect=True, filename=logFile)
     app.SetAppName('LibreCast')
     main = mainWindow.mainUI(None, wx.ID_ANY, database_instance)
     aria2Manager = main.getDownloadEngine()
