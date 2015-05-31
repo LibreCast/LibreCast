@@ -47,14 +47,14 @@ def main():
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
         # Créer un subprocess avec aria2c.exe en mode silencieux, avec un logfile
-        proc = subprocess.Popen(
+        subprocess.Popen(
             ['./aria2c.exe', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=%s' % aria2LogFile],
             cwd=cwd,
             startupinfo=startupinfo,
         )
     else:
         # Créer un subprocess avec aria2c en mode silencieux, avec un logfile
-        proc = subprocess.Popen(
+        subprocess.Popen(
             ['./aria2c', '--enable-rpc', '--dir=%s' % downloadDirectory, '--quiet=true', '--log=%s' % aria2LogFile],
             cwd=cwd,
         )

@@ -152,6 +152,7 @@ class pyTree(wx.TreeCtrl):
             # Copier l'URL au presse-papier
             if not wx.TheClipboard.IsOpened():
                 wx.TheClipboard.Open()
+
             clipdata = wx.TextDataObject()
             clipdata.SetText(url)
             wx.TheClipboard.SetData(clipdata)

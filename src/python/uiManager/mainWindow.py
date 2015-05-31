@@ -533,7 +533,16 @@ class mainUI(wx.Frame):
                 if not url.startswith('http://') and not url.startswith('https://') and not url.startswith('ftp://') and not url.startswith('file://'):
                     url = 'http://' + url
 
-                if re.match('^https?://(\S)+$', url) is not None:
+                # ^https?://(\S)+$
+                regex = re.compile(
+                                    r'^(?:http|ftp)s?://'  # http:// or https://
+                                    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+                                    r'localhost|'  # localhost...
+                                    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                                    r'(?::\d+)?'  # optional port
+                                    r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
+                if re.match(regex, url) is not None:
                     if self.database.getFeedIDFromURL(url) == -1:
                         self.database.insertFeed(url)
                     else:
