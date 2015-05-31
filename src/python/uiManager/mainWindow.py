@@ -48,6 +48,7 @@ class AddAnUrl(wx.Dialog):
         mainVerticalBox = wx.BoxSizer(wx.VERTICAL)
 
         radioVerticalSizer = wx.BoxSizer(wx.VERTICAL)
+        radioHorizontalSizer = wx.BoxSizer(wx.HORIZONTAL)
         # On créé les boutons radio et on créé des variables propres à l'objet, on peut donc y accéder dans la méthode OnChangeDepth
         createNewText = wx.StaticText(pnl, -1, 'Ajouter une :', style=wx.EXPAND)
         self.radioPlaylist = wx.RadioButton(pnl, label='Playlist', style=wx.RB_GROUP)
@@ -63,13 +64,15 @@ class AddAnUrl(wx.Dialog):
         self.Text = wx.StaticText(pnl, -1, 'Entrer l\'URL :', style=wx.EXPAND | wx.ALIGN_LEFT)
 
         # Ajouter les éléments aux différents sizer
-        radioVerticalSizer.Add(createNewText, wx.ALIGN_TOP)
-        radioVerticalSizer.Add(self.radioURL)
-        radioVerticalSizer.Add(self.radioPlaylist)
+        radioHorizontalSizer.Add(self.radioURL, flag=wx.LEFT, border=0)
+        radioHorizontalSizer.Add(self.radioPlaylist, flag=wx.LEFT, border=20)
+
+        radioVerticalSizer.Add(createNewText, flag=wx.ALIGN_TOP)
+        radioVerticalSizer.Add(radioHorizontalSizer, flag=wx.TOP, border=5)
 
         URLVerticalSizer = wx.BoxSizer(wx.VERTICAL)
-        URLVerticalSizer.Add(self.Text, 0, wx.ALIGN_BOTTOM)
-        URLVerticalSizer.Add(self.selectUrl, 0, wx.EXPAND)
+        URLVerticalSizer.Add(self.Text, 0, wx.ALIGN_BOTTOM | wx.TOP, 0)
+        URLVerticalSizer.Add(self.selectUrl, 0, wx.EXPAND | wx.TOP, 5)
 
         # On ajoute les Sizer des boutons radio et du texte URL au Sizer du panel
         panelVerticalSizer.Add(radioVerticalSizer, 1, wx.LEFT | wx.EXPAND, 1)
@@ -80,11 +83,11 @@ class AddAnUrl(wx.Dialog):
 
         # Créer les boutons Ok et Cancel, et un sizer les contenant
         endButtonsSizer = wx.BoxSizer(wx.HORIZONTAL)
-        okButton = wx.Button(self, label='Ok')
+        okButton = wx.Button(self, label='OK')
         okButton.SetDefault()
         closeButton = wx.Button(self, label='Annuler')
-        endButtonsSizer.Add(okButton)
-        endButtonsSizer.Add(closeButton, flag=wx.LEFT, border=5)
+        endButtonsSizer.Add(closeButton, flag=wx.RIGHT, border=5)
+        endButtonsSizer.Add(okButton, flag=wx.LEFT, border=5)
 
         # Ajouter au sizer tous les élements de la fenêtre (panel et boutons de fin)
         mainVerticalBox.Add(pnl, proportion=1, flag=wx.ALL | wx.EXPAND, border=5)
