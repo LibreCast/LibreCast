@@ -567,7 +567,7 @@ class mainUI(wx.Frame):
 
         if self.mainTree.GetItemParent(item) == self.mainTree.GetRootItem():
             print('Cannot remove this item')
-        else:
+        elif self.mainTree.GetItemParent(item).IsOk():
             dialog = wx.MessageDialog(None, 'Voulez-vous vraiment supprimer cet élément ?', 'Suppression', wx.YES_NO | wx.ICON_QUESTION)
             modal = dialog.ShowModal()
 
