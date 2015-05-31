@@ -534,15 +534,17 @@ class mainUI(wx.Frame):
                     url = 'http://' + url
 
                 # ^https?://(\S)+$
-                regex = re.compile(
-                                    r'^(?:http|ftp)s?://'  # http:// or https://
-                                    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-                                    r'localhost|'  # localhost...
-                                    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-                                    r'(?::\d+)?'  # optional port
-                                    r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+                regex = re.compile(r'^(?:http|ftp)s?://'  # http:// or https://
+                                   r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+                                   r'localhost|'  # localhost...
+                                   r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                                   r'(?::\d+)?'  # optional port
+                                   r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
-                if re.match(regex, url) is not None:
+                fileRegex = re.compile(r'^(?:file)://'
+                                       r'.*\.xml\Z(?ms)', re.IGNORECASE)
+
+                if re.match(regex, url) is not None or re.match(fileRegex, url) is not None:
                     if self.database.getFeedIDFromURL(url) == -1:
                         self.database.insertFeed(url)
                     else:

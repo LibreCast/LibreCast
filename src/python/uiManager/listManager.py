@@ -93,10 +93,10 @@ class pyList(wx.ListCtrl):
                 bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()
             except:
                 print('except: download failed')
-                bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
 
             try:
                 self.DisplayImage(bmp, index)
+                time.sleep(0.1)
                 self.loadImages(videoList, index + 1)
             except:
                 print('except: self doesn\'t exist')
