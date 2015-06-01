@@ -82,25 +82,32 @@ class pyList(wx.ListCtrl):
         self.Bind(wx.EVT_LIST_BEGIN_DRAG, self.startDrag)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.OnRightClicked)
 
+        # Créer la "thread", en précisant quelle méthode appeler
         self.thread = Thread(target=self.loadImages, args=[videoList, 0])
-        self.thread.setDaemon(False)
+        # Lancer la "thread" après 10 mili-secondes
         wx.CallLater(10, self.thread.start)
 
     def loadImages(self, videoList, index):
+        # Si toutes les images n'ont pas été chargées
         if index < len(videoList):
+            # Essayer d'accomplir les tâches suivantes
             try:
+                # Télécharger les données d'internet
                 data = httpRequestManager.OpenUrl(videoList[index][6])[0].read()
+                # Convertir les données en une image bitmap, de taille 72x48
                 bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()
+                # Afficher l'image dans la liste
+                self.DisplayImage(bmp, index)
+                # Attendre 0.1 seconde
+                time.sleep(0.1)
             except:
                 print('except: download failed')
 
             try:
-                self.DisplayImage(bmp, index)
-                time.sleep(0.1)
+                # Charger l'image suivante
                 self.loadImages(videoList, index + 1)
             except:
                 print('except: self doesn\'t exist')
-                return
 
     def DisplayImage(self, image, index):
         imgId = self.imageList.Add(image)
