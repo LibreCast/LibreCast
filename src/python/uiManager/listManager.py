@@ -64,7 +64,7 @@ class pyList(wx.ListCtrl):
         if isinstance(videoList, list):
             for video in videoList:
                 try:
-                    bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultVideoImage.png')).Scale(72, 48).ConvertToBitmap()
+                    bmp = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultVideoImage.png')).Scale(72, 48, wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
                     dateFR = datetime.fromtimestamp(time.mktime(parsedate(video[5]))).strftime("%d/%m/%Y")
                     self.AddLine(bmp, video[1], video[4], dateFR, video[3])
                     self.URLsByIndex.append((video[2], video[1]))
@@ -95,7 +95,7 @@ class pyList(wx.ListCtrl):
                 # Télécharger les données d'internet
                 data = httpRequestManager.OpenUrl(videoList[index][6])[0].read()
                 # Convertir les données en une image bitmap, de taille 72x48
-                bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48).ConvertToBitmap()
+                bmp = wx.ImageFromStream(StringIO(data)).Scale(72, 48, wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
                 # Afficher l'image dans la liste
                 self.DisplayImage(bmp, index)
                 # Attendre 0.1 seconde

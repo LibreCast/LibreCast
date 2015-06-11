@@ -173,7 +173,7 @@ class pyTree(wx.TreeCtrl):
                 newItem = self.AppendItem(group, child.name.decode('utf-8'))
                 if self.GetItemText(group) == 'Abonnements':
                     self.feeds.append(newItem)
-                    image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(16, 16).ConvertToBitmap())
+                    image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(16, 16, wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
                     self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
                     self.SetPyData(newItem, child.url)
 
@@ -183,17 +183,17 @@ class pyTree(wx.TreeCtrl):
                 if self.GetItemParent(newItem) == self.GetRootItem():
                     # Ajouter une image
                     if child.name.decode('utf-8') == 'Playlists':
-                        image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'playlists.png')).Scale(16, 16).ConvertToBitmap())
+                        image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'playlists.png')).Scale(16, 16, wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
                         self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
                     elif child.name.decode('utf-8') == 'Abonnements':
-                        image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'feeds.png')).Scale(16, 16).ConvertToBitmap())
+                        image = self.imageList.Add(wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'feeds.png')).Scale(16, 16, wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
                         self.SetItemImage(newItem, image, wx.TreeItemIcon_Normal)
 
     def loadImages(self, feedUrls, feeds, index):
         if index < len(feedUrls):
             try:
                 data = httpRequestManager.OpenUrl(feedUrls[index])[0].read()
-                bmp = self.imageList.Add(wx.ImageFromStream(StringIO(data)).Scale(16, 16).ConvertToBitmap())
+                bmp = self.imageList.Add(wx.ImageFromStream(StringIO(data)).Scale(16, 16, wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
             except:
                 print('except: download failed')
 

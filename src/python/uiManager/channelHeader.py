@@ -82,7 +82,7 @@ class ChannelHeader(wx.Panel):
         dc.SetClippingRect(rect)
 
         dc.Clear()
-        self.banner = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultCoverImage.png')).Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
+        self.banner = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultCoverImage.png')).Scale(2000, 150, wx.IMAGE_QUALITY_HIGH).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
         dc.DrawBitmap(self.banner, 0, 0)
 
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
@@ -96,7 +96,7 @@ class ChannelHeader(wx.Panel):
         # Créer un sizer qui gère l'incone et le nom de la chaîne
         iconSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        image = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(48, 48).ConvertToBitmap()
+        image = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultChannelIcon.png')).Scale(48, 48, wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
         self.channelIcon = wx.StaticBitmap(self, wx.ID_ANY, image, (10, 5), (48, 48))
 
         font = wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
@@ -126,7 +126,7 @@ class ChannelHeader(wx.Panel):
         dc.SetClippingRect(rect)
 
         dc.Clear()
-        self.banner = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultCoverImage.png')).Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
+        self.banner = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'defaultCoverImage.png')).Scale(2000, 150, wx.IMAGE_QUALITY_HIGH).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
         dc.DrawBitmap(self.banner, 0, 0)
 
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
@@ -138,14 +138,14 @@ class ChannelHeader(wx.Panel):
     def loadImage(self, iconURL, bannerURL):
         try:
             data = httpRequestManager.OpenUrl(iconURL)[0].read()
-            bmp = wx.ImageFromStream(StringIO(data)).Scale(48, 48).ConvertToBitmap()
+            bmp = wx.ImageFromStream(StringIO(data)).Scale(48, 48, wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
             self.channelIcon.SetBitmap(bmp)
         except:
             print('except: download failed')
 
         try:
             data = httpRequestManager.OpenUrl(bannerURL)[0].read()
-            bmp = wx.ImageFromStream(StringIO(data)).Scale(2000, 150).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
+            bmp = wx.ImageFromStream(StringIO(data)).Scale(2000, 150, wx.IMAGE_QUALITY_HIGH).Blur(5).AdjustChannels(0.4, 0.4, 0.4).ConvertToBitmap()
             self.banner = bmp
             self.Refresh()
         except:

@@ -285,5 +285,4 @@ class Database(object):
         return cursor.fetchall()[0]
 
     def close(self):
-        #cursor = self.base.cursor()
         self.base.close()

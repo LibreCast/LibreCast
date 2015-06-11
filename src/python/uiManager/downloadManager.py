@@ -93,9 +93,9 @@ class DownloadPanel(scrolled.ScrolledPanel):
         gauge = wx.Gauge(panel, wx.ID_ANY, 1000, style=wx.GA_HORIZONTAL | wx.GA_SMOOTH)
 
         cancelImage = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'cancel.png'))
-        cancelImage.Rescale(12, 12)
+        cancelImage.Rescale(12, 12, wx.IMAGE_QUALITY_HIGH)
         cancelImagePressed = wx.Image(os.path.join(os.environ.get('RESOURCEPATH', approot), 'resources', 'cancelPressed.png'))
-        cancelImagePressed.Rescale(12, 12)
+        cancelImagePressed.Rescale(12, 12, wx.IMAGE_QUALITY_HIGH)
         cancelButton = wx.BitmapButton(panel, wx.ID_ANY, wx.BitmapFromImage(cancelImage), style=wx.NO_BORDER, name=gid)
         cancelButton.SetBitmapSelected(wx.BitmapFromImage(cancelImagePressed))
         cancelButton.Bind(wx.EVT_BUTTON, self.OnStopDownload)
